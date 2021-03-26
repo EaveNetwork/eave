@@ -1,0 +1,60 @@
+[package]
+name = "eave-runtime-common"
+version = "0.1.0"
+authors = ["Eave Protocol"]
+edition = "2018"
+
+[dependencies]
+static_assertions = "1.1.0"
+
+codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false }
+sp-std = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+sp-core = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+frame-support = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+frame-system = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+pallet-scheduler  = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+
+orml-oracle = { path = "../../orml/oracle", default-features = false }
+orml-traits = { path = "../../orml/traits", default-features = false }
+
+eave-pallet-evm = { path = "../../pallets/evm", default-features = false }
+eave-pallet-support = { path = "../../pallets/support", default-features = false }
+eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
+eave-pallet-transaction-payment = { path = "../../pallets/transaction-payment", default-features = false }
+eave-pallet-staking-pool = { path = "../../pallets/staking-pool", default-features = false }
+
+
+[dev-dependencies]
+serde_json = "1.0.41"
+hex-literal = { version = "0.3.1" }
+sp-io = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+pallet-timestamp = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+pallet-proxy = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+pallet-utility = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+orml-tokens = { path = "../../orml/tokens" }
+eave-pallet-currencies = { path = "../../pallets/currencies" }
+eave-pallet-dex = { path = '../../pallets/dex'}
+eave-pallet-evm-bridge = { path = "../../pallets/evm-bridge" }
+eave-pallet-nft = { path = '../../pallets/nft'}
+
+[features]
+default = ["std"]
+std = [
+	"codec/std",
+	"sp-core/std",
+	"sp-std/std",
+	"sp-runtime/std",
+	"frame-support/std",
+	"frame-system/std",
+	"pallet-scheduler/std",
+	"orml-oracle/std",
+	"orml-traits/std",
+	"eave-pallet-evm/std",
+	"eave-pallet-staking-pool/std",
+	"eave-pallet-transaction-payment/std",
+	"eave-pallet-support/std",
+	"eave-primitives/std",
+]
+with-ethereum-compatibility = []
