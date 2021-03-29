@@ -10,3 +10,6 @@ fi
 
 rustup target add wasm32-unknown-unknown --toolchain nightly
 rustup default nightly
+
+cargo clean
+rm -rf node/eave-dev/target

@@ -1,16 +1,20 @@
+# Initialize
 .PHONY: init
 init:
 	./scripts/init.sh
 
+# Clean
+.PHONY: clean
+clean:
+	cargo clean; rm -rf node/eave-dev/target
+
+# Check
 .PHONY: check
 check:
 	SKIP_WASM_BUILD=1 cargo check
 
+# Build Developer Instance Beast
 .PHONY: build
-build: 
-	SKIP_WASM_BUILD= cargo build 
-
-.PHONY: builddev
 build: 
 	SKIP_WASM_BUILD= cargo build --manifest-path node/eave-dev/Cargo.toml
 
@@ -23,14 +27,19 @@ test:
 	SKIP_WASM_BUILD=1 cargo test --all
 
 
-# BuildDaybreak
+# Build WindMill
 
-# BuildDawn
+# Build Dawn
 
-# Build Beam
+# Build ICE 
 
-# Build Aurora
+# Build EAVE
 
+# Additonal commands 
+# Need to check what this does
+.PHONY: buildwasm
+buildwasm: 
+	SKIP_WASM_BUILD= cargo build 
 
 .PHONY: buildrun
 buildrun:
