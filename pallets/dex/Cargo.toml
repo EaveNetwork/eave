@@ -13,8 +13,8 @@ frame-benchmarking = { git = "https://github.com/paritytech/substrate", branch =
 frame-support = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 frame-system = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 sp-std = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-orml-traits = { path = "../../orml/traits", default-features = false }
-orml-tokens = { path = "../../orml/tokens", default-features = false }
+orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features = false }
+orml-tokens = { path = "../../ecosystem-pallets/orml/tokens", default-features = false }
 eave-pallet-support = { package = "eave-pallet-support", path = "../support", default-features = false }
 eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
 

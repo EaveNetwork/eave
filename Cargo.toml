@@ -2,9 +2,9 @@ cargo-features = ["resolver"]
 
 [workspace]
 members = [
-	"node/eave",
-	"node/eave/cli",
-	"node/eave/service",
+	"bin/eave",
+	"bin/eave/cli",
+	"bin/eave/service",
 
 	"pallets/*",
 	"inspect",
@@ -15,27 +15,27 @@ members = [
 	"runtime/dawn",
 	"runtime/eave",
 
-	"orml/auction",
-	"orml/authority",
-	"orml/benchmarking",
-	"orml/currencies",
-	"orml/gradually-update",
-	"orml/nft",
-	"orml/oracle",
-	"orml/rewards",
-	"orml/tokens",
-	"orml/traits",
-	"orml/utilities",
-	"orml/vesting",
-	"orml/xtokens",
-	"orml/xcm-support",
+	"ecosystem-pallets/orml/auction",
+	"ecosystem-pallets/orml/authority",
+	"ecosystem-pallets/orml/benchmarking",
+	"ecosystem-pallets/orml/currencies",
+	"ecosystem-pallets/orml/gradually-update",
+	"ecosystem-pallets/orml/nft",
+	"ecosystem-pallets/orml/oracle",
+	"ecosystem-pallets/orml/rewards",
+	"ecosystem-pallets/orml/tokens",
+	"ecosystem-pallets/orml/traits",
+	"ecosystem-pallets/orml/utilities",
+	"ecosystem-pallets/orml/vesting",
+	"ecosystem-pallets/orml/xtokens",
+	"ecosystem-pallets/orml/xcm-support",
 
 	"ecosystem-pallets/ren/renvm-bridge",
 ]
 exclude = [
-	"node/eave-dev",
-	"node/eave-dev/cli",
-	"node/eave-dev/service",
+	"bin/eave-dev",
+	"bin/eave-dev/cli",
+	"bin/eave-dev/service",
 ]
 
 resolver = "2"

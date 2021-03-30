@@ -30,7 +30,7 @@ substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate", 
 pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
 
 eave-pallet-staking-pool-rpc = { path = "../pallets/staking-pool/rpc" }
-orml-oracle-rpc = { path = "../orml/oracle/rpc" }
+orml-oracle-rpc = { path = "../ecosystem-pallets/orml/oracle/rpc" }
 eave-runtime-common = { path = "../runtime/common" }
 eave-pallet-evm-rpc = { path = "../pallets/evm/rpc" }
 

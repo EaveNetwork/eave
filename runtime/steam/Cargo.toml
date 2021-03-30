@@ -3,7 +3,7 @@ authors = ['Eave Protocol']
 edition = '2018'
 homepage = 'https://eaveprotocol.com'
 license = 'Apache 2.0'
-name = 'eave-runtime'
+name = 'dawn-runtime'
 repository = 'https://github.com/eaveprotocol/eave'
 version = '0.1.0'
 build = "build.rs"
@@ -29,7 +29,6 @@ frame-system = { git = "https://github.com/paritytech/substrate", branch = "roco
 frame-system-rpc-runtime-api = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 
 pallet-authorship = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-# pallet-aura = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-babe = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-bounties = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }

@@ -9,9 +9,9 @@ serde = { version = "1.0.101", optional = true }
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false }
 frame-support = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 frame-system = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-orml-tokens = { path = "../../orml/tokens", default-features = false }
-orml-traits = { path = "../../orml/traits", default-features = false }
-orml-utilities = { path = "../../orml/utilities", default-features = false }
+orml-tokens = { path = "../../ecosystem-pallets/orml/tokens", default-features = false }
+orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features = false }
+orml-utilities = { path = "../../ecosystem-pallets/orml/utilities", default-features = false }
 sp-io = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 sp-std = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
@@ -21,7 +21,7 @@ eave-primitives = { package = "eave-primitives", path = "../../primitives", defa
 [dev-dependencies]
 sp-core = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-orml-auction = { path = "../../orml/auction", default-features = false }
+orml-auction = { path = "../../ecosystem-pallets/orml/auction", default-features = false }
 shy-treasury = { package = "eave-pallet-shy-treasury", path = "../shy-treasury", default-features = false }
 eave-pallet-dex = { path = "../dex" }
 

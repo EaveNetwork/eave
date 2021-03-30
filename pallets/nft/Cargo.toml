@@ -14,8 +14,8 @@ frame-support = { git = "https://github.com/paritytech/substrate", branch = "roc
 frame-system = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-proxy = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
-orml-traits = { path = "../../orml/traits", default-features = false }
-orml-nft = { path = "../../orml/nft", default-features = false }
+orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features = false }
+orml-nft = { path = "../../ecosystem-pallets/orml/nft", default-features = false }
 pallet-timestamp = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 
 [dev-dependencies]
@@ -24,7 +24,7 @@ sp-io = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" 
 pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
 pallet-utility = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 eave-pallet-currencies = { path = "../../pallets/currencies", default-features = false }
-orml-tokens = { path = "../../orml/tokens", default-features = false }
+orml-tokens = { path = "../../ecosystem-pallets/orml/tokens", default-features = false }
 eave-pallet-support = { package = "eave-pallet-support", path = "../../pallets/support" }
 
 [features]
