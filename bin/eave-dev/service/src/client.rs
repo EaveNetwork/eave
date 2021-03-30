@@ -149,8 +149,8 @@ pub trait ClientHandle {
 /// A client instance of Eave.
 #[derive(Clone)]
 pub enum Client {
-	#[cfg(feature = "with-dawn-runtime")]
-	Dawn(Arc<crate::FullClient<dawn_runtime::RuntimeApi, crate::DawnExecutor>>),
+	#[cfg(feature = "with-steam-runtime")]
+	Dawn(Arc<crate::FullClient<steam_runtime::RuntimeApi, crate::DawnExecutor>>),
 	#[cfg(feature = "with-eave-runtime")]
 	Eave(Arc<crate::FullClient<eave_runtime::RuntimeApi, crate::EaveExecutor>>),
 }
@@ -158,9 +158,9 @@ pub enum Client {
 impl ClientHandle for Client {
 	fn execute_with<T: ExecuteWithClient>(&self, t: T) -> T::Output {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => T::execute_with_client::<_, _, crate::FullBackend>(t, client.clone()),
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => T::execute_with_client::<_, _, crate::FullBackend>(t, client.clone()),
 		}
 	}
@@ -169,7 +169,7 @@ impl ClientHandle for Client {
 impl sc_client_api::UsageProvider<Block> for Client {
 	fn usage_info(&self) -> sc_client_api::ClientInfo<Block> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.usage_info(),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.usage_info(),
@@ -180,7 +180,7 @@ impl sc_client_api::UsageProvider<Block> for Client {
 impl sc_client_api::BlockBackend<Block> for Client {
 	fn block_body(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<Vec<<Block as BlockT>::Extrinsic>>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.block_body(id),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.block_body(id),
@@ -189,7 +189,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 
 	fn block(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<SignedBlock<Block>>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.block(id),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.block(id),
@@ -198,7 +198,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 
 	fn block_status(&self, id: &BlockId<Block>) -> sp_blockchain::Result<BlockStatus> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.block_status(id),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.block_status(id),
@@ -207,7 +207,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 
 	fn justification(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<Justification>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.justification(id),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.justification(id),
@@ -216,7 +216,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 
 	fn block_hash(&self, number: NumberFor<Block>) -> sp_blockchain::Result<Option<<Block as BlockT>::Hash>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.block_hash(number),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.block_hash(number),
@@ -225,7 +225,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 
 	fn extrinsic(&self, hash: &<Block as BlockT>::Hash) -> sp_blockchain::Result<Option<<Block as BlockT>::Extrinsic>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.extrinsic(hash),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.extrinsic(hash),
@@ -234,7 +234,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 
 	fn have_extrinsic(&self, hash: &<Block as BlockT>::Hash) -> sp_blockchain::Result<bool> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.have_extrinsic(hash),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.have_extrinsic(hash),
@@ -245,7 +245,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	fn storage(&self, id: &BlockId<Block>, key: &StorageKey) -> sp_blockchain::Result<Option<StorageData>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.storage(id, key),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.storage(id, key),
@@ -254,7 +254,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 
 	fn storage_keys(&self, id: &BlockId<Block>, key_prefix: &StorageKey) -> sp_blockchain::Result<Vec<StorageKey>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.storage_keys(id, key_prefix),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.storage_keys(id, key_prefix),
@@ -267,7 +267,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		key: &StorageKey,
 	) -> sp_blockchain::Result<Option<<Block as BlockT>::Hash>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.storage_hash(id, key),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.storage_hash(id, key),
@@ -280,7 +280,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		key_prefix: &StorageKey,
 	) -> sp_blockchain::Result<Vec<(StorageKey, StorageData)>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.storage_pairs(id, key_prefix),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.storage_pairs(id, key_prefix),
@@ -294,7 +294,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		start_key: Option<&StorageKey>,
 	) -> sp_blockchain::Result<KeyIterator<'a, <crate::FullBackend as sc_client_api::Backend<Block>>::State, Block>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.storage_keys_iter(id, prefix, start_key),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.storage_keys_iter(id, prefix, start_key),
@@ -308,7 +308,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		key: &StorageKey,
 	) -> sp_blockchain::Result<Option<StorageData>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.child_storage(id, child_info, key),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.child_storage(id, child_info, key),
@@ -322,7 +322,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		key_prefix: &StorageKey,
 	) -> sp_blockchain::Result<Vec<StorageKey>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.child_storage_keys(id, child_info, key_prefix),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.child_storage_keys(id, child_info, key_prefix),
@@ -336,7 +336,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		key: &StorageKey,
 	) -> sp_blockchain::Result<Option<<Block as BlockT>::Hash>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.child_storage_hash(id, child_info, key),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.child_storage_hash(id, child_info, key),
@@ -349,7 +349,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		last: BlockId<Block>,
 	) -> sp_blockchain::Result<Option<(NumberFor<Block>, BlockId<Block>)>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.max_key_changes_range(first, last),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.max_key_changes_range(first, last),
@@ -364,7 +364,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		key: &StorageKey,
 	) -> sp_blockchain::Result<Vec<(NumberFor<Block>, u32)>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.key_changes(first, last, storage_key, key),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.key_changes(first, last, storage_key, key),
@@ -375,7 +375,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 impl sp_blockchain::HeaderBackend<Block> for Client {
 	fn header(&self, id: BlockId<Block>) -> sp_blockchain::Result<Option<Header>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.header(&id),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.header(&id),
@@ -384,7 +384,7 @@ impl sp_blockchain::HeaderBackend<Block> for Client {
 
 	fn info(&self) -> sp_blockchain::Info<Block> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.info(),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.info(),
@@ -393,7 +393,7 @@ impl sp_blockchain::HeaderBackend<Block> for Client {
 
 	fn status(&self, id: BlockId<Block>) -> sp_blockchain::Result<sp_blockchain::BlockStatus> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.status(id),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.status(id),
@@ -402,7 +402,7 @@ impl sp_blockchain::HeaderBackend<Block> for Client {
 
 	fn number(&self, hash: Hash) -> sp_blockchain::Result<Option<BlockNumber>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.number(hash),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.number(hash),
@@ -411,7 +411,7 @@ impl sp_blockchain::HeaderBackend<Block> for Client {
 
 	fn hash(&self, number: BlockNumber) -> sp_blockchain::Result<Option<Hash>> {
 		match self {
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			Self::Dawn(client) => client.hash(number),
 			#[cfg(feature = "with-eave-runtime")]
 			Self::Eave(client) => client.hash(number),

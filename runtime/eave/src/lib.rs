@@ -112,8 +112,8 @@ mod constants;
 
 /// This runtime version.
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("dawn"),
-	impl_name: create_runtime_str!("dawn"),
+	spec_name: create_runtime_str!("steam"),
+	impl_name: create_runtime_str!("steam"),
 	authoring_version: 1,
 	spec_version: 711,
 	impl_version: 0,

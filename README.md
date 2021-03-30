@@ -52,20 +52,20 @@ cd polkadot
 ./target/release/polkadot purge-chain --chain ./rococo_local.json -d cumulus_relay0
 ./target/release/polkadot --chain ./rococo_local.json -d cumulus_relay0 --validator --alice --port 50556
 
-# Create the dawn paracahain
+# Create the steam paracahain
 cdss
-cargo build --release --bin dawn-collator
-./target/release/dawn-collator export-genesis-state --parachain-id 888 > ./node/dawn/para-888-genesis
-./target/release/dawn-collator export-genesis-wasm > ./node/dawn/para-888-wasm
+cargo build --release --bin steam-collator
+./target/release/steam-collator export-genesis-state --parachain-id 888 > ./node/steam/para-888-genesis
+./target/release/steam-collator export-genesis-wasm > ./node/steam/para-888-wasm
 
-# Start the collator node for the dawn parachain Alioth
+# Start the collator node for the steam parachain Alioth
 rm -rf local-alioth/
-./target/release/dawn-collator purge-chain --chain ./node/dawn/chain_spec/local.json -d local-alioth
-./target/release/dawn-collator -d local-alioth --collator --name Alioth --ws-port 9946 --chain ./node/dawn/chain_spec/local.json --parachain-id 888 -- --chain ../polkadot/rococo_local.json
+./target/release/steam-collator purge-chain --chain ./node/steam/chain_spec/local.json -d local-alioth
+./target/release/steam-collator -d local-alioth --collator --name Alioth --ws-port 9946 --chain ./node/steam/chain_spec/local.json --parachain-id 888 -- --chain ../polkadot/rococo_local.json
 
-# Start the collator node for the dawn parachain Bibha
+# Start the collator node for the steam parachain Bibha
 rm -rf local-bibha/
-./target/release/dawn-collator purge-chain --chain ./node/dawn/chain_spec/local.json -d local-bibha
-./target/release/dawn-collator -d local-bibha --collator --name Bibha --ws-port 9947 --chain ./node/dawn/chain_spec/local.json --parachain-id 888 -- --chain ../polkadot/rococo_local.json
+./target/release/steam-collator purge-chain --chain ./node/steam/chain_spec/local.json -d local-bibha
+./target/release/steam-collator -d local-bibha --collator --name Bibha --ws-port 9947 --chain ./node/steam/chain_spec/local.json --parachain-id 888 -- --chain ../polkadot/rococo_local.json
 
 ```

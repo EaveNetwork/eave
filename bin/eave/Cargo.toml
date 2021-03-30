@@ -17,19 +17,19 @@ futures = "0.3.4"
 parity-util-mem = { version = "0.9.0", default-features = false, features = ["jemalloc-global"] }
 eave-cli = { path = "cli" }
 eave-service = { path = "service" }
-dawn-runtime = { path = "../../runtime/dawn", optional = true }
+steam-runtime = { path = "../../runtime/steam", optional = true }
 
 #TODO: This is a workaround for issue https://github.com/bitvecto-rs/bitvec/issues/105. Remove it once fixed.
 #funty = { version = "=1.1.0" }
 
 [features]
-default = ["with-dawn-runtime"]
+default = ["with-steam-runtime"]
 runtime-benchmarks = [
 	"eave-cli/runtime-benchmarks",
 ]
-with-dawn-runtime = [
-	"eave-service/with-dawn-runtime",
-	"eave-cli/with-dawn-runtime",
+with-steam-runtime = [
+	"eave-service/with-steam-runtime",
+	"eave-cli/with-steam-runtime",
 ]
 with-all-runtime = [
 	"eave-service/with-all-runtime",

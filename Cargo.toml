@@ -12,7 +12,7 @@ members = [
 	"rpc",
 
 	"runtime/common",
-	"runtime/dawn",
+	"runtime/steam",
 	"runtime/eave",
 
 	"ecosystem-pallets/orml/auction",

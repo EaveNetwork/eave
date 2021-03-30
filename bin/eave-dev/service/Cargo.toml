@@ -53,30 +53,30 @@ eave-primitives = { path = "../../../primitives" }
 eave-rpc = { path = "../../../rpc", features = ["standalone"]}
 
 eave-runtime-common = { path = "../../../runtime/common" }
-dawn-runtime = { path = "../../../runtime/dawn", features = ["standalone"], optional = true }
+steam-runtime = { path = "../../../runtime/steam", features = ["standalone"], optional = true }
 eave-runtime = { path = "../../../runtime/eave", optional = true }
 
 [dev-dependencies]
 sc-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", features = ["test-helpers"] }
 
 [features]
-default = ["std", "with-dawn-runtime"]
+default = ["std", "with-steam-runtime"]
 std = []
 runtime-benchmarks = [
-	"dawn-runtime/runtime-benchmarks",
+	"steam-runtime/runtime-benchmarks",
 	"eave-runtime/runtime-benchmarks",
 ]
-with-dawn-runtime = [
-	"dawn-runtime",
-	"dawn-runtime/standalone",
+with-steam-runtime = [
+	"steam-runtime",
+	"steam-runtime/standalone",
 ]
 with-eave-runtime = [
 	"eave-runtime",
 ]
 with-all-runtime = [
-	"with-dawn-runtime",
+	"with-steam-runtime",
 	"with-eave-runtime",
 ]
 with-ethereum-compatibility = [
-	"dawn-runtime/with-ethereum-compatibility"
+	"steam-runtime/with-ethereum-compatibility"
 ]

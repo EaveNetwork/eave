@@ -7,7 +7,7 @@ use cumulus_client_service::genesis::generate_genesis_block;
 use cumulus_primitives_core::ParaId;
 use service::{chain_spec, IdentifyVariant};
 
-pub use service::dawn_runtime::Block;
+pub use service::steam_runtime::Block;
 
 use log::info;
 use polkadot_parachain::primitives::AccountIdConversion;
@@ -27,7 +27,7 @@ fn get_exec_name() -> Option<String> {
 		.and_then(|s| s.into_string().ok())
 }
 
-#[cfg(feature = "with-dawn-runtime")]
+#[cfg(feature = "with-steam-runtime")]
 const CHAIN_NAME: &str = "Dawn";
 
 impl SubstrateCli for Cli {
@@ -59,20 +59,20 @@ impl SubstrateCli for Cli {
 		let id = if id.is_empty() {
 			// The binary prefix is always eave.
 			// Make Dawn the default chain spec.
-			"dawn"
+			"steam"
 		} else {
 			id
 		};
 
 		Ok(match id {
-			#[cfg(feature = "with-dawn-runtime")]
-			"dev" => Box::new(chain_spec::dawn::development_testnet_config()?),
-			#[cfg(feature = "with-dawn-runtime")]
-			"local" => Box::new(chain_spec::dawn::local_testnet_config()?),
-			#[cfg(feature = "with-dawn-runtime")]
-			"dawn" => Box::new(chain_spec::dawn::dawn_testnet_config()?),
-			#[cfg(feature = "with-dawn-runtime")]
-			"dawn-latest" => Box::new(chain_spec::dawn::latest_dawn_testnet_config()?),
+			#[cfg(feature = "with-steam-runtime")]
+			"dev" => Box::new(chain_spec::steam::development_testnet_config()?),
+			#[cfg(feature = "with-steam-runtime")]
+			"local" => Box::new(chain_spec::steam::local_testnet_config()?),
+			#[cfg(feature = "with-steam-runtime")]
+			"steam" => Box::new(chain_spec::steam::steam_testnet_config()?),
+			#[cfg(feature = "with-steam-runtime")]
+			"steam-latest" => Box::new(chain_spec::steam::latest_steam_testnet_config()?),
 //			#[cfg(feature = "with-eave-runtime")]
 //			"eave" => Box::new(chain_spec::eave::eave_config()?),
 //			#[cfg(feature = "with-eave-runtime")]
@@ -96,12 +96,12 @@ impl SubstrateCli for Cli {
 					#[cfg(not(feature = "with-eave-runtime"))]
 					return Err("Eave runtime is not available. Please compile the node with `--features with-eave-runtime` to enable it.".into());
 				} else {
-					#[cfg(feature = "with-dawn-runtime")]
+					#[cfg(feature = "with-steam-runtime")]
 					{
-						Box::new(chain_spec::dawn::ChainSpec::from_json_file(path)?)
+						Box::new(chain_spec::steam::ChainSpec::from_json_file(path)?)
 					}
-					#[cfg(not(feature = "with-dawn-runtime"))]
-					return Err("Dawn runtime is not available. Please compile the node with `--features with-dawn-runtime` to enable it.".into());
+					#[cfg(not(feature = "with-steam-runtime"))]
+					return Err("Dawn runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.".into());
 				}
 			}
 		})
@@ -114,10 +114,10 @@ impl SubstrateCli for Cli {
 			#[cfg(not(feature = "with-eave-runtime"))]
 			panic!("Eave runtime is not available. Please compile the node with `--features with-eave-runtime` to enable it.");
 		} else {
-			#[cfg(feature = "with-dawn-runtime")]
-			return &service::dawn_runtime::VERSION;
-			#[cfg(not(feature = "with-dawn-runtime"))]
-			panic!("Dawn runtime is not available. Please compile the node with `--features with-dawn-runtime` to enable it.");
+			#[cfg(feature = "with-steam-runtime")]
+			return &service::steam_runtime::VERSION;
+			#[cfg(not(feature = "with-steam-runtime"))]
+			panic!("Dawn runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.");
 		}
 	}
 }
@@ -213,9 +213,9 @@ pub fn run() -> sc_cli::Result<()> {
 			#[cfg(feature = "with-eave-runtime")]
 			return runner.sync_run(|config| cmd.run::<service::eave_runtime::Block, service::EaveExecutor>(config));
 
-			#[cfg(feature = "with-dawn-runtime")]
+			#[cfg(feature = "with-steam-runtime")]
 			return runner
-				.sync_run(|config| cmd.run::<service::dawn_runtime::Block, service::DawnExecutor>(config));
+				.sync_run(|config| cmd.run::<service::steam_runtime::Block, service::DawnExecutor>(config));
 		}
 
 		Some(Subcommand::Key(cmd)) => cmd.run(&cli),
@@ -378,7 +378,7 @@ pub fn run() -> sc_cli::Result<()> {
 				info!("Is collating: {}", if collator { "yes" } else { "no" });
 
 				// TODO: support Kusama and Eave
-				service::start_node::<service::dawn_runtime::RuntimeApi, service::DawnExecutor>(
+				service::start_node::<service::steam_runtime::RuntimeApi, service::DawnExecutor>(
 					config,
 					key,
 					polkadot_config,

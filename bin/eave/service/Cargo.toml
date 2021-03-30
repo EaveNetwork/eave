@@ -77,21 +77,21 @@ eave-rpc = { path = "../../../rpc" }
 
 
 eave-runtime-common = { path = "../../../runtime/common" }
-dawn-runtime = { path = "../../../runtime/dawn", optional = true }
+steam-runtime = { path = "../../../runtime/steam", optional = true }
 
 
 [dev-dependencies]
 sc-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", features = ["test-helpers"] }
 
 [features]
-default = ["std", "with-dawn-runtime"]
+default = ["std", "with-steam-runtime"]
 std = []
 runtime-benchmarks = [
-	"dawn-runtime/runtime-benchmarks",
+	"steam-runtime/runtime-benchmarks",
 ]
-with-dawn-runtime = [
-	"dawn-runtime",
+with-steam-runtime = [
+	"steam-runtime",
 ]
 with-all-runtime = [
-	"with-dawn-runtime",
+	"with-steam-runtime",
 ]

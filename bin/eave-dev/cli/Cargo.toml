@@ -18,7 +18,7 @@ service = { package = "eave-dev-service", path = "../service", default-features 
 substrate-build-script-utils = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 
 [features]
-default = [ "wasmtime", "cli", "with-dawn-runtime" ]
+default = [ "wasmtime", "cli", "with-steam-runtime" ]
 wasmtime = [ "sc-cli/wasmtime" ]
 cli = [
 	"service",
@@ -28,8 +28,8 @@ cli = [
 	"frame-benchmarking-cli",
 ]
 runtime-benchmarks = [ "service/runtime-benchmarks" ]
-with-dawn-runtime = [
-	"service/with-dawn-runtime",
+with-steam-runtime = [
+	"service/with-steam-runtime",
 ]
 with-eave-runtime = [
 	"service/with-eave-runtime",

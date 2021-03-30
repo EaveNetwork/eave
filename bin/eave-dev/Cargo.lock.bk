@@ -1242,7 +1242,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "dawn-runtime"
+name = "steam-runtime"
 version = "0.1.0"
 dependencies = [
  "cumulus-pallet-parachain-system",
@@ -1486,7 +1486,7 @@ dependencies = [
 name = "eave-dev-service"
 version = "0.1.0"
 dependencies = [
- "dawn-runtime",
+ "steam-runtime",
  "eave-pallet-evm",
  "eave-pallet-evm-rpc-runtime-api",
  "eave-pallet-nft",

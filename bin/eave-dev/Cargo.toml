@@ -21,4 +21,4 @@ runtime-benchmarks = [
 with-ethereum-compatibility = [
 	"eave-dev-service/with-ethereum-compatibility"
 ]
-with-dawn-runtime = []
+with-steam-runtime = []

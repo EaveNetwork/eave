@@ -1386,7 +1386,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "dawn-runtime"
+name = "steam-runtime"
 version = "0.1.0"
 dependencies = [
  "cumulus-pallet-parachain-system",
@@ -1606,7 +1606,7 @@ checksum = "ee2626afccd7561a06cf1367e2950c4718ea04565e20fb5029b6c7d8ad09abcf"
 name = "eave"
 version = "0.1.0"
 dependencies = [
- "dawn-runtime",
+ "steam-runtime",
  "eave-cli",
  "eave-service",
  "futures 0.3.12",
@@ -2401,7 +2401,7 @@ dependencies = [
  "cumulus-client-network",
  "cumulus-client-service",
  "cumulus-primitives-core",
- "dawn-runtime",
+ "steam-runtime",
  "eave-pallet-evm",
  "eave-pallet-evm-rpc-runtime-api",
  "eave-pallet-nft",

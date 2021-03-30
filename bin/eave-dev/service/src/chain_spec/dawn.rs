@@ -29,10 +29,10 @@ use crate::chain_spec::{
 	evm_genesis, get_account_id_from_seed, get_authority_keys_from_seed, Extensions, TELEMETRY_URL,
 };
 
-pub type ChainSpec = sc_service::GenericChainSpec<dawn_runtime::GenesisConfig, Extensions>;
+pub type ChainSpec = sc_service::GenericChainSpec<steam_runtime::GenesisConfig, Extensions>;
 
-fn dawn_session_keys(grandpa: GrandpaId, babe: BabeId) -> dawn_runtime::SessionKeys {
-	dawn_runtime::SessionKeys { grandpa, babe }
+fn steam_session_keys(grandpa: GrandpaId, babe: BabeId) -> steam_runtime::SessionKeys {
+	steam_runtime::SessionKeys { grandpa, babe }
 }
 
 /// Development testnet config (single validator Alice)
@@ -41,11 +41,11 @@ pub fn development_testnet_config() -> Result<ChainSpec, String> {
 	properties.insert("tokenSymbol".into(), "EAVE".into());
 	properties.insert("tokenDecimals".into(), 13.into());
 
-	let wasm_binary = dawn_runtime::WASM_BINARY.unwrap_or_default();
+	let wasm_binary = steam_runtime::WASM_BINARY.unwrap_or_default();
 
 	Ok(ChainSpec::from_genesis(
 		"Dawn PC Dev",
-		"dawn-pc-dev",
+		"steam-pc-dev",
 		ChainType::Development,
 		move || {
 			testnet_genesis(
@@ -77,7 +77,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 	properties.insert("tokenSymbol".into(), "EAVE".into());
 	properties.insert("tokenDecimals".into(), 13.into());
 
-	let wasm_binary = dawn_runtime::WASM_BINARY.ok_or("Dev runtime wasm binary not available")?;
+	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Dev runtime wasm binary not available")?;
 
 	Ok(ChainSpec::from_genesis(
 		"Local",
@@ -115,16 +115,16 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 	))
 }
 
-pub fn latest_dawn_testnet_config() -> Result<ChainSpec, String> {
+pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 	let mut properties = Map::new();
 	properties.insert("tokenSymbol".into(), "EAVE".into());
 	properties.insert("tokenDecimals".into(), 13.into());
 
-	let wasm_binary = dawn_runtime::WASM_BINARY.ok_or("Dawn runtime wasm binary not available")?;
+	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Dawn runtime wasm binary not available")?;
 
 	Ok(ChainSpec::from_genesis(
 		"Eave Dawn NW1",
-		"dawn-nw1",
+		"steam-nw1",
 		ChainType::Live,
 		// SECRET="..."
 		// ./target/debug/subkey inspect "$SECRET//eave//root"
@@ -139,7 +139,7 @@ pub fn latest_dawn_testnet_config() -> Result<ChainSpec, String> {
 		// ./target/debug/subkey --sr25519 inspect "$SECRET//eave//3//babe"
 		// ./target/debug/subkey --ed25519 inspect "$SECRET//eave//3//grandpa"
 		move || {
-			dawn_genesis(
+			steam_genesis(
 				wasm_binary,
 				vec![
 					(
@@ -180,14 +180,14 @@ pub fn latest_dawn_testnet_config() -> Result<ChainSpec, String> {
 				.unwrap(),
 		],
 		TelemetryEndpoints::new(vec![(TELEMETRY_URL.into(), 0)]).ok(),
-		Some("dawn-nw1"),
+		Some("steam-nw1"),
 		Some(properties),
 		Default::default(),
 	))
 }
 
-pub fn dawn_testnet_config() -> Result<ChainSpec, String> {
-	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/dawn-nw1-dist.json")[..])
+pub fn steam_testnet_config() -> Result<ChainSpec, String> {
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-nw1-dist.json")[..])
 }
 
 fn testnet_genesis(
@@ -195,8 +195,8 @@ fn testnet_genesis(
 	initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
 	root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
-) -> dawn_runtime::GenesisConfig {
-	use dawn_runtime::{
+) -> steam_runtime::GenesisConfig {
+	use steam_runtime::{
 		dollar, get_all_module_accounts, EaveOracleConfig, AirDropConfig, Balance, BalancesConfig, BandOracleConfig,
 		ShyEngineConfig, ShyTreasuryConfig, DexConfig, EVMConfig, EnabledTradingPairs, GeneralCouncilMembershipConfig,
 		SlipCouncilMembershipConfig, ShyCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit,
@@ -240,7 +240,7 @@ fn testnet_genesis(
 		.into_iter()
 		.collect::<Vec<(AccountId, Balance)>>();
 
-	dawn_runtime::GenesisConfig {
+	steam_runtime::GenesisConfig {
 		frame_system: SystemConfig {
 			// Add Wasm runtime to storage.
 			code: wasm_binary.to_vec(),
@@ -251,7 +251,7 @@ fn testnet_genesis(
 		pallet_session: SessionConfig {
 			keys: initial_authorities
 				.iter()
-				.map(|x| (x.0.clone(), x.0.clone(), dawn_session_keys(x.2.clone(), x.3.clone())))
+				.map(|x| (x.0.clone(), x.0.clone(), steam_session_keys(x.2.clone(), x.3.clone())))
 				.collect::<Vec<_>>(),
 		},
 		pallet_staking: StakingConfig {
@@ -383,13 +383,13 @@ fn testnet_genesis(
 	}
 }
 
-fn dawn_genesis(
+fn steam_genesis(
 	wasm_binary: &[u8],
 	initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
 	root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
-) -> dawn_runtime::GenesisConfig {
-	use dawn_runtime::{
+) -> steam_runtime::GenesisConfig {
+	use steam_runtime::{
 		cent, dollar, get_all_module_accounts, EaveOracleConfig, AirDropConfig, AirDropCurrencyId, Balance,
 		BalancesConfig, BandOracleConfig, ShyEngineConfig, ShyTreasuryConfig, DexConfig, EVMConfig,
 		EnabledTradingPairs, GeneralCouncilMembershipConfig, SlipCouncilMembershipConfig,
@@ -433,7 +433,7 @@ fn dawn_genesis(
 		.into_iter()
 		.collect::<Vec<(AccountId, Balance)>>();
 
-	dawn_runtime::GenesisConfig {
+	steam_runtime::GenesisConfig {
 		frame_system: SystemConfig {
 			// Add Wasm runtime to storage.
 			code: wasm_binary.to_vec(),
@@ -444,7 +444,7 @@ fn dawn_genesis(
 		pallet_session: SessionConfig {
 			keys: initial_authorities
 				.iter()
-				.map(|x| (x.0.clone(), x.0.clone(), dawn_session_keys(x.2.clone(), x.3.clone())))
+				.map(|x| (x.0.clone(), x.0.clone(), steam_session_keys(x.2.clone(), x.3.clone())))
 				.collect::<Vec<_>>(),
 		},
 		pallet_staking: StakingConfig {
@@ -544,11 +544,11 @@ fn dawn_genesis(
 		eave_pallet_airdrop: AirDropConfig {
 			airdrop_accounts: {
 				let eave_airdrop_accounts_json =
-					&include_bytes!("../../../../../resources/dawn-airdrop-EAVE.json")[..];
+					&include_bytes!("../../../../../resources/steam-airdrop-EAVE.json")[..];
 				let eave_airdrop_accounts: Vec<(AccountId, Balance)> =
 					serde_json::from_slice(eave_airdrop_accounts_json).unwrap();
 				let beam_airdrop_accounts_json =
-					&include_bytes!("../../../../../resources/dawn-airdrop-BEAM.json")[..];
+					&include_bytes!("../../../../../resources/steam-airdrop-BEAM.json")[..];
 				let beam_airdrop_accounts: Vec<(AccountId, Balance)> =
 					serde_json::from_slice(beam_airdrop_accounts_json).unwrap();
 
@@ -593,7 +593,7 @@ fn dawn_genesis(
 		},
 		orml_nft: OrmlNFTConfig {
 			tokens: {
-				let nft_airdrop_json = &include_bytes!("../../../../../resources/dawn-airdrop-NFT.json")[..];
+				let nft_airdrop_json = &include_bytes!("../../../../../resources/steam-airdrop-NFT.json")[..];
 				let nft_airdrop: Vec<(
 					AccountId,
 					Vec<u8>,

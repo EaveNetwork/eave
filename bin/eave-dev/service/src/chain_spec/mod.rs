@@ -31,8 +31,8 @@ use sp_finality_grandpa::AuthorityId as GrandpaId;
 use sp_runtime::traits::IdentifyAccount;
 use sp_std::{collections::btree_map::BTreeMap, str::FromStr};
 
-#[cfg(feature = "with-dawn-runtime")]
-pub mod dawn;
+#[cfg(feature = "with-steam-runtime")]
+pub mod steam;
 
 // The URL for the telemetry server.
 pub const TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";

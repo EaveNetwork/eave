@@ -13,8 +13,8 @@ use cumulus_primitives_core::ParaId;
 #[cfg(feature = "with-eave-runtime")]
 pub use eave_runtime;
 
-#[cfg(feature = "with-dawn-runtime")]
-pub use dawn_runtime;
+#[cfg(feature = "with-steam-runtime")]
+pub use steam_runtime;
 
 use eave_primitives::Block;
 use polkadot_primitives::v0::CollatorPair;
@@ -41,11 +41,11 @@ pub mod chain_spec;
 mod client;
 mod mock_timestamp_data_provider;
 
-#[cfg(feature = "with-dawn-runtime")]
+#[cfg(feature = "with-steam-runtime")]
 native_executor_instance!(
 	pub DawnExecutor,
-	dawn_runtime::api::dispatch,
-	dawn_runtime::native_version,
+	steam_runtime::api::dispatch,
+	steam_runtime::native_version,
 	frame_benchmarking::benchmarking::HostFunctions,
 );
 
@@ -64,7 +64,7 @@ pub trait IdentifyVariant {
 	fn is_eave(&self) -> bool;
 
 	/// Returns if this is a configuration for the `Dawn` network.
-	fn is_dawn(&self) -> bool;
+	fn is_steam(&self) -> bool;
 }
 
 impl IdentifyVariant for Box<dyn ChainSpec> {
@@ -72,8 +72,8 @@ impl IdentifyVariant for Box<dyn ChainSpec> {
 		self.id().starts_with("eave") || self.id().starts_with("sun")
 	}
 
-	fn is_dawn(&self) -> bool {
-		self.id().starts_with("dawn") || self.id().starts_with("daw")
+	fn is_steam(&self) -> bool {
+		self.id().starts_with("steam") || self.id().starts_with("daw")
 	}
 }
 
@@ -333,8 +333,8 @@ pub fn new_chain_ops(
 	ServiceError,
 > {
 	config.keystore = sc_service::config::KeystoreConfig::InMemory;
-	if config.chain_spec.is_dawn() {
-		#[cfg(feature = "with-dawn-runtime")]
+	if config.chain_spec.is_steam() {
+		#[cfg(feature = "with-steam-runtime")]
 		{
 			let PartialComponents {
 				client,
@@ -345,8 +345,8 @@ pub fn new_chain_ops(
 			} = new_partial(config, false)?;
 			Ok((Arc::new(Client::Dawn(client)), backend, import_queue, task_manager))
 		}
-		#[cfg(not(feature = "with-dawn-runtime"))]
-		Err("Dawn runtime is not available. Please compile the node with `--features with-dawn-runtime` to enable it.".into())
+		#[cfg(not(feature = "with-steam-runtime"))]
+		Err("Dawn runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.".into())
 	} else {
 		#[cfg(feature = "with-eave-runtime")]
 		{

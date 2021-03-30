@@ -113,8 +113,8 @@ mod constants;
 
 /// This runtime version.
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("dawn"),
-	impl_name: create_runtime_str!("dawn"),
+	spec_name: create_runtime_str!("steam"),
+	impl_name: create_runtime_str!("steam"),
 	authoring_version: 1,
 	spec_version: 711,
 	impl_version: 0,
@@ -1394,7 +1394,7 @@ impl orml_xtokens::Config for Runtime {
 	type XcmExecutor = XcmExecutor<XcmConfig>;
 }
 
-macro_rules! construct_dawn_runtime {
+macro_rules! construct_steam_runtime {
 	($( $modules:tt )*) => {
 		#[allow(clippy::large_enum_variant)]
 		construct_runtime! {
@@ -1509,7 +1509,7 @@ macro_rules! construct_dawn_runtime {
 }
 
 #[cfg(not(feature = "standalone"))]
-construct_dawn_runtime! {
+construct_steam_runtime! {
 	// Parachain
 	ParachainSystem: cumulus_pallet_parachain_system::{Module, Call, Storage, Inherent, Event},
 	ParachainInfo: parachain_info::{Module, Storage, Config},
@@ -1518,7 +1518,7 @@ construct_dawn_runtime! {
 }
 
 #[cfg(feature = "standalone")]
-construct_dawn_runtime! {
+construct_steam_runtime! {
 	// Consensus & Staking
 	Authorship: pallet_authorship::{Module, Call, Storage, Inherent},
 	Babe: pallet_babe::{Module, Call, Storage, Config, ValidateUnsigned},
@@ -1831,7 +1831,7 @@ impl_runtime_apis! {
 		}
 	}
 
-	// benchmarks for dawn modules
+	// benchmarks for steam modules
 	#[cfg(feature = "runtime-benchmarks")]
 	impl frame_benchmarking::Benchmark<Block> for Runtime {
 		fn dispatch_benchmark(

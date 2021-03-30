@@ -36,8 +36,8 @@ use sc_telemetry::TelemetrySpan;
 
 pub use client::*;
 
-#[cfg(feature = "with-dawn-runtime")]
-pub use dawn_runtime;
+#[cfg(feature = "with-steam-runtime")]
+pub use steam_runtime;
 
 pub use sc_executor::NativeExecutionDispatch;
 pub use sc_service::{
@@ -50,19 +50,19 @@ pub mod chain_spec;
 mod client;
 mod mock_timestamp_data_provider;
 
-#[cfg(feature = "with-dawn-runtime")]
+#[cfg(feature = "with-steam-runtime")]
 native_executor_instance!(
 	pub DawnExecutor,
-	dawn_runtime::api::dispatch,
-	dawn_runtime::native_version,
+	steam_runtime::api::dispatch,
+	steam_runtime::native_version,
 	frame_benchmarking::benchmarking::HostFunctions,
 );
 
 #[cfg(feature = "with-eave-runtime")]
 native_executor_instance!(
 	pub EaveExecutor,
-	dawn_runtime::api::dispatch,
-	dawn_runtime::native_version,
+	steam_runtime::api::dispatch,
+	steam_runtime::native_version,
 	frame_benchmarking::benchmarking::HostFunctions,
 );
 
@@ -73,7 +73,7 @@ pub trait IdentifyVariant {
 	fn is_eave(&self) -> bool;
 
 	/// Returns if this is a configuration for the `Dawn` network.
-	fn is_dawn(&self) -> bool;
+	fn is_steam(&self) -> bool;
 }
 
 impl IdentifyVariant for Box<dyn ChainSpec> {
@@ -81,8 +81,8 @@ impl IdentifyVariant for Box<dyn ChainSpec> {
 		self.id().starts_with("eave") || self.id().starts_with("sun")
 	}
 
-	fn is_dawn(&self) -> bool {
-		self.id().starts_with("dawn") || self.id().starts_with("daw")
+	fn is_steam(&self) -> bool {
+		self.id().starts_with("steam") || self.id().starts_with("daw")
 	}
 }
 
@@ -587,8 +587,8 @@ pub fn new_chain_ops(
 	ServiceError,
 > {
 	config.keystore = sc_service::config::KeystoreConfig::InMemory;
-	if config.chain_spec.is_dawn() {
-		#[cfg(feature = "with-dawn-runtime")]
+	if config.chain_spec.is_steam() {
+		#[cfg(feature = "with-steam-runtime")]
 		{
 			let PartialComponents {
 				client,
@@ -596,11 +596,11 @@ pub fn new_chain_ops(
 				import_queue,
 				task_manager,
 				..
-			} = new_partial::<dawn_runtime::RuntimeApi, DawnExecutor>(config, false, false)?;
+			} = new_partial::<steam_runtime::RuntimeApi, DawnExecutor>(config, false, false)?;
 			Ok((Arc::new(Client::Dawn(client)), backend, import_queue, task_manager))
 		}
-		#[cfg(not(feature = "with-dawn-runtime"))]
-		Err("Dawn runtime is not available. Please compile the node with `--features with-dawn-runtime` to enable it.".into())
+		#[cfg(not(feature = "with-steam-runtime"))]
+		Err("Dawn runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.".into())
 	} else {
 		#[cfg(feature = "with-eave-runtime")]
 		{
@@ -626,10 +626,10 @@ pub fn build_light(config: Configuration) -> Result<TaskManager, ServiceError> {
 		#[cfg(not(feature = "with-eave-runtime"))]
 		Err("Eave runtime is not available. Please compile the node with `--features with-eave-runtime` to enable it.".into())
 	} else {
-		#[cfg(feature = "with-dawn-runtime")]
-		return new_light::<dawn_runtime::RuntimeApi, DawnExecutor>(config).map(|r| r.0);
-		#[cfg(not(feature = "with-dawn-runtime"))]
-		Err("Dawn runtime is not available. Please compile the node with `--features with-dawn-runtime` to enable it.".into())
+		#[cfg(feature = "with-steam-runtime")]
+		return new_light::<steam_runtime::RuntimeApi, DawnExecutor>(config).map(|r| r.0);
+		#[cfg(not(feature = "with-steam-runtime"))]
+		Err("Dawn runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.".into())
 	}
 }
 
@@ -648,13 +648,13 @@ pub fn build_full(
 		#[cfg(not(feature = "with-eave-runtime"))]
 		Err("Eave runtime is not available. Please compile the node with `--features with-eave-runtime` to enable it.".into())
 	} else {
-		#[cfg(feature = "with-dawn-runtime")]
+		#[cfg(feature = "with-steam-runtime")]
 		{
 			let (task_manager, _, client, _, _, network_status_sinks) =
-				new_full::<dawn_runtime::RuntimeApi, DawnExecutor>(config, instant_sealing, test)?;
+				new_full::<steam_runtime::RuntimeApi, DawnExecutor>(config, instant_sealing, test)?;
 			Ok((Arc::new(Client::Dawn(client)), network_status_sinks, task_manager))
 		}
-		#[cfg(not(feature = "with-dawn-runtime"))]
-		Err("Dawn runtime is not available. Please compile the node with `--features with-dawn-runtime` to enable it.".into())
+		#[cfg(not(feature = "with-steam-runtime"))]
+		Err("Dawn runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.".into())
 	}
 }
