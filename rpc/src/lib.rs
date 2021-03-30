@@ -48,7 +48,7 @@ mod standalone_use {
 
 pub use sc_rpc::SubscriptionTaskExecutor;
 
-pub use eave_pallet_evm_rpc::{EVMApi, EVMApiServer, EVMRuntimeRPCApi};
+pub use evm_rpc::{EVMApi, EVMApiServer, EVMRuntimeRPCApi};
 
 /// A type representing all RPC extensions.
 pub type RpcExtension = jsonrpc_core::IoHandler<sc_rpc::Metadata>;
@@ -123,7 +123,7 @@ mod standalone {
 		C::Api: substrate_frame_rpc_system::AccountNonceApi<Block, AccountId, Nonce>,
 		C::Api: pallet_transaction_payment_rpc::TransactionPaymentRuntimeApi<Block, Balance>,
 		C::Api: orml_oracle_rpc::OracleRuntimeApi<Block, DataProviderId, CurrencyId, eave_runtime_common::TimeStampedPrice>,
-		C::Api: eave_pallet_staking_pool_rpc::StakingPoolRuntimeApi<Block, AccountId, Balance>,
+		C::Api: module_staking_pool_rpc::StakingPoolRuntimeApi<Block, AccountId, Balance>,
 		C::Api: EVMRuntimeRPCApi<Block, Balance>,
 		C::Api: BabeApi<Block>,
 		C::Api: BlockBuilder<Block>,
@@ -132,7 +132,7 @@ mod standalone {
 		B: sc_client_api::Backend<Block> + Send + Sync + 'static,
 		B::State: sc_client_api::backend::StateBackend<sp_runtime::traits::HashFor<Block>>,
 	{
-		use eave_pallet_staking_pool_rpc::{StakingPool, StakingPoolApi};
+		use module_staking_pool_rpc::{StakingPool, StakingPoolApi};
 		use orml_oracle_rpc::{Oracle, OracleApi};
 		use pallet_transaction_payment_rpc::{TransactionPayment, TransactionPaymentApi};
 		use substrate_frame_rpc_system::{FullSystem, SystemApi};
@@ -224,12 +224,12 @@ mod parachain {
 		C::Api: substrate_frame_rpc_system::AccountNonceApi<Block, AccountId, Nonce>,
 		C::Api: pallet_transaction_payment_rpc::TransactionPaymentRuntimeApi<Block, Balance>,
 		C::Api: orml_oracle_rpc::OracleRuntimeApi<Block, DataProviderId, CurrencyId, eave_runtime_common::TimeStampedPrice>,
-		C::Api: eave_pallet_staking_pool_rpc::StakingPoolRuntimeApi<Block, AccountId, Balance>,
+		C::Api: module_staking_pool_rpc::StakingPoolRuntimeApi<Block, AccountId, Balance>,
 		C::Api: EVMRuntimeRPCApi<Block, Balance>,
 		C::Api: BlockBuilder<Block>,
 		P: TransactionPool + Sync + Send + 'static,
 	{
-		use eave_pallet_staking_pool_rpc::{StakingPool, StakingPoolApi};
+		use module_staking_pool_rpc::{StakingPool, StakingPoolApi};
 		use orml_oracle_rpc::{Oracle, OracleApi};
 		use pallet_transaction_payment_rpc::{TransactionPayment, TransactionPaymentApi};
 		use substrate_frame_rpc_system::{FullSystem, SystemApi};

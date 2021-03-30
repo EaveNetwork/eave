@@ -1,5 +1,5 @@
 use frame_support::log;
-use eave_pallet_evm::{Context, ExitError, ExitSucceed, Precompile};
+use module_evm::{Context, ExitError, ExitSucceed, Precompile};
 use eave_primitives::evm::AddressMapping as AddressMappingT;
 use sp_core::U256;
 use sp_std::{convert::TryFrom, fmt::Debug, marker::PhantomData, prelude::*, result};

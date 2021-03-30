@@ -43,11 +43,11 @@ sp-transaction-pool = { git = "https://github.com/paritytech/substrate", branch 
 sp-blockchain = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
 sp-std = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
 
-eave-pallet-evm = { path = "../../../pallets/evm" }
-eave-pallet-evm-rpc-runtime-api = { path = "../../../pallets/evm/rpc/runtime_api" }
-eave-pallet-staking-pool = { path = "../../../pallets/staking-pool" }
-eave-pallet-staking-pool-rpc = { path = "../../../pallets/staking-pool/rpc" }
-eave-pallet-nft = { path = "../../../pallets/nft" }
+module-evm = { path = "../../../ecosystem-pallets/aca/modules/evm" }
+module-evm-rpc-runtime-api = { path = "../../../ecosystem-pallets/aca/modules/evm/rpc/runtime_api" }
+module-staking-pool = { path = "../../../ecosystem-pallets/aca/modules/staking-pool" }
+module-staking-pool-rpc = { path = "../../../ecosystem-pallets/aca/modules/staking-pool/rpc" }
+module-nft = { path = "../../../ecosystem-pallets/aca/modules/nft" }
 orml-oracle-rpc = { path = "../../../ecosystem-pallets/orml/oracle/rpc" }
 eave-primitives = { path = "../../../primitives" }
 eave-rpc = { path = "../../../rpc", features = ["standalone"]}

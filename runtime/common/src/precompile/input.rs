@@ -7,7 +7,7 @@ use sp_std::{
 	vec::Vec,
 };
 
-use eave_pallet_evm::ExitError;
+use module_evm::ExitError;
 use eave_primitives::{evm::AddressMapping as AddressMappingT, Amount, Balance, CurrencyId};
 use sp_core::H160;
 

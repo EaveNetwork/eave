@@ -10,8 +10,8 @@ use frame_support::{
 		Currency, IsType, OriginTrait,
 	},
 };
-use eave_pallet_evm::{Context, ExitError, ExitSucceed, Precompile};
-use eave_pallet_support::TransactionPayment;
+use module_evm::{Context, ExitError, ExitSucceed, Precompile};
+use module_support::TransactionPayment;
 use eave_primitives::{evm::AddressMapping as AddressMappingT, Balance, BlockNumber};
 use sp_core::U256;
 use sp_std::{convert::TryFrom, fmt::Debug, marker::PhantomData, prelude::*, result};
@@ -70,9 +70,9 @@ impl TryFrom<u8> for Action {
 }
 
 type PalletBalanceOf<T> =
-	<<T as eave_pallet_evm::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
+	<<T as module_evm::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 type NegativeImbalanceOf<T> =
-	<<T as eave_pallet_evm::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::NegativeImbalance;
+	<<T as module_evm::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::NegativeImbalance;
 
 impl<AccountId, AddressMapping, Scheduler, ChargeTransactionPayment, Call, Origin, PalletsOrigin, Runtime> Precompile
 	for ScheduleCallPrecompile<
@@ -89,10 +89,10 @@ impl<AccountId, AddressMapping, Scheduler, ChargeTransactionPayment, Call, Origi
 	AddressMapping: AddressMappingT<AccountId>,
 	Scheduler: ScheduleNamed<BlockNumber, Call, PalletsOrigin, Address = TaskAddress<BlockNumber>>,
 	ChargeTransactionPayment: TransactionPayment<AccountId, Balance, NegativeImbalanceOf<Runtime>>,
-	Call: Dispatchable + Debug + From<eave_pallet_evm::Call<Runtime>>,
+	Call: Dispatchable + Debug + From<module_evm::Call<Runtime>>,
 	Origin: IsType<<Runtime as frame_system::Config>::Origin> + OriginTrait<PalletsOrigin = PalletsOrigin>,
 	PalletsOrigin: Into<<Runtime as frame_system::Config>::Origin> + From<frame_system::RawOrigin<AccountId>> + Clone,
-	Runtime: eave_pallet_evm::Config + frame_system::Config<AccountId = AccountId>,
+	Runtime: module_evm::Config + frame_system::Config<AccountId = AccountId>,
 	PalletBalanceOf<Runtime>: IsType<Balance>,
 {
 	fn execute(
@@ -138,14 +138,14 @@ impl<AccountId, AddressMapping, Scheduler, ChargeTransactionPayment, Call, Origi
 					//// reserve the transaction fee for gas_limit
 					use sp_runtime::traits::Convert;
 					let from_account = AddressMapping::get_account_id(&from);
-					let weight = <Runtime as eave_pallet_evm::Config>::GasToWeight::convert(gas_limit);
+					let weight = <Runtime as module_evm::Config>::GasToWeight::convert(gas_limit);
 					ChargeTransactionPayment::reserve_fee(&from_account, weight).map_err(|e| {
 						let err_msg: &str = e.into();
 						ExitError::Other(err_msg.into())
 					})?;
 				}
 
-				let call = eave_pallet_evm::Call::<Runtime>::scheduled_call(
+				let call = module_evm::Call::<Runtime>::scheduled_call(
 					from,
 					target,
 					input_data,

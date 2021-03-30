@@ -1,5 +1,5 @@
 use frame_support::{log, sp_runtime::FixedPointNumber};
-use eave_pallet_evm::{Context, ExitError, ExitSucceed, Precompile};
+use module_evm::{Context, ExitError, ExitSucceed, Precompile};
 use eave_primitives::{evm::AddressMapping as AddressMappingT, CurrencyId, Moment};
 use sp_core::U256;
 use sp_std::{convert::TryFrom, fmt::Debug, marker::PhantomData, prelude::*, result};
@@ -7,7 +7,7 @@ use sp_std::{convert::TryFrom, fmt::Debug, marker::PhantomData, prelude::*, resu
 use orml_traits::DataProviderExtended as OracleT;
 
 use super::input::{Input, InputT};
-use eave_pallet_support::Price;
+use module_support::Price;
 use orml_oracle::TimestampedValue;
 
 /// The `Oracle` impl precompile.

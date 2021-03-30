@@ -11,7 +11,7 @@ use sp_runtime::{
 	DispatchResult, FixedPointNumber, ModuleId, RuntimeDebug,
 };
 use sp_std::prelude::*;
-use eave_pallet_support::{SHYTreasury, DEXIncentives, DEXManager, EmergencyShutdown, Rate};
+use module_support::{SHYTreasury, DEXIncentives, DEXManager, EmergencyShutdown, Rate};
 
 mod mock;
 mod tests;
@@ -125,7 +125,7 @@ pub mod module {
 
 	/// Slip incentive reward amount
 	#[pallet::storage]
-	#[pallet::getter(fn slip_incentive_reward)]
+	#[pallet::getter(fn homa_incentive_reward)]
 	pub type SlipIncentiveReward<T: Config> = StorageValue<_, Balance, ValueQuery>;
 
 	/// Mapping from dex liquidity currency type to its saving rate
@@ -201,9 +201,9 @@ pub mod module {
 			Ok(().into())
 		}
 
-		#[pallet::weight(<T as Config>::WeightInfo::update_slip_incentive_reward())]
+		#[pallet::weight(<T as Config>::WeightInfo::update_homa_incentive_reward())]
 		#[transactional]
-		pub fn update_slip_incentive_reward(origin: OriginFor<T>, update: Balance) -> DispatchResultWithPostInfo {
+		pub fn update_homa_incentive_reward(origin: OriginFor<T>, update: Balance) -> DispatchResultWithPostInfo {
 			T::UpdateOrigin::ensure_origin(origin)?;
 			SlipIncentiveReward::<T>::put(update);
 			Ok(().into())
@@ -372,7 +372,7 @@ impl<T: Config> RewardHandler<T::AccountId, T::BlockNumber> for Pallet<T> {
 						}
 
 						PoolId::Slip => {
-							let incentive_reward = Self::slip_incentive_reward();
+							let incentive_reward = Self::homa_incentive_reward();
 
 							// TODO: transfer from RESERVED TREASURY instead of issuing
 							if !incentive_reward.is_zero()

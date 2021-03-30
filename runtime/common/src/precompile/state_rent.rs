@@ -1,9 +1,9 @@
 use frame_support::log;
-use eave_pallet_evm::{Context, ExitError, ExitSucceed, Precompile};
+use module_evm::{Context, ExitError, ExitSucceed, Precompile};
 use sp_core::U256;
 use sp_std::{borrow::Cow, convert::TryFrom, marker::PhantomData, prelude::*, result};
 
-use eave_pallet_support::EVMStateRentTrait;
+use module_support::EVMStateRentTrait;
 
 use super::input::{Input, InputT};
 use eave_primitives::{evm::AddressMapping as AddressMappingT, Balance};

@@ -6,11 +6,11 @@ mod tests;
 
 use crate::is_eave_precompile;
 use frame_support::log;
-use eave_pallet_evm::{
+use module_evm::{
 	precompiles::{Precompile, Precompiles},
 	Context, ExitError, ExitSucceed,
 };
-use eave_pallet_support::PrecompileCallerFilter as PrecompileCallerFilterT;
+use module_support::PrecompileCallerFilter as PrecompileCallerFilterT;
 use eave_primitives::PRECOMPILE_ADDRESS_START;
 use sp_core::H160;
 use sp_std::{marker::PhantomData, prelude::*};
@@ -31,10 +31,10 @@ pub use schedule_call::ScheduleCallPrecompile;
 pub use state_rent::StateRentPrecompile;
 
 pub type EthereumPrecompiles = (
-	eave_pallet_evm::precompiles::ECRecover,
-	eave_pallet_evm::precompiles::Sha256,
-	eave_pallet_evm::precompiles::Ripemd160,
-	eave_pallet_evm::precompiles::Identity,
+	module_evm::precompiles::ECRecover,
+	module_evm::precompiles::Sha256,
+	module_evm::precompiles::Ripemd160,
+	module_evm::precompiles::Identity,
 );
 
 pub struct AllPrecompiles<

@@ -21,9 +21,9 @@ pub trait RuntimeApiCollection:
 	+ sp_block_builder::BlockBuilder<Block>
 	+ frame_system_rpc_runtime_api::AccountNonceApi<Block, AccountId, Nonce>
 	+ pallet_transaction_payment_rpc_runtime_api::TransactionPaymentApi<Block, Balance>
-	+ eave_pallet_evm_rpc_runtime_api::EVMRuntimeRPCApi<Block, Balance>
+	+ module_evm_rpc_runtime_api::EVMRuntimeRPCApi<Block, Balance>
 	+ orml_oracle_rpc::OracleRuntimeApi<Block, DataProviderId, CurrencyId, TimeStampedPrice>
-	+ eave_pallet_staking_pool_rpc::StakingPoolRuntimeApi<Block, AccountId, Balance>
+	+ module_staking_pool_rpc::StakingPoolRuntimeApi<Block, AccountId, Balance>
 	+ sp_api::Metadata<Block>
 	+ sp_offchain::OffchainWorkerApi<Block>
 	+ sp_session::SessionKeys<Block>
@@ -39,9 +39,9 @@ where
 		+ sp_block_builder::BlockBuilder<Block>
 		+ frame_system_rpc_runtime_api::AccountNonceApi<Block, AccountId, Nonce>
 		+ pallet_transaction_payment_rpc_runtime_api::TransactionPaymentApi<Block, Balance>
-		+ eave_pallet_evm_rpc_runtime_api::EVMRuntimeRPCApi<Block, Balance>
+		+ module_evm_rpc_runtime_api::EVMRuntimeRPCApi<Block, Balance>
 		+ orml_oracle_rpc::OracleRuntimeApi<Block, DataProviderId, CurrencyId, TimeStampedPrice>
-		+ eave_pallet_staking_pool_rpc::StakingPoolRuntimeApi<Block, AccountId, Balance>
+		+ module_staking_pool_rpc::StakingPoolRuntimeApi<Block, AccountId, Balance>
 		+ sp_api::Metadata<Block>
 		+ sp_offchain::OffchainWorkerApi<Block>
 		+ sp_session::SessionKeys<Block>,

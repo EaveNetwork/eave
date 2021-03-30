@@ -1,4 +1,4 @@
-use eave_pallet_evm::{Context, ExitError, ExitSucceed, Precompile};
+use module_evm::{Context, ExitError, ExitSucceed, Precompile};
 use sp_core::{H160, U256};
 use sp_std::{borrow::Cow, convert::TryFrom, marker::PhantomData, prelude::*, result};
 

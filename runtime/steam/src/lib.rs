@@ -39,10 +39,10 @@ use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 
 use frame_system::{EnsureOneOf, EnsureRoot, RawOrigin};
-use eave_pallet_currencies::{BasicCurrencyAdapter, Currency};
-use eave_pallet_evm::{CallInfo, CreateInfo};
-use eave_pallet_evm_accounts::EvmAddressMapping;
-use eave_pallet_transaction_payment::{Multiplier, TargetedFeeAdjustment};
+use module_currencies::{BasicCurrencyAdapter, Currency};
+use module_evm::{CallInfo, CreateInfo};
+use module_evm_accounts::EvmAddressMapping;
+use module_transaction_payment::{Multiplier, TargetedFeeAdjustment};
 
 use orml_tokens::CurrencyAdapter;
 use orml_traits::{create_median_value_data_provider, parameter_type_with_key, DataFeeder, DataProviderExtended, MultiCurrencyExtended};
@@ -148,35 +148,31 @@ impl_opaque_keys! {
 
 // Module accounts of runtime
 parameter_types! {
-	pub const EaveTreasuryModuleId: ModuleId = ModuleId(*b"eave/trs");
-	pub const LoansModuleId: ModuleId = ModuleId(*b"eave/loa");
-	pub const DEXModuleId: ModuleId = ModuleId(*b"eave/dex");
-	pub const ExchangeModuleId: ModuleId = ModuleId(*b"eave/exc");
-	pub const SHYTreasuryModuleId: ModuleId = ModuleId(*b"eave/shy");
-	pub const StakingPoolModuleId: ModuleId = ModuleId(*b"eave/stk");
-	pub const SHYModuleId: ModuleId = ModuleId(*b"eave/shm");
-	pub const SlipTreasuryModuleId: ModuleId = ModuleId(*b"eave/mtr");
-	pub const TokensModuleId: ModuleId = ModuleId(*b"eave/tkn");
-	pub const IncentivesModuleId: ModuleId = ModuleId(*b"eave/inc");
+	pub const AcalaTreasuryModuleId: ModuleId = ModuleId(*b"aca/trsy");
+	pub const LoansModuleId: ModuleId = ModuleId(*b"aca/loan");
+	pub const DEXModuleId: ModuleId = ModuleId(*b"aca/dexm");
+	pub const CDPTreasuryModuleId: ModuleId = ModuleId(*b"aca/cdpt");
+	pub const StakingPoolModuleId: ModuleId = ModuleId(*b"aca/stkp");
+	pub const HonzonTreasuryModuleId: ModuleId = ModuleId(*b"aca/hztr");
+	pub const HomaTreasuryModuleId: ModuleId = ModuleId(*b"aca/hmtr");
+	pub const IncentivesModuleId: ModuleId = ModuleId(*b"aca/inct");
 	// Decentralized Sovereign Wealth Fund
-	pub const DSWFModuleId: ModuleId = ModuleId(*b"eave/dwf");
-	pub const ElectionsPhragmenModuleId: LockIdentifier = *b"eave/phr";
-	pub const NftModuleId: ModuleId = ModuleId(*b"eave/NFT");
+	pub const DSWFModuleId: ModuleId = ModuleId(*b"aca/dswf");
+	pub const ElectionsPhragmenModuleId: LockIdentifier = *b"aca/phre";
+	pub const NftModuleId: ModuleId = ModuleId(*b"aca/aNFT");
 }
 
 pub fn get_all_module_accounts() -> Vec<AccountId> {
 	vec![
-		EaveTreasuryModuleId::get().into_account(),
+		AcalaTreasuryModuleId::get().into_account(),
 		LoansModuleId::get().into_account(),
 		DEXModuleId::get().into_account(),
-		ExchangeModuleId::get().into_account(),
-		SHYTreasuryModuleId::get().into_account(),
+		CDPTreasuryModuleId::get().into_account(),
 		StakingPoolModuleId::get().into_account(),
-		SHYModuleId::get().into_account(),
-		SlipTreasuryModuleId::get().into_account(),
+		HonzonTreasuryModuleId::get().into_account(),
+		HomaTreasuryModuleId::get().into_account(),
 		IncentivesModuleId::get().into_account(),
 		DSWFModuleId::get().into_account(),
-		TokensModuleId::get().into_account(),
 		ZeroAccountId::get(),
 	]
 }
@@ -207,8 +203,8 @@ impl frame_system::Config for Runtime {
 	type AccountData = pallet_balances::AccountData<Balance>;
 	type OnNewAccount = ();
 	type OnKilledAccount = (
-		eave_pallet_evm::CallKillAccount<Runtime>,
-		eave_pallet_evm_accounts::CallKillAccount<Runtime>,
+		module_evm::CallKillAccount<Runtime>,
+		module_evm_accounts::CallKillAccount<Runtime>,
 	);
 	type DbWeight = RocksDbWeight;
 	type BaseCallFilter = ();
@@ -867,7 +863,7 @@ parameter_types! {
 	pub StableCurrencyFixedPrice: Price = Price::saturating_from_rational(1, 1);
 }
 
-impl eave_pallet_prices::Config for Runtime {
+impl module_prices::Config for Runtime {
 	type Event = Event;
 	type Source = AggregatedDataProvider;
 	type GetStableCurrencyId = GetStableCurrencyId;
@@ -878,7 +874,7 @@ impl eave_pallet_prices::Config for Runtime {
 	type LiquidStakingExchangeRateProvider = LiquidStakingExchangeRateProvider;
 	type DEX = Dex;
 	type Currency = Currencies;
-	type WeightInfo = weights::eave_pallet_prices::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_prices::WeightInfo<Runtime>;
 }
 
 parameter_types! {
@@ -888,13 +884,13 @@ parameter_types! {
 }
 
 pub struct LiquidStakingExchangeRateProvider;
-impl eave_pallet_support::ExchangeRateProvider for LiquidStakingExchangeRateProvider {
+impl module_support::ExchangeRateProvider for LiquidStakingExchangeRateProvider {
 	fn get_exchange_rate() -> ExchangeRate {
 		StakingPool::liquid_exchange_rate()
 	}
 }
 
-impl eave_pallet_currencies::Config for Runtime {
+impl module_currencies::Config for Runtime {
 	type Event = Event;
 	type MultiCurrency = ORMLTokens;
 	type NativeCurrency = BasicCurrencyAdapter<Runtime, Balances, Amount, BlockNumber>;
@@ -972,7 +968,7 @@ parameter_types! {
 	pub const AuctionDurationSoftCap: BlockNumber = 2 * HOURS;
 }
 
-impl eave_pallet_auction_manager::Config for Runtime {
+impl module_auction_manager::Config for Runtime {
 	type Event = Event;
 	type Currency = Currencies;
 	type Auction = Auction;
@@ -986,17 +982,17 @@ impl eave_pallet_auction_manager::Config for Runtime {
 	type PriceSource = Prices;
 	type UnsignedPriority = eave_runtime_common::AuctionManagerUnsignedPriority;
 	type EmergencyShutdown = EmergencyShutdown;
-	type WeightInfo = weights::eave_pallet_auction_manager::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_auction_manager::WeightInfo<Runtime>;
 }
 
-impl eave_pallet_loans::Config for Runtime {
+impl module_loans::Config for Runtime {
 	type Event = Event;
-	type Convert = eave_pallet_shy_engine::DebitExchangeRateConvertor<Runtime>;
+	type Convert = module_cdp_engine::DebitExchangeRateConvertor<Runtime>;
 	type Currency = Currencies;
 	type RiskManager = ShyEngine;
 	type SHYTreasury = ShyTreasury;
 	type ModuleId = LoansModuleId;
-	type OnUpdateLoan = eave_pallet_incentives::OnUpdateLoan<Runtime>;
+	type OnUpdateLoan = module_incentives::OnUpdateLoan<Runtime>;
 }
 
 
@@ -1031,8 +1027,8 @@ where
 			frame_system::CheckEra::<Runtime>::from(generic::Era::mortal(period, current_block)),
 			frame_system::CheckNonce::<Runtime>::from(nonce),
 			frame_system::CheckWeight::<Runtime>::new(),
-			eave_pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
-			eave_pallet_evm::SetEvmOrigin::<Runtime>::new(),
+			module_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
+			module_evm::SetEvmOrigin::<Runtime>::new(),
 		);
 		let raw_payload = SignedPayload::new(call, extra)
 			.map_err(|e| {
@@ -1068,7 +1064,7 @@ parameter_types! {
 	pub MaxSlippageSwapWithDEX: Ratio = Ratio::saturating_from_rational(5, 100);
 }
 
-impl eave_pallet_shy_engine::Config for Runtime {
+impl module_cdp_engine::Config for Runtime {
 	type Event = Event;
 	type PriceSource = Prices;
 	type CollateralCurrencyIds = CollateralCurrencyIds;
@@ -1083,22 +1079,22 @@ impl eave_pallet_shy_engine::Config for Runtime {
 	type DEX = Dex;
 	type UnsignedPriority = eave_runtime_common::ShyEngineUnsignedPriority;
 	type EmergencyShutdown = EmergencyShutdown;
-	type WeightInfo = weights::eave_pallet_shy_engine::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_cdp_engine::WeightInfo<Runtime>;
 }
 
-impl eave_pallet_shy::Config for Runtime {
+impl module_honzon::Config for Runtime {
 	type Event = Event;
-	type WeightInfo = weights::eave_pallet_shy::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_honzon::WeightInfo<Runtime>;
 }
 
-impl eave_pallet_emergency_shutdown::Config for Runtime {
+impl module_emergency_shutdown::Config for Runtime {
 	type Event = Event;
 	type CollateralCurrencyIds = CollateralCurrencyIds;
 	type PriceSource = Prices;
 	type SHYTreasury = ShyTreasury;
 	type AuctionManagerHandler = AuctionManager;
 	type ShutdownOrigin = EnsureRootOrHalfGeneralCouncil;
-	type WeightInfo = weights::eave_pallet_emergency_shutdown::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_emergency_shutdown::WeightInfo<Runtime>;
 }
 
 parameter_types! {
@@ -1116,14 +1112,14 @@ parameter_types! {
 	];
 }
 
-impl eave_pallet_dex::Config for Runtime {
+impl module_dex::Config for Runtime {
 	type Event = Event;
 	type Currency = Currencies;
 	type GetExchangeFee = GetExchangeFee;
 	type TradingPathLimit = TradingPathLimit;
 	type ModuleId = DEXModuleId;
 	type DEXIncentives = Incentives;
-	type WeightInfo = weights::eave_pallet_dex::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_dex::WeightInfo<Runtime>;
 	type ListingOrigin = EnsureRootOrHalfGeneralCouncil;
 }
 
@@ -1131,7 +1127,7 @@ parameter_types! {
 	pub const MaxAuctionsCount: u32 = 100;
 }
 
-impl eave_pallet_shy_treasury::Config for Runtime {
+impl module_cdp_treasury::Config for Runtime {
 	type Event = Event;
 	type Currency = Currencies;
 	type GetStableCurrencyId = GetStableCurrencyId;
@@ -1140,7 +1136,7 @@ impl eave_pallet_shy_treasury::Config for Runtime {
 	type DEX = Dex;
 	type MaxAuctionsCount = MaxAuctionsCount;
 	type ModuleId = SHYTreasuryModuleId;
-	type WeightInfo = weights::eave_pallet_shy_treasury::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_cdp_treasury::WeightInfo<Runtime>;
 }
 
 parameter_types! {
@@ -1148,7 +1144,7 @@ parameter_types! {
 	pub AllNonNativeCurrencyIds: Vec<CurrencyId> = vec![EUSD, LDOT, DOT, XBTC, RENBTC, POLKABTC, PLM, PHA];
 }
 
-impl eave_pallet_transaction_payment::Config for Runtime {
+impl module_transaction_payment::Config for Runtime {
 	type AllNonNativeCurrencyIds = AllNonNativeCurrencyIds;
 	type NativeCurrencyId = GetNativeCurrencyId;
 	type StableCurrencyId = GetStableCurrencyId;
@@ -1160,15 +1156,15 @@ impl eave_pallet_transaction_payment::Config for Runtime {
 	type FeeMultiplierUpdate = TargetedFeeAdjustment<Self, TargetBlockFullness, AdjustmentVariable, MinimumMultiplier>;
 	type DEX = Dex;
 	type MaxSlippageSwapWithDEX = MaxSlippageSwapWithDEX;
-	type WeightInfo = weights::eave_pallet_transaction_payment::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_transaction_payment::WeightInfo<Runtime>;
 }
 
-impl eave_pallet_evm_accounts::Config for Runtime {
+impl module_evm_accounts::Config for Runtime {
 	type Event = Event;
 	type Currency = Balances;
 	type AddressMapping = EvmAddressMapping<Runtime>;
 	type MergeAccount = Currencies;
-	type WeightInfo = weights::eave_pallet_evm_accounts::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_evm_accounts::WeightInfo<Runtime>;
 }
 
 
@@ -1176,7 +1172,7 @@ impl eave_pallet_evm_accounts::Config for Runtime {
 impl orml_rewards::Config for Runtime {
 	type Share = Balance;
 	type Balance = Balance;
-	type PoolId = eave_pallet_incentives::PoolId;
+	type PoolId = module_incentives::PoolId;
 	type Handler = Incentives;
 	type WeightInfo = ();
 }
@@ -1184,8 +1180,8 @@ impl orml_rewards::Config for Runtime {
 impl orml_nft::Config for Runtime {
 	type ClassId = u32;
 	type TokenId = u64;
-	type ClassData = eave_pallet_nft::ClassData;
-	type TokenData = eave_pallet_nft::TokenData;
+	type ClassData = module_nft::ClassData;
+	type TokenData = module_nft::TokenData;
 }
 
 parameter_types! {
@@ -1250,7 +1246,7 @@ pub type ScheduleCallPrecompile = eave_runtime_common::ScheduleCallPrecompile<
 	AccountId,
 	EvmAddressMapping<Runtime>,
 	Scheduler,
-	eave_pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
+	module_transaction_payment::ChargeTransactionPayment<Runtime>,
 	Call,
 	Origin,
 	OriginCaller,
@@ -1411,9 +1407,9 @@ macro_rules! construct_steam_runtime {
 				// Tokens & Related
 				Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
 
-				TransactionPayment: eave_pallet_transaction_payment::{Module, Call, Storage},
-				EvmAccounts: eave_pallet_evm_accounts::{Module, Call, Storage, Event<T>},
-				Currencies: eave_pallet_currencies::{Module, Call, Event<T>},
+				TransactionPayment: module_transaction_payment::{Module, Call, Storage},
+				EvmAccounts: module_evm_accounts::{Module, Call, Storage, Event<T>},
+				Currencies: module_currencies::{Module, Call, Event<T>},
 				ORMLTokens: orml_tokens::{Module, Storage, Event<T>, Config<T>},
 				Vesting: orml_vesting::{Module, Storage, Call, Event<T>, Config<T>},
 
@@ -1465,39 +1461,39 @@ macro_rules! construct_steam_runtime {
 				OrmlNFT: orml_nft::{Module, Storage, Config<T>},
 
 				// Eave Core
-				Prices: eave_pallet_prices::{Module, Storage, Call, Event<T>},
+				Prices: module_prices::{Module, Storage, Call, Event<T>},
 
 				// DEX
-				Dex: eave_pallet_dex::{Module, Storage, Call, Event<T>, Config<T>},
+				Dex: module_dex::{Module, Storage, Call, Event<T>, Config<T>},
 
 				// Eave Exchange
 				ORMLCurrencies: orml_currencies::{Module, Call, Event<T>},
 
 				// SHY Eave High Yield
-				AuctionManager: eave_pallet_auction_manager::{Module, Storage, Call, Event<T>, ValidateUnsigned},
-				Loans: eave_pallet_loans::{Module, Storage, Call, Event<T>},
-				Shy: eave_pallet_shy::{Module, Storage, Call, Event<T>},
-				ShyTreasury: eave_pallet_shy_treasury::{Module, Storage, Call, Config, Event<T>},
-				ShyEngine: eave_pallet_shy_engine::{Module, Storage, Call, Event<T>, Config, ValidateUnsigned},
-				EmergencyShutdown: eave_pallet_emergency_shutdown::{Module, Storage, Call, Event<T>},
+				AuctionManager: module_auction_manager::{Module, Storage, Call, Event<T>, ValidateUnsigned},
+				Loans: module_loans::{Module, Storage, Call, Event<T>},
+				Shy: module_honzon::{Module, Storage, Call, Event<T>},
+				ShyTreasury: module_cdp_treasury::{Module, Storage, Call, Config, Event<T>},
+				ShyEngine: module_cdp_engine::{Module, Storage, Call, Event<T>, Config, ValidateUnsigned},
+				EmergencyShutdown: module_emergency_shutdown::{Module, Storage, Call, Event<T>},
 
 				// Slip
-				//Slip: eave_pallet_slip::{Module, Call},
-				NomineesElection: eave_pallet_nominees_election::{Module, Call, Storage},
-				StakingPool: eave_pallet_staking_pool::{Module, Call, Storage, Event<T>, Config},
-				PolkadotBridge: eave_pallet_polkadot_bridge::{Module, Call, Storage},
+				//Slip: module_homa::{Module, Call},
+				NomineesElection: module_nominees_election::{Module, Call, Storage},
+				StakingPool: module_staking_pool::{Module, Call, Storage, Event<T>, Config},
+				PolkadotBridge: module_polkadot_bridge::{Module, Call, Storage},
 
 
 				// Eave Other
-				Incentives: eave_pallet_incentives::{Module, Storage, Call, Event<T>},
-				AirDrop: eave_pallet_airdrop::{Module, Call, Storage, Event<T>, Config<T>},
-				NFT: eave_pallet_nft::{Module, Call, Event<T>},
+				Incentives: module_incentives::{Module, Storage, Call, Event<T>},
+				AirDrop: module_airdrop::{Module, Call, Storage, Event<T>, Config<T>},
+				NFT: module_nft::{Module, Call, Event<T>},
 
 				// Ecosystem modules
 				RenVmBridge: ecosystem_renvm_bridge::{Module, Call, Config, Storage, Event<T>, ValidateUnsigned},
 
-				EVM: eave_pallet_evm::{Module, Config<T>, Call, Storage, Event<T>},
-				EVMBridge: eave_pallet_evm_bridge::{Module},
+				EVM: module_evm::{Module, Config<T>, Call, Storage, Event<T>},
+				EVMBridge: module_evm_bridge::{Module},
 
 				$($modules)*
 
@@ -1547,8 +1543,8 @@ pub type SignedExtra = (
 	frame_system::CheckEra<Runtime>,
 	frame_system::CheckNonce<Runtime>,
 	frame_system::CheckWeight<Runtime>,
-	eave_pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
-	eave_pallet_evm::SetEvmOrigin<Runtime>,
+	module_transaction_payment::ChargeTransactionPayment<Runtime>,
+	module_evm::SetEvmOrigin<Runtime>,
 );
 /// Unchecked extrinsic type as expected by this runtime.
 pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<Address, Call, Signature, SignedExtra>;
@@ -1758,13 +1754,13 @@ impl_runtime_apis! {
 		}
 	}
 
-	impl eave_pallet_staking_pool_rpc_runtime_api::StakingPoolApi<
+	impl module_staking_pool_rpc_runtime_api::StakingPoolApi<
 		Block,
 		AccountId,
 		Balance,
 	> for Runtime {
-		fn get_available_unbonded(account: AccountId) -> eave_pallet_staking_pool_rpc_runtime_api::BalanceInfo<Balance> {
-			eave_pallet_staking_pool_rpc_runtime_api::BalanceInfo {
+		fn get_available_unbonded(account: AccountId) -> module_staking_pool_rpc_runtime_api::BalanceInfo<Balance> {
+			module_staking_pool_rpc_runtime_api::BalanceInfo {
 				amount: StakingPool::get_available_unbonded(&account)
 			}
 		}
@@ -1774,7 +1770,7 @@ impl_runtime_apis! {
 		}
 	}
 
-	impl eave_pallet_evm_rpc_runtime_api::EVMRuntimeRPCApi<Block, Balance> for Runtime {
+	impl module_evm_rpc_runtime_api::EVMRuntimeRPCApi<Block, Balance> for Runtime {
 		fn call(
 			from: H160,
 			to: H160,
@@ -1785,14 +1781,14 @@ impl_runtime_apis! {
 			estimate: bool,
 		) -> Result<CallInfo, sp_runtime::DispatchError> {
 			let config = if estimate {
-				let mut config = <Runtime as eave_pallet_evm::Config>::config().clone();
+				let mut config = <Runtime as module_evm::Config>::config().clone();
 				config.estimate = true;
 				Some(config)
 			} else {
 				None
 			};
 
-			eave_pallet_evm::Runner::<Runtime>::call(
+			module_evm::Runner::<Runtime>::call(
 				from,
 				from,
 				to,
@@ -1800,7 +1796,7 @@ impl_runtime_apis! {
 				value,
 				gas_limit.into(),
 				storage_limit,
-				config.as_ref().unwrap_or(<Runtime as eave_pallet_evm::Config>::config()),
+				config.as_ref().unwrap_or(<Runtime as module_evm::Config>::config()),
 			)
 		}
 
@@ -1813,20 +1809,20 @@ impl_runtime_apis! {
 			estimate: bool,
 		) -> Result<CreateInfo, sp_runtime::DispatchError> {
 			let config = if estimate {
-				let mut config = <Runtime as eave_pallet_evm::Config>::config().clone();
+				let mut config = <Runtime as module_evm::Config>::config().clone();
 				config.estimate = true;
 				Some(config)
 			} else {
 				None
 			};
 
-			eave_pallet_evm::Runner::<Runtime>::create(
+			module_evm::Runner::<Runtime>::create(
 				from,
 				data,
 				value,
 				gas_limit.into(),
 				storage_limit,
-				config.as_ref().unwrap_or(<Runtime as eave_pallet_evm::Config>::config()),
+				config.as_ref().unwrap_or(<Runtime as module_evm::Config>::config()),
 			)
 		}
 	}
@@ -1840,8 +1836,8 @@ impl_runtime_apis! {
 			use frame_benchmarking::{Benchmarking, BenchmarkBatch, add_benchmark, TrackedStorageKey};
 			use orml_benchmarking::{add_benchmark as orml_add_benchmark};
 
-			use eave_pallet_nft_benchmarking::Module as NftBench;
-			impl eave_pallet_nft_benchmarking::Config for Runtime {}
+			use module_nft_benchmarking::Module as NftBench;
+			impl module_nft_benchmarking::Config for Runtime {}
 
 			let whitelist: Vec<TrackedStorageKey> = vec![
 				// Block Number
@@ -1879,7 +1875,7 @@ impl_runtime_apis! {
 			orml_add_benchmark!(params, batches, orml_tokens, benchmarking::tokens);
 			orml_add_benchmark!(params, batches, orml_vesting, benchmarking::vesting);
 			//orml_add_benchmark!(params, batches, orml_auction, benchmarking::auction);
-			orml_add_benchmark!(params, batches, eave_pallet_currencies, benchmarking::currencies);
+			orml_add_benchmark!(params, batches, module_currencies, benchmarking::currencies);
 
 			orml_add_benchmark!(params, batches, orml_authority, benchmarking::authority);
 			orml_add_benchmark!(params, batches, orml_gradually_update, benchmarking::gradually_update);
@@ -1932,7 +1928,7 @@ parameter_types! {
 	pub const AccumulatePeriod: BlockNumber = MINUTES;
 }
 
-impl eave_pallet_incentives::Config for Runtime {
+impl module_incentives::Config for Runtime {
 	type Event = Event;
 	type LoansIncentivePool = ZeroAccountId;
 	type DexIncentivePool = ZeroAccountId;
@@ -1948,11 +1944,11 @@ impl eave_pallet_incentives::Config for Runtime {
 //	type Exchange = Exchange;
 	type EmergencyShutdown = EmergencyShutdown;
 	type ModuleId = IncentivesModuleId;
-	type WeightInfo = weights::eave_pallet_incentives::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_incentives::WeightInfo<Runtime>;
 }
 
 
-impl eave_pallet_airdrop::Config for Runtime {
+impl module_airdrop::Config for Runtime {
 	type Event = Event;
 }
 
@@ -1961,7 +1957,7 @@ parameter_types! {
 	pub const EraLength: BlockNumber = DAYS;
 }
 
-impl eave_pallet_polkadot_bridge::Config for Runtime {
+impl module_polkadot_bridge::Config for Runtime {
 	type DOTCurrency = Currency<Runtime, GetStakingCurrencyId>;
 	type OnNewEra = (NomineesElection, StakingPool);
 	type BondingDuration = PolkadotBondingDuration;
@@ -1977,7 +1973,7 @@ parameter_types! {
 	pub PoolAccountIndexes: Vec<u32> = vec![1, 2, 3, 4];
 }
 
-impl eave_pallet_staking_pool::Config for Runtime {
+impl module_staking_pool::Config for Runtime {
 	type Event = Event;
 	type StakingCurrencyId = GetStakingCurrencyId;
 	type LiquidCurrencyId = GetLiquidCurrencyId;
@@ -1992,9 +1988,9 @@ impl eave_pallet_staking_pool::Config for Runtime {
 }
 
 
-impl eave_pallet_slip::Config for Runtime {
+impl module_homa::Config for Runtime {
 	type Slip = StakingPool;
-	type WeightInfo = weights::eave_pallet_slip::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_homa::WeightInfo<Runtime>;
 }
 
 parameter_types! {
@@ -2004,7 +2000,7 @@ parameter_types! {
 	pub const NomineesElectionBondingDuration: EraIndex = 7;
 }
 
-impl eave_pallet_nominees_election::Config for Runtime {
+impl module_nominees_election::Config for Runtime {
 	type Currency = Currency<Runtime, GetLiquidCurrencyId>;
 	type PolkadotAccountId = AccountId;
 	type MinBondThreshold = MinCouncilBondThreshold;
@@ -2018,20 +2014,20 @@ parameter_types! {
 	pub const CreateTokenDeposit: Balance = 100 * MILLICENTS;
 }
 
-impl eave_pallet_nft::Config for Runtime {
+impl module_nft::Config for Runtime {
 	type Event = Event;
 	type CreateClassDeposit = CreateClassDeposit;
 	type CreateTokenDeposit = CreateTokenDeposit;
 	type ModuleId = NftModuleId;
 	type Currency = Currency<Runtime, GetNativeCurrencyId>;
-	type WeightInfo = weights::eave_pallet_nft::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_nft::WeightInfo<Runtime>;
 }
 
 
 #[cfg(feature = "with-ethereum-compatibility")]
 static ISTANBUL_CONFIG: evm::Config = evm::Config::istanbul();
 
-impl eave_pallet_evm::Config for Runtime {
+impl module_evm::Config for Runtime {
 	type AddressMapping = EvmAddressMapping<Runtime>;
 	type Currency = Balances;
 	type MergeAccount = Currencies;
@@ -2051,14 +2047,14 @@ impl eave_pallet_evm::Config for Runtime {
 	>;
 	type ChainId = ChainId;
 	type GasToWeight = GasToWeight;
-	type ChargeTransactionPayment = eave_pallet_transaction_payment::ChargeTransactionPayment<Runtime>;
+	type ChargeTransactionPayment = module_transaction_payment::ChargeTransactionPayment<Runtime>;
 	type NetworkContractOrigin = EnsureRootOrTwoThirdsTechnicalCommittee;
 	type NetworkContractSource = NetworkContractSource;
 	type DeveloperDeposit = DeveloperDeposit;
 	type DeploymentFee = DeploymentFee;
 	type TreasuryAccount = TreasuryModuleAccount;
 	type FreeDeploymentOrigin = EnsureRootOrHalfGeneralCouncil;
-	type WeightInfo = weights::eave_pallet_evm::WeightInfo<Runtime>;
+	type WeightInfo = weights::module_evm::WeightInfo<Runtime>;
 
 	#[cfg(feature = "with-ethereum-compatibility")]
 	fn config() -> &'static evm::Config {
@@ -2066,6 +2062,6 @@ impl eave_pallet_evm::Config for Runtime {
 	}
 }
 
-impl eave_pallet_evm_bridge::Config for Runtime {
+impl module_evm_bridge::Config for Runtime {
 	type EVM = EVM;
 }

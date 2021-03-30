@@ -1,7 +1,7 @@
 use super::input::{Input, InputT};
 use frame_support::log;
-use eave_pallet_evm::{Context, ExitError, ExitSucceed, Precompile};
-use eave_pallet_support::DEXManager;
+use module_evm::{Context, ExitError, ExitSucceed, Precompile};
+use module_support::DEXManager;
 use eave_primitives::{evm::AddressMapping as AddressMappingT, Balance, CurrencyId};
 use sp_core::U256;
 use sp_std::{convert::TryFrom, fmt::Debug, marker::PhantomData, prelude::*, result};

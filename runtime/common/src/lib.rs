@@ -10,7 +10,7 @@ use frame_support::{
 	},
 };
 use frame_system::limits;
-pub use eave_pallet_support::{ExchangeRate, PrecompileCallerFilter, Price, Rate, Ratio};
+pub use module_support::{ExchangeRate, PrecompileCallerFilter, Price, Rate, Ratio};
 use eave_primitives::{Balance, CurrencyId, PRECOMPILE_ADDRESS_START, PREDEPLOY_ADDRESS_START};
 use sp_core::H160;
 use sp_runtime::{
@@ -38,7 +38,7 @@ pub type TimeStampedPrice = orml_oracle::TimestampedValue<Price, eave_primitives
 parameter_types! {
 	pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
 	pub const RenvmBridgeUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
-	pub const ShyEngineUnsignedPriority: TransactionPriority = TransactionPriority::max_value();
+	pub const CdpEngineUnsignedPriority: TransactionPriority = TransactionPriority::max_value();
 	pub const AuctionManagerUnsignedPriority: TransactionPriority = TransactionPriority::max_value() - 1;
 }
 
@@ -202,7 +202,7 @@ parameter_types! {
 }
 
 pub struct CurveFeeModel;
-impl<Balance: FixedPointOperand> eave_pallet_staking_pool::FeeModel<Balance> for CurveFeeModel {
+impl<Balance: FixedPointOperand> module_staking_pool::FeeModel<Balance> for CurveFeeModel {
 	/// The parameter `base_rate` does not work in this fee model, base fee is
 	/// fixed at 2%
 	fn get_fee(

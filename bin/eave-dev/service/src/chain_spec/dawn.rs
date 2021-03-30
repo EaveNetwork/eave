@@ -304,14 +304,14 @@ fn testnet_genesis(
 				.collect(),
 		},
 		orml_vesting: VestingConfig { vesting: vec![] },
-		eave_pallet_shy_treasury: ShyTreasuryConfig {
+		module_cdp_treasury: ShyTreasuryConfig {
 			collateral_auction_maximum_size: vec![
 				(DOT, dollar(DOT)), // (currency_id, max size of a collateral auction)
 				(XBTC, dollar(XBTC)),
 				(RENBTC, dollar(RENBTC)),
 			],
 		},
-		eave_pallet_shy_engine: ShyEngineConfig {
+		module_cdp_engine: ShyEngineConfig {
 			collaterals_params: vec![
 				(
 					DOT,
@@ -348,7 +348,7 @@ fn testnet_genesis(
 			],
 			global_stability_fee: FixedU128::saturating_from_rational(618_850_393, 100_000_000_000_000_000_u128), /* 5% APR */
 		},
-		eave_pallet_airdrop: AirDropConfig {
+		module_airdrop: AirDropConfig {
 			airdrop_accounts: vec![],
 		},
 		orml_oracle_Instance1: EaveOracleConfig {
@@ -359,11 +359,11 @@ fn testnet_genesis(
 			members: Default::default(), // initialized by OperatorMembership
 			phantom: Default::default(),
 		},
-		eave_pallet_evm: EVMConfig {
+		module_evm: EVMConfig {
 			accounts: evm_genesis_accounts,
 		},
-		eave_pallet_staking_pool: StakingPoolConfig {
-			staking_pool_params: eave_pallet_staking_pool::Params {
+		module_staking_pool: StakingPoolConfig {
+			staking_pool_params: module_staking_pool::Params {
 				target_max_free_unbonded_ratio: FixedU128::saturating_from_rational(10, 100),
 				target_min_free_unbonded_ratio: FixedU128::saturating_from_rational(5, 100),
 				target_unbonding_to_free_ratio: FixedU128::saturating_from_rational(2, 100),
@@ -371,7 +371,7 @@ fn testnet_genesis(
 				base_fee_rate: FixedU128::saturating_from_rational(2, 100),
 			},
 		},
-		eave_pallet_dex: DexConfig {
+		module_dex: DexConfig {
 			initial_listing_trading_pairs: vec![],
 			initial_enabled_trading_pairs: EnabledTradingPairs::get(),
 			initial_added_liquidity_pools: vec![],
@@ -497,14 +497,14 @@ fn steam_genesis(
 			],
 		},
 		orml_vesting: VestingConfig { vesting: vec![] },
-	    eave_pallet_shy_treasury: ShyTreasuryConfig {
+	    module_cdp_treasury: ShyTreasuryConfig {
 			collateral_auction_maximum_size: vec![
 				(DOT, dollar(DOT)), // (currency_id, max size of a collateral auction)
 				(XBTC, 5 * cent(XBTC)),
 				(RENBTC, 5 * cent(RENBTC)),
 			],
 		},
-		eave_pallet_shy_engine: ShyEngineConfig {
+		module_cdp_engine: ShyEngineConfig {
 			collaterals_params: vec![
 				(
 					DOT,
@@ -541,7 +541,7 @@ fn steam_genesis(
 			],
 			global_stability_fee: FixedU128::saturating_from_rational(618_850_393, 100_000_000_000_000_000_u128), /* 5% APR */
 		},
-		eave_pallet_airdrop: AirDropConfig {
+		module_airdrop: AirDropConfig {
 			airdrop_accounts: {
 				let eave_airdrop_accounts_json =
 					&include_bytes!("../../../../../resources/steam-airdrop-EAVE.json")[..];
@@ -571,11 +571,11 @@ fn steam_genesis(
 			members: Default::default(), // initialized by OperatorMembership
 			phantom: Default::default(),
 		},
-		eave_pallet_evm: EVMConfig {
+		module_evm: EVMConfig {
 			accounts: evm_genesis_accounts,
 		},
-		eave_pallet_staking_pool: StakingPoolConfig {
-			staking_pool_params: eave_pallet_staking_pool::Params {
+		module_staking_pool: StakingPoolConfig {
+			staking_pool_params: module_staking_pool::Params {
 				target_max_free_unbonded_ratio: FixedU128::saturating_from_rational(10, 100),
 				target_min_free_unbonded_ratio: FixedU128::saturating_from_rational(5, 100),
 				target_unbonding_to_free_ratio: FixedU128::saturating_from_rational(2, 100),
@@ -583,7 +583,7 @@ fn steam_genesis(
 				base_fee_rate: FixedU128::saturating_from_rational(2, 100),
 			},
 		},
-		eave_pallet_dex: DexConfig {
+		module_dex: DexConfig {
 			initial_listing_trading_pairs: vec![],
 			initial_enabled_trading_pairs: EnabledTradingPairs::get(),
 			initial_added_liquidity_pools: vec![],
@@ -597,8 +597,8 @@ fn steam_genesis(
 				let nft_airdrop: Vec<(
 					AccountId,
 					Vec<u8>,
-					eave_pallet_nft::ClassData,
-					Vec<(Vec<u8>, eave_pallet_nft::TokenData, Vec<AccountId>)>,
+					module_nft::ClassData,
+					Vec<(Vec<u8>, module_nft::TokenData, Vec<AccountId>)>,
 				)> = serde_json::from_slice(nft_airdrop_json).unwrap();
 
 				let mut tokens = vec![];

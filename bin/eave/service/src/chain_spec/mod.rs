@@ -1,7 +1,7 @@
 //! Eave chain configurations.
 
 use eave_primitives::{AccountId, AccountPublic, Balance, Nonce};
-use eave_pallet_evm::GenesisAccount;
+use module_evm::GenesisAccount;
 use sc_chain_spec::ChainSpecExtension;
 use serde::{Deserialize, Serialize};
 use sp_consensus_babe::AuthorityId as BabeId;

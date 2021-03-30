@@ -67,11 +67,11 @@ orml-oracle-rpc = { path = "../../../ecosystem-pallets/orml/oracle/rpc" }
 ecosystem-renvm-bridge = { path = "../../../ecosystem-pallets/ren/renvm-bridge" }
 
 eave-primitives = { package = "eave-primitives", path = "../../../primitives", default-features = false }
-eave-pallet-evm = { path = "../../../pallets/evm", default-features = false }
-eave-pallet-evm-rpc-runtime-api = { path = "../../../pallets/evm/rpc/runtime_api", default-features = false }
-eave-pallet-nft = { path = "../../../pallets/nft" }
-eave-pallet-staking-pool = { path = '../../../pallets/staking-pool', default-features = false }
-eave-pallet-staking-pool-rpc = { path = '../../../pallets/staking-pool/rpc', default-features = false, version = '0.1.0' }
+module-evm = { path = "../../../ecosystem-pallets/aca/modules/evm", default-features = false }
+module-evm-rpc-runtime-api = { path = "../../../ecosystem-pallets/aca/modules/evm/rpc/runtime_api", default-features = false }
+module-nft = { path = "../../../ecosystem-pallets/aca/modules/nft" }
+module-staking-pool = { path = '../../../ecosystem-pallets/aca/modules/staking-pool', default-features = false }
+module-staking-pool-rpc = { path = '../../../ecosystem-pallets/aca/modules/staking-pool/rpc', default-features = false }
 
 eave-rpc = { path = "../../../rpc" }
 
