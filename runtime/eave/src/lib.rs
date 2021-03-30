@@ -123,10 +123,15 @@ pub use sp_runtime::{Perbill, Percent, Permill, Perquintill};
 
 pub use authority::AuthorityConfigImpl;
 pub use constants::{fee::*, time::*};
-pub use eave_primitives::{
+pub use acala_primitives::{
 	AccountId, AccountIndex, AirDropCurrencyId, Amount, AuctionId, AuthoritysOriginId, Balance, BlockNumber,
-	CurrencyId, DataProviderId, EraIndex, Hash, Moment, Nonce, Share, Signature, TokenSymbol, TradingPair,
+	DataProviderId, EraIndex, Hash, Moment, Nonce, Share, Signature, TokenSymbol, TradingPair,
 };
+
+pub use eave_primitives::currency::{
+	CurrencyId
+};
+
 pub use eave_runtime_common::{
 	cent, deposit, dollar, microcent, millicent, CurveFeeModel, ExchangeRate, GasToWeight, OffchainSolutionWeightLimit, 
 	Price, Rate, Ratio, RuntimeBlockLength, RuntimeBlockWeights, SystemContractsFilter, TimeStampedPrice, EAVE, EUSD, 
@@ -165,7 +170,7 @@ impl_opaque_keys! {
 
 // Pallet accounts of runtime
 parameter_types! {
-	pub const AcalaTreasuryModuleId: ModuleId = ModuleId(*b"aca/trsy");
+	pub const EaveTreasuryModuleId: ModuleId = ModuleId(*b"eave/trs");
 	pub const LoansModuleId: ModuleId = ModuleId(*b"aca/loan");
 	pub const DEXModuleId: ModuleId = ModuleId(*b"aca/dexm");
 	pub const CDPTreasuryModuleId: ModuleId = ModuleId(*b"aca/cdpt");
@@ -181,7 +186,7 @@ parameter_types! {
 
 pub fn get_all_module_accounts() -> Vec<AccountId> {
 	vec![
-		AcalaTreasuryModuleId::get().into_account(),
+		EaveTreasuryModuleId::get().into_account(),
 		LoansModuleId::get().into_account(),
 		DEXModuleId::get().into_account(),
 		CDPTreasuryModuleId::get().into_account(),
@@ -476,7 +481,7 @@ impl pallet_utility::Config for Runtime {
 
 parameter_types! {
 	pub const MultisigDepositBase: Balance = 500 * millicent(EAVE);
-	pub const MultisigDepositFactor: Balance = 100 * millicent(EAVE);;
+	pub const MultisigDepositFactor: Balance = 100 * millicent(EAVE);
 	pub const MaxSignatories: u16 = 100;
 }
 
@@ -536,7 +541,7 @@ parameter_types! {
 }
 
 impl pallet_treasury::Config for Runtime {
-	type ModuleId = AcalaTreasuryModuleId;
+	type ModuleId = EaveTreasuryModuleId;
 	type Currency = Balances;
 	type ApproveOrigin = EnsureRootOrHalfGeneralCouncil;
 	type RejectOrigin = EnsureRootOrHalfGeneralCouncil;
@@ -578,7 +583,7 @@ parameter_types! {
 	pub const ConfigDepositBase: Balance = 10 * cent(EAVE);
 	pub const FriendDepositFactor: Balance = cent(EAVE);;
 	pub const MaxFriends: u16 = 9;
-	pub const RecoveryDeposit: Balance = 10 * cent(EAVE);;
+	pub const RecoveryDeposit: Balance = 10 * cent(EAVE);
 }
 
 impl pallet_recovery::Config for Runtime {
@@ -688,7 +693,7 @@ parameter_type_with_key! {
 }
 
 parameter_types! {
-	pub TreasuryModuleAccount: AccountId = AcalaTreasuryModuleId::get().into_account();
+	pub TreasuryModuleAccount: AccountId = EaveTreasuryModuleId::get().into_account();
 }
 
 impl orml_tokens::Config for Runtime {
@@ -747,9 +752,9 @@ impl EnsureOrigin<Origin> for EnsureRootOrEaveTreasury {
 
 	fn try_origin(o: Origin) -> Result<Self::Success, Origin> {
 		Into::<Result<RawOrigin<AccountId>, Origin>>::into(o).and_then(|o| match o {
-			RawOrigin::Root => Ok(AcalaTreasuryModuleId::get().into_account()),
+			RawOrigin::Root => Ok(EaveTreasuryModuleId::get().into_account()),
 			RawOrigin::Signed(caller) => {
-				if caller == AcalaTreasuryModuleId::get().into_account() {
+				if caller == EaveTreasuryModuleId::get().into_account() {
 					Ok(caller)
 				} else {
 					Err(Origin::from(Some(caller)))
@@ -1094,7 +1099,7 @@ impl module_nominees_election::Config for Runtime {
 	type BondingDuration = NomineesElectionBondingDuration;
 	type NominateesCount = NominateesCount;
 	type MaxUnlockingChunks = MaxUnlockingChunks;
-	type RelaychainValidatorFilter = runtime_common::RelaychainValidatorFilter;
+	type RelaychainValidatorFilter = eave_runtime_common::RelaychainValidatorFilter;
 }
 
 parameter_types! {
@@ -1119,8 +1124,8 @@ impl module_homa_validator_list::Config for Runtime {
 }
 
 parameter_types! {
-	pub CreateClassDeposit: Balance = 500 * millicent(ACA);
-	pub CreateTokenDeposit: Balance = 100 * millicent(ACA);
+	pub CreateClassDeposit: Balance = 500 * millicent(EAVE);
+	pub CreateTokenDeposit: Balance = 100 * millicent(EAVE);
 }
 
 impl module_nft::Config for Runtime {
@@ -1207,7 +1212,7 @@ pub type MultiCurrencyPrecompile =
 
 pub type NFTPrecompile = eave_runtime_common::NFTPrecompile<AccountId, EvmAddressMapping<Runtime>, NFT>;
 pub type StateRentPrecompile = eave_runtime_common::StateRentPrecompile<AccountId, EvmAddressMapping<Runtime>, EVM>;
-pub type OraclePrecompile = eave_runtime_common::OraclePrecompile<AccountId, EvmAddressMapping<Runtime>, Prices>;
+pub type OraclePrecompile = eave_runtime_common::OraclePrecompile<AccountId, EvmAddressMapping<Runtime>, AggregatedDataProvider>;
 pub type ScheduleCallPrecompile = eave_runtime_common::ScheduleCallPrecompile<
 	AccountId,
 	EvmAddressMapping<Runtime>,
@@ -1232,7 +1237,7 @@ impl module_evm::Config for Runtime {
 	type MaxCodeSize = MaxCodeSize;
 
 	type Event = Event;
-	type Precompiles = runtime_common::AllPrecompiles<
+	type Precompiles = eave_runtime_common::AllPrecompiles<
 		SystemContractsFilter,
 		MultiCurrencyPrecompile,
 		NFTPrecompile,
@@ -1382,7 +1387,7 @@ mod standalone_impl {
 		type Currency = Balances;
 		type UnixTime = Timestamp;
 		type CurrencyToVote = U128CurrencyToVote;
-		type RewardRemainder = AcalaTreasury;
+		type RewardRemainder = EaveTreasury;
 		type Event = Event;
 		type Slash = EaveTreasury; // send the slashed funds to the pallet treasury.
 		type Reward = (); // rewards are minted from the void
@@ -1573,7 +1578,7 @@ macro_rules! construct_eave_runtime {
 		construct_runtime! {
 			pub enum Runtime where
 				Block = Block,
-				NodeBlock = eave_primitives::Block,
+				NodeBlock = acala_primitives::Block,
 				UncheckedExtrinsic = UncheckedExtrinsic
 			{
 				// Core
@@ -1590,7 +1595,7 @@ macro_rules! construct_eave_runtime {
 				Tokens: orml_tokens::{Pallet, Storage, Event<T>, Config<T>} = 7,
 				Vesting: orml_vesting::{Pallet, Storage, Call, Event<T>, Config<T>} = 8,
 
-				Treasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>} = 9,
+				EaveTreasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>} = 9,
 				Bounties: pallet_bounties::{Pallet, Call, Storage, Event<T>} = 10,
 				Tips: pallet_tips::{Pallet, Call, Storage, Event<T>} = 11,
 

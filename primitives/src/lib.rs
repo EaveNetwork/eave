@@ -1,24 +1,38 @@
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
+// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+// Modifications Copyright (c) 2021 John Whitton
+// 2021-03 : Customize for EAVE Protocol
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::unnecessary_cast)]
+#![allow(clippy::upper_case_acronyms)]
 
 pub mod currency;
 pub mod evm;
 pub mod mocks;
 
-use crate::evm::EvmAddress;
-
 use codec::{Decode, Encode};
-
 use sp_runtime::{
 	generic,
 	traits::{BlakeTwo256, IdentifyAccount, Verify},
 	MultiSignature, RuntimeDebug,
 };
-
-use sp_std::{
-	convert::{Into, TryFrom, TryInto},
-	prelude::*,
-};
+use sp_std::{convert::Into, prelude::*};
 
 pub use currency::{CurrencyId, TokenSymbol};
 
@@ -27,9 +41,6 @@ use serde::{Deserialize, Serialize};
 
 #[cfg(test)]
 mod tests;
-
-pub type Decimals = u8;
-pub type AssetId = u64;
 
 /// An index to a block.
 pub type BlockNumber = u32;
@@ -90,7 +101,7 @@ pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
 #[derive(Encode, Decode, Eq, PartialEq, Copy, Clone, RuntimeDebug, PartialOrd, Ord)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub enum AirDropCurrencyId {
-	BEAM = 0,
+	ICE = 0,
 	EAVE,
 }
 
@@ -98,8 +109,9 @@ pub enum AirDropCurrencyId {
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub enum AuthoritysOriginId {
 	Root,
-	EaveTreasury,
-	SlipTreasury,
+	AcalaTreasury,
+	HonzonTreasury,
+	HomaTreasury,
 	DSWF,
 }
 
@@ -139,7 +151,7 @@ impl TradingPair {
 
 /// Ethereum precompiles
 /// 0 - 0x400
-/// Eave precompiles
+/// EAVE precompiles
 /// 0x400 - 0x800
 pub const PRECOMPILE_ADDRESS_START: u64 = 0x400;
 /// Predeployed system contracts (except Mirrored ERC20)
@@ -153,121 +165,3 @@ pub const MIRRORED_TOKENS_ADDRESS_START: u64 = 0x01000000;
 pub const MIRRORED_NFT_ADDRESS_START: u64 = 0x02000000;
 
 pub type NFTBalance = u128;
-
-
-#[derive(Encode, Decode, Eq, PartialEq, Copy, Clone, RuntimeDebug, PartialOrd, Ord)]
-#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
-pub enum EAVETokenSymbol {
-	EAVE = 0,
-	EUSD = 1,
-	SBTC = 2,
-}
-impl TryFrom<u8> for EAVETokenSymbol {
-	type Error = ();
-
-	fn try_from(v: u8) -> Result<Self, Self::Error> {
-		match v {
-			0 => Ok(EAVETokenSymbol::EAVE),
-			1 => Ok(EAVETokenSymbol::EUSD),
-			2 => Ok(EAVETokenSymbol::SBTC),
-			_ => Err(()),
-		}
-	}
-}
-pub type PoolId = u32;
-pub type PoolConfigId = u32;
-
-#[derive(Encode, Decode, Eq, PartialEq, Copy, Clone, RuntimeDebug, PartialOrd, Ord)]
-#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
-pub enum EAVECurrencyId {
-	Token(EAVETokenSymbol),
-	DEXShare(EAVETokenSymbol, EAVETokenSymbol),
-	ERC20(EvmAddress),
-}
-
-impl EAVECurrencyId {
-	pub fn is_token_currency_id(&self) -> bool {
-		matches!(self, EAVECurrencyId::Token(_))
-	}
-
-	pub fn is_dex_share_currency_id(&self) -> bool {
-		matches!(self, EAVECurrencyId::DEXShare(_, _))
-	}
-
-	pub fn split_dex_share_currency_id(&self) -> Option<(Self, Self)> {
-		match self {
-			EAVECurrencyId::DEXShare(token_symbol_0, token_symbol_1) => {
-				Some((EAVECurrencyId::Token(*token_symbol_0), EAVECurrencyId::Token(*token_symbol_1)))
-			}
-			_ => None,
-		}
-	}
-
-	pub fn join_dex_share_currency_id(currency_id_0: Self, currency_id_1: Self) -> Option<Self> {
-		match (currency_id_0, currency_id_1) {
-			(EAVECurrencyId::Token(token_symbol_0), EAVECurrencyId::Token(token_symbol_1)) => {
-				Some(EAVECurrencyId::DEXShare(token_symbol_0, token_symbol_1))
-			}
-			_ => None,
-		}
-	}
-}
-
-impl TryFrom<Vec<u8>> for EAVECurrencyId {
-	type Error = ();
-	fn try_from(v: Vec<u8>) -> Result<EAVECurrencyId, ()> {
-		match v.as_slice() {
-			b"EAVE" => Ok(EAVECurrencyId::Token(EAVETokenSymbol::EAVE)),
-			b"EUSD" => Ok(EAVECurrencyId::Token(EAVETokenSymbol::EUSD)),
-			b"SBTC" => Ok(EAVECurrencyId::Token(EAVETokenSymbol::SBTC)),
-			_ => Err(()),
-		}
-	}
-}
-
-/// Note the pre-deployed ERC20 contracts depend on `EAVECurrencyId` implementation,
-/// and need to be updated if any change.
-impl TryFrom<[u8; 32]> for EAVECurrencyId {
-	type Error = ();
-
-	fn try_from(v: [u8; 32]) -> Result<Self, Self::Error> {
-		if !v.starts_with(&[0u8; 29][..]) {
-			return Err(());
-		}
-
-		// token
-		if v[29] == 0 && v[31] == 0 {
-			return v[30].try_into().map(EAVECurrencyId::Token);
-		}
-
-		// DEX share
-		if v[29] == 1 {
-			let left = v[30].try_into()?;
-			let right = v[31].try_into()?;
-			return Ok(EAVECurrencyId::DEXShare(left, right));
-		}
-
-		Err(())
-	}
-}
-
-/// Note the pre-deployed ERC20 contracts depend on `EAVECurrencyId` implementation,
-/// and need to be updated if any change.
-impl From<EAVECurrencyId> for [u8; 32] {
-	fn from(val: EAVECurrencyId) -> Self {
-		let mut bytes = [0u8; 32];
-		match val {
-			EAVECurrencyId::Token(token) => {
-				bytes[30] = token as u8;
-			}
-			EAVECurrencyId::DEXShare(left, right) => {
-				bytes[29] = 1;
-				bytes[30] = left as u8;
-				bytes[31] = right as u8;
-			}
-			_ => {}
-		}
-		bytes
-	}
-}
-

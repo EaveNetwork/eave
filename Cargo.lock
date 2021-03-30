@@ -1619,6 +1619,7 @@ dependencies = [
 name = "eave-runtime"
 version = "0.1.0"
 dependencies = [
+ "acala-primitives",
  "cumulus-pallet-parachain-system",
  "cumulus-pallet-xcm-handler",
  "cumulus-primitives-core",
@@ -1646,6 +1647,7 @@ dependencies = [
  "module-evm-bridge",
  "module-evm-rpc-runtime-api",
  "module-homa",
+ "module-homa-validator-list",
  "module-honzon",
  "module-incentives",
  "module-loans",
@@ -1668,6 +1670,7 @@ dependencies = [
  "orml-rewards",
  "orml-tokens",
  "orml-traits",
+ "orml-unknown-tokens",
  "orml-vesting",
  "orml-xcm-support",
  "orml-xtokens",
@@ -1727,6 +1730,7 @@ dependencies = [
 name = "eave-runtime-common"
 version = "0.1.0"
 dependencies = [
+ "acala-primitives",
  "eave-primitives",
  "frame-support",
  "frame-system",
@@ -4651,6 +4655,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "module-homa-validator-list"
+version = "0.7.3"
+dependencies = [
+ "acala-primitives",
+ "clear_on_drop",
+ "frame-support",
+ "frame-system",
+ "module-support",
+ "orml-currencies",
+ "orml-tokens",
+ "orml-traits",
+ "orml-utilities",
+ "pallet-balances",
+ "parity-scale-codec",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "module-honzon"
 version = "0.7.11"
 dependencies = [
@@ -5340,6 +5366,22 @@ dependencies = [
  "sp-io",
  "sp-runtime",
  "sp-std",
+]
+
+[[package]]
+name = "orml-unknown-tokens"
+version = "0.4.1-dev"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "orml-xcm-support",
+ "parity-scale-codec",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+ "xcm",
 ]
 
 [[package]]
@@ -10140,6 +10182,7 @@ dependencies = [
 name = "steam-runtime"
 version = "0.1.0"
 dependencies = [
+ "acala-primitives",
  "cumulus-pallet-parachain-system",
  "cumulus-pallet-xcm-handler",
  "cumulus-primitives-core",
@@ -10167,6 +10210,7 @@ dependencies = [
  "module-evm-bridge",
  "module-evm-rpc-runtime-api",
  "module-homa",
+ "module-homa-validator-list",
  "module-honzon",
  "module-incentives",
  "module-loans",
@@ -10189,6 +10233,7 @@ dependencies = [
  "orml-rewards",
  "orml-tokens",
  "orml-traits",
+ "orml-unknown-tokens",
  "orml-vesting",
  "orml-xcm-support",
  "orml-xtokens",

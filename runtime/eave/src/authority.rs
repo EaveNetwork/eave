@@ -19,7 +19,7 @@
 //! An orml_authority trait implementation.
 
 use crate::{
-	AcalaTreasuryModuleId, AccountId, AccountIdConversion, AuthoritysOriginId, BadOrigin, BlockNumber, DSWFModuleId,
+	EaveTreasuryModuleId, AccountId, AccountIdConversion, AuthoritysOriginId, BadOrigin, BlockNumber, DSWFModuleId,
 	DispatchResult, EnsureRoot, EnsureRootOrHalfGeneralCouncil, EnsureRootOrHalfHomaCouncil,
 	EnsureRootOrHalfHonzonCouncil, EnsureRootOrOneThirdsTechnicalCommittee, EnsureRootOrThreeFourthsGeneralCouncil,
 	EnsureRootOrTwoThirdsTechnicalCommittee, HomaTreasuryModuleId, HonzonTreasuryModuleId, OneDay, Origin,
@@ -78,7 +78,7 @@ impl orml_authority::AsOriginId<Origin, OriginCaller> for AuthoritysOriginId {
 	fn into_origin(self) -> OriginCaller {
 		match self {
 			AuthoritysOriginId::Root => Origin::root().caller().clone(),
-			AuthoritysOriginId::AcalaTreasury => Origin::signed(AcalaTreasuryModuleId::get().into_account())
+			AuthoritysOriginId::EaveTreasury => Origin::signed(EaveTreasuryModuleId::get().into_account())
 				.caller()
 				.clone(),
 			AuthoritysOriginId::HonzonTreasury => Origin::signed(HonzonTreasuryModuleId::get().into_account())
@@ -101,7 +101,7 @@ impl orml_authority::AsOriginId<Origin, OriginCaller> for AuthoritysOriginId {
 				OriginCaller,
 			> as EnsureOrigin<Origin>>::ensure_origin(origin)
 			.map_or_else(|_| Err(BadOrigin.into()), |_| Ok(())),
-			AuthoritysOriginId::AcalaTreasury => {
+			AuthoritysOriginId::EaveTreasury => {
 				<EnsureDelayed<OneDay, EnsureRootOrHalfGeneralCouncil, BlockNumber, OriginCaller> as EnsureOrigin<
 					Origin,
 				>>::ensure_origin(origin)

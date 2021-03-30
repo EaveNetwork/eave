@@ -21,7 +21,7 @@
 
 #![warn(missing_docs)]
 
-use eave_primitives::{AccountId, AssetId, Balance, Block, CurrencyId, DataProviderId, Hash, PoolId, Nonce};
+use eave_primitives::{AccountId, Balance, Block, CurrencyId, DataProviderId, Hash, Nonce};
 use sc_client_api::light::{Fetcher, RemoteBlockchain};
 pub use sc_rpc_api::DenyUnsafe;
 use sp_api::ProvideRuntimeApi;
