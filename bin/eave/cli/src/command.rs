@@ -1,4 +1,23 @@
-// Disable the following lints
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
+// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+// Modifications Copyright (c) 2021 John Whitton
+// 2021-03 : Customize for EAVE Protocol
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+// Diisable the following lints
 #![allow(clippy::borrowed_box)]
 
 use crate::cli::{Cli, RelayChainCli, Subcommand};
@@ -20,13 +39,8 @@ use sp_core::hexdisplay::HexDisplay;
 use sp_runtime::traits::Block as BlockT;
 use std::{io::Write, net::SocketAddr};
 
-fn get_exec_name() -> Option<String> {
-	std::env::current_exe()
-		.ok()
-		.and_then(|pb| pb.file_name().map(|s| s.to_os_string()))
-		.and_then(|s| s.into_string().ok())
-}
-
+#[cfg(feature = "with-eave-runtime")]
+const CHAIN_NAME: &str = "EAVE";
 #[cfg(feature = "with-steam-runtime")]
 const CHAIN_NAME: &str = "Steam";
 
@@ -139,7 +153,6 @@ impl SubstrateCli for RelayChainCli {
 		rococo-collator [parachain-args] -- [relaychain-args]",
 			CHAIN_NAME
 		)
-		.into()
 	}
 
 	fn author() -> String {
@@ -366,10 +379,9 @@ pub fn run() -> sc_cli::Result<()> {
 				let block: Block = generate_genesis_block(&config.chain_spec).map_err(|e| format!("{:?}", e))?;
 				let genesis_state = format!("0x{:?}", HexDisplay::from(&block.header().encode()));
 
-				let task_executor = config.task_executor.clone();
 				let polkadot_config =
-					SubstrateCli::create_configuration(&polkadot_cli, &polkadot_cli, task_executor, None)
-						.map_err(|err| format!("Relay chain argument error: {}", err))?;
+				SubstrateCli::create_configuration(&polkadot_cli, &polkadot_cli, config.task_executor.clone())
+					.map_err(|err| format!("Relay chain argument error: {}", err))?;
 				let collator = cli.run.base.validator || cli.collator;
 
 				info!("Parachain id: {:?}", id);
@@ -451,7 +463,7 @@ impl CliConfiguration<Self> for RelayChainCli {
 		self.base.base.prometheus_config(default_listen_port)
 	}
 
-	fn init<C: SubstrateCli>(&self) -> Result<sc_telemetry::TelemetryWorker> {
+	fn init<C: SubstrateCli>(&self) -> Result<()> {
 		unreachable!("PolkadotCli is never initialized; qed");
 	}
 
