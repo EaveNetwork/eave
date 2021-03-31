@@ -21,7 +21,7 @@
 
 #![warn(missing_docs)]
 
-use eave_primitives::{AccountId, Balance, Block, CurrencyId, DataProviderId, Hash, Nonce};
+use acala_primitives::{AccountId, Balance, Block, CurrencyId, DataProviderId, Hash, Nonce};
 use sc_client_api::light::{Fetcher, RemoteBlockchain};
 pub use sc_rpc_api::DenyUnsafe;
 use sp_api::ProvideRuntimeApi;
@@ -34,7 +34,7 @@ use std::sync::Arc;
 use standalone_use::*;
 #[cfg(feature = "standalone")]
 mod standalone_use {
-	pub use eave_primitives::BlockNumber;
+	pub use acala_primitives::BlockNumber;
 	pub use sc_consensus_babe::{BabeApi, Config, Epoch};
 	pub use sc_consensus_babe_rpc::BabeRpcHandler;
 	pub use sc_consensus_epochs::SharedEpochChanges;

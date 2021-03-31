@@ -17,7 +17,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-//! Common runtime code for Eave and Dawn.
+//! Common runtime code for Eave and Steam.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -30,7 +30,7 @@ use frame_support::{
 };
 use frame_system::limits;
 pub use module_support::{ExchangeRate, PrecompileCallerFilter, Price, Rate, Ratio};
-use acala_primitives::{Balance, PRECOMPILE_ADDRESS_START, PREDEPLOY_ADDRESS_START};
+use acala_primitives::{Balance, CurrencyId, PRECOMPILE_ADDRESS_START, PREDEPLOY_ADDRESS_START};
 use sp_core::H160;
 use sp_runtime::{
 	traits::{Convert, Saturating},
@@ -45,8 +45,8 @@ pub use precompile::{
 	StateRentPrecompile,
 };
 
-pub use eave_primitives::currency::{
-	CurrencyId, GetDecimals, DOT, EAVE, EUSD, ICE, IUSD, KILT, KSM, LDOT, LKSM, PHA, PLM, POLKABTC, RENBTC, SDN, XBTC,
+pub use acala_primitives::currency::{
+	GetDecimals, DOT, EAVE, EUSD, ICE, IUSD, KILT, KSM, LDOT, LKSM, PHA, PLM, POLKABTC, RENBTC, SDN, XBTC,
 };
 
 pub type TimeStampedPrice = orml_oracle::TimestampedValue<Price, acala_primitives::Moment>;

@@ -109,7 +109,7 @@ pub enum AirDropCurrencyId {
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub enum AuthoritysOriginId {
 	Root,
-	AcalaTreasury,
+	EaveTreasury,
 	HonzonTreasury,
 	HomaTreasury,
 	DSWF,

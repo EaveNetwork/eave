@@ -1,6 +1,6 @@
 # Eave Node and Parachain Runtimes
 
-This repository holds the codebase for Eave Standalone network daybreak as well as it's Rococo Parachain Dawn.
+This repository holds the codebase for Eave Standalone network wind as well as it's Rococo Parachain steam.
 
 
 ## Build & Run

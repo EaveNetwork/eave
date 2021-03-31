@@ -53,7 +53,7 @@ impl SubstrateCli for Cli {
 	fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
 		let id = if id.is_empty() {
 			// The binary prefix is always eave.
-			// Make Dawn the default chain spec.
+			// Make Steam the default chain spec.
 			"steam"
 		} else {
 			id
@@ -95,7 +95,7 @@ impl SubstrateCli for Cli {
 						Box::new(chain_spec::steam::ChainSpec::from_json_file(path)?)
 					}
 					#[cfg(not(feature = "with-steam-runtime"))]
-					return Err("Dawn runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.".into());
+					return Err("Steam runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.".into());
 				}
 			}
 		})
@@ -111,7 +111,7 @@ impl SubstrateCli for Cli {
 			#[cfg(feature = "with-steam-runtime")]
 			return &service::steam_runtime::VERSION;
 			#[cfg(not(feature = "with-steam-runtime"))]
-			panic!("Dawn runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.");
+			panic!("Steam runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.");
 		}
 	}
 }
@@ -120,7 +120,7 @@ fn set_default_ss58_version(spec: &Box<dyn service::ChainSpec>) {
 	use sp_core::crypto::Ss58AddressFormat;
 	let ss58_version = Ss58AddressFormat::SubstrateAccount;
 
-	/* TODO add Eave and Dawn into crypto
+	/* TODO add Eave and Steam into crypto
 	let ss58_version = if spec.is_karura() {
 		Ss58AddressFormat::KaruraAccount
 	} else if spec.is_eave() {
@@ -181,7 +181,7 @@ pub fn run() -> sc_cli::Result<()> {
 
 			#[cfg(feature = "with-steam-runtime")]
 			return runner
-				.sync_run(|config| cmd.run::<service::steam_runtime::Block, service::DawnExecutor>(config));
+				.sync_run(|config| cmd.run::<service::steam_runtime::Block, service::SteamExecutor>(config));
 		}
 
 		Some(Subcommand::Key(cmd)) => cmd.run(&cli),

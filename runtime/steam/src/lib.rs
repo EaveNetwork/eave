@@ -123,19 +123,9 @@ pub use sp_runtime::{Perbill, Percent, Permill, Perquintill};
 
 pub use authority::AuthorityConfigImpl;
 pub use constants::{fee::*, time::*};
-/*
 pub use acala_primitives::{
 	AccountId, AccountIndex, AirDropCurrencyId, Amount, AuctionId, AuthoritysOriginId, Balance, BlockNumber,
 	CurrencyId, DataProviderId, EraIndex, Hash, Moment, Nonce, Share, Signature, TokenSymbol, TradingPair,
-};
-*/
-pub use acala_primitives::{
-	AccountId, AccountIndex, AirDropCurrencyId, Amount, AuctionId, AuthoritysOriginId, Balance, BlockNumber,
-	DataProviderId, EraIndex, Hash, Moment, Nonce, Share, Signature, TokenSymbol, TradingPair,
-};
-
-pub use eave_primitives::currency::{
-	CurrencyId
 };
 
 pub use eave_runtime_common::{
@@ -282,7 +272,7 @@ impl pallet_balances::Config for Runtime {
 }
 
 parameter_types! {
-	pub const TransactionByteFee: Balance = 10 * millicent(EAVE);
+	pub TransactionByteFee: Balance = 10 * millicent(EAVE);
 	pub const TargetBlockFullness: Perquintill = Perquintill::from_percent(25);
 	pub AdjustmentVariable: Multiplier = Multiplier::saturating_from_rational(1, 100_000);
 	pub MinimumMultiplier: Multiplier = Multiplier::saturating_from_rational(1, 1_000_000_000u128);
@@ -463,8 +453,8 @@ impl pallet_membership::Config<OperatorMembershipInstanceSteam> for Runtime {
 	type SwapOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type ResetOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type PrimeOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
-	type MembershipInitialized = AcalaOracle;
-	type MembershipChanged = AcalaOracle;
+	type MembershipInitialized = EaveOracle;
+	type MembershipChanged = EaveOracle;
 }
 
 type OperatorMembershipInstanceBand = pallet_membership::Instance6;
@@ -486,8 +476,8 @@ impl pallet_utility::Config for Runtime {
 }
 
 parameter_types! {
-	pub const MultisigDepositBase: Balance = 500 * millicent(EAVE);
-	pub const MultisigDepositFactor: Balance = 100 * millicent(EAVE);
+	pub MultisigDepositBase: Balance = 500 * millicent(EAVE);
+	pub MultisigDepositFactor: Balance = 100 * millicent(EAVE);
 	pub const MaxSignatories: u16 = 100;
 }
 
@@ -528,21 +518,21 @@ impl ContainsLengthBound for GeneralCouncilProvider {
 
 parameter_types! {
 	pub const ProposalBond: Permill = Permill::from_percent(5);
-	pub const ProposalBondMinimum: Balance = dollar(EAVE);
+	pub ProposalBondMinimum: Balance = dollar(EAVE);
 	pub const SpendPeriod: BlockNumber = DAYS;
 	pub const Burn: Permill = Permill::from_percent(0);
 	pub const TipCountdown: BlockNumber = DAYS;
 	pub const TipFindersFee: Percent = Percent::from_percent(10);
-	pub const TipReportDepositBase: Balance = dollar(EAVE);
+	pub TipReportDepositBase: Balance = dollar(EAVE);
 	pub const SevenDays: BlockNumber = 7 * DAYS;
 	pub const ZeroDay: BlockNumber = 0;
 	pub const OneDay: BlockNumber = DAYS;
-	pub const BountyDepositBase: Balance = dollar(EAVE);
+	pub BountyDepositBase: Balance = dollar(EAVE);
 	pub const BountyDepositPayoutDelay: BlockNumber = DAYS;
 	pub const BountyUpdatePeriod: BlockNumber = 14 * DAYS;
 	pub const BountyCuratorDeposit: Permill = Permill::from_percent(50);
-	pub const BountyValueMinimum: Balance = 5 * dollar(EAVE);
-	pub const DataDepositPerByte: Balance = cent(EAVE);
+	pub BountyValueMinimum: Balance = 5 * dollar(EAVE);
+	pub DataDepositPerByte: Balance = cent(EAVE);
 	pub const MaximumReasonLength: u32 = 16384;
 }
 
@@ -586,10 +576,10 @@ impl pallet_tips::Config for Runtime {
 }
 
 parameter_types! {
-	pub const ConfigDepositBase: Balance = 10 * cent(EAVE);
-	pub const FriendDepositFactor: Balance = cent(EAVE);
+	pub ConfigDepositBase: Balance = 10 * cent(EAVE);
+	pub FriendDepositFactor: Balance = cent(EAVE);
 	pub const MaxFriends: u16 = 9;
-	pub const RecoveryDeposit: Balance = 10 * cent(EAVE);
+	pub RecoveryDeposit: Balance = 10 * cent(EAVE);
 }
 
 impl pallet_recovery::Config for Runtime {
@@ -683,7 +673,7 @@ create_median_value_data_provider!(
 	CurrencyId,
 	Price,
 	TimeStampedPrice,
-	[AcalaOracle, BandOracle]
+	[EaveOracle, BandOracle]
 );
 // Aggregated data provider cannot feed.
 impl DataFeeder<CurrencyId, Price, AccountId> for AggregatedDataProvider {
@@ -777,7 +767,7 @@ impl EnsureOrigin<Origin> for EnsureRootOrEaveTreasury {
 }
 
 parameter_types! {
-	pub const MinVestedTransfer: Balance = 100 * dollar(EAVE);
+	pub MinVestedTransfer: Balance = 100 * dollar(EAVE);
 }
 
 impl orml_vesting::Config for Runtime {
@@ -1207,10 +1197,10 @@ parameter_types! {
 #[cfg(not(feature = "with-ethereum-compatibility"))]
 parameter_types! {
 	pub const NewContractExtraBytes: u32 = 10_000;
-	pub const StorageDepositPerByte: Balance = microcent(EAVE);
+	pub StorageDepositPerByte: Balance = microcent(EAVE);
 	pub const MaxCodeSize: u32 = 60 * 1024;
-	pub const DeveloperDeposit: Balance = dollar(EAVE);
-	pub const DeploymentFee: Balance = dollar(EAVE);
+	pub DeveloperDeposit: Balance = dollar(EAVE);
+	pub DeploymentFee: Balance = dollar(EAVE);
 }
 
 pub type MultiCurrencyPrecompile =
@@ -1218,7 +1208,7 @@ pub type MultiCurrencyPrecompile =
 
 pub type NFTPrecompile = eave_runtime_common::NFTPrecompile<AccountId, EvmAddressMapping<Runtime>, NFT>;
 pub type StateRentPrecompile = eave_runtime_common::StateRentPrecompile<AccountId, EvmAddressMapping<Runtime>, EVM>;
-pub type OraclePrecompile = eave_runtime_common::OraclePrecompile<AccountId, EvmAddressMapping<Runtime>, AggregatedDataProvider>;
+pub type OraclePrecompile = eave_runtime_common::OraclePrecompile<AccountId, EvmAddressMapping<Runtime>, Prices>;
 pub type ScheduleCallPrecompile = eave_runtime_common::ScheduleCallPrecompile<
 	AccountId,
 	EvmAddressMapping<Runtime>,
@@ -1629,7 +1619,7 @@ macro_rules! construct_steam_runtime {
 				ElectionsPhragmen: pallet_elections_phragmen::{Pallet, Call, Storage, Event<T>} = 28,
 
 				// Oracle
-				AcalaOracle: orml_oracle::<Instance1>::{Pallet, Storage, Call, Config<T>, Event<T>} = 29,
+				EaveOracle: orml_oracle::<Instance1>::{Pallet, Storage, Call, Config<T>, Event<T>} = 29,
 				BandOracle: orml_oracle::<Instance2>::{Pallet, Storage, Call, Config<T>, Event<T>} = 30,
 				// OperatorMembership must be placed after Oracle or else will have race condition on initialization
 				OperatorMembershipEave: pallet_membership::<Instance5>::{Pallet, Call, Storage, Event<T>, Config<T>} = 31,
@@ -1917,7 +1907,7 @@ impl_runtime_apis! {
 	> for Runtime {
 		fn get_value(provider_id: DataProviderId ,key: CurrencyId) -> Option<TimeStampedPrice> {
 			match provider_id {
-				DataProviderId::Steam => AcalaOracle::get_no_op(&key),
+				DataProviderId::Eave => EaveOracle::get_no_op(&key),
 				DataProviderId::Band => BandOracle::get_no_op(&key),
 				DataProviderId::Aggregated => <AggregatedDataProvider as DataProviderExtended<_, _>>::get_no_op(&key)
 			}
@@ -1925,7 +1915,7 @@ impl_runtime_apis! {
 
 		fn get_all_values(provider_id: DataProviderId) -> Vec<(CurrencyId, Option<TimeStampedPrice>)> {
 			match provider_id {
-				DataProviderId::Steam => AcalaOracle::get_all_values(),
+				DataProviderId::Eave => EaveOracle::get_all_values(),
 				DataProviderId::Band => BandOracle::get_all_values(),
 				DataProviderId::Aggregated => <AggregatedDataProvider as DataProviderExtended<_, _>>::get_all_values()
 			}

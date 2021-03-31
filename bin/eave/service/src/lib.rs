@@ -1,3 +1,23 @@
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
+// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+// Modifications Copyright (c) 2021 John Whitton
+// 2021-03 : Customize for EAVE Protocol
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 // Disable the following lints
 #![allow(clippy::type_complexity)]
 
@@ -16,14 +36,13 @@ pub use eave_runtime;
 #[cfg(feature = "with-steam-runtime")]
 pub use steam_runtime;
 
-use eave_primitives::Block;
+use acala_primitives::Block;
 use polkadot_primitives::v0::CollatorPair;
 use sc_executor::native_executor_instance;
 use sc_service::{
 	error::Error as ServiceError, Configuration, PartialComponents, Role, TFullBackend, TFullClient, TaskManager,
 };
-use sc_telemetry::TelemetrySpan;
-use sp_core::Pair;
+use sc_telemetry::{Telemetry, TelemetryWorker, TelemetryWorkerHandle};
 use sp_runtime::traits::BlakeTwo256;
 use sp_trie::PrefixedMemoryDB;
 use std::sync::Arc;
@@ -43,7 +62,7 @@ mod mock_timestamp_data_provider;
 
 #[cfg(feature = "with-steam-runtime")]
 native_executor_instance!(
-	pub DawnExecutor,
+	pub SteamExecutor,
 	steam_runtime::api::dispatch,
 	steam_runtime::native_version,
 	frame_benchmarking::benchmarking::HostFunctions,
@@ -63,17 +82,17 @@ pub trait IdentifyVariant {
 	/// Returns if this is a configuration for the `Eave` network.
 	fn is_eave(&self) -> bool;
 
-	/// Returns if this is a configuration for the `Dawn` network.
+	/// Returns if this is a configuration for the `Steam` network.
 	fn is_steam(&self) -> bool;
 }
 
 impl IdentifyVariant for Box<dyn ChainSpec> {
 	fn is_eave(&self) -> bool {
-		self.id().starts_with("eave") || self.id().starts_with("sun")
+		self.id().starts_with("eave") || self.id().starts_with("eav")
 	}
 
 	fn is_steam(&self) -> bool {
-		self.id().starts_with("steam") || self.id().starts_with("daw")
+		self.id().starts_with("steam") || self.id().starts_with("ste")
 	}
 }
 
@@ -93,7 +112,7 @@ pub fn new_partial<RuntimeApi, Executor>(
 		(),
 		sp_consensus::import_queue::BasicQueue<Block, PrefixedMemoryDB<BlakeTwo256>>,
 		sc_transaction_pool::FullPool<Block, FullClient<RuntimeApi, Executor>>,
-		(),
+		(Option<Telemetry>, Option<TelemetryWorkerHandle>),
 	>,
 	sc_service::Error,
 >
@@ -104,9 +123,29 @@ where
 {
 	let inherent_data_providers = sp_inherents::InherentDataProviders::new();
 
-	let (client, backend, keystore_container, task_manager) =
-		sc_service::new_full_parts::<Block, RuntimeApi, Executor>(&config)?;
+	let telemetry = config
+		.telemetry_endpoints
+		.clone()
+		.filter(|x| !x.is_empty())
+		.map(|endpoints| -> Result<_, sc_telemetry::Error> {
+			let worker = TelemetryWorker::new(16)?;
+			let telemetry = worker.handle().new_telemetry(endpoints);
+			Ok((worker, telemetry))
+		})
+		.transpose()?;
+
+	let (client, backend, keystore_container, task_manager) = sc_service::new_full_parts::<Block, RuntimeApi, Executor>(
+		&config,
+		telemetry.as_ref().map(|(_, telemetry)| telemetry.handle()),
+	)?;
 	let client = Arc::new(client);
+
+	let telemetry_worker_handle = telemetry.as_ref().map(|(worker, _)| worker.handle());
+
+	let telemetry = telemetry.map(|(worker, telemetry)| {
+		task_manager.spawn_handle().spawn("telemetry", worker.run());
+		telemetry
+	});
 
 	// TODO: custom registry with `eave` prefix?
 	let registry = config.prometheus_registry();
@@ -136,7 +175,7 @@ where
 		transaction_pool,
 		inherent_data_providers,
 		select_chain: (),
-		other: (),
+		other: (telemetry, telemetry_worker_handle),
 	})
 }
 
@@ -153,7 +192,7 @@ async fn start_node_impl<RB, RuntimeApi, Executor>(
 	id: ParaId,
 	validator: bool,
 	_rpc_ext_builder: RB,
-) -> sc_service::error::Result<(TaskManager, Arc<TFullClient<Block, RuntimeApi, Executor>>)>
+) -> sc_service::error::Result<(TaskManager, Arc<FullClient<RuntimeApi, Executor>>)>
 where
 	RB: Fn(Arc<FullClient<RuntimeApi, Executor>>) -> jsonrpc_core::IoHandler<sc_rpc::Metadata> + Send + 'static,
 	RuntimeApi: ConstructRuntimeApi<Block, FullClient<RuntimeApi, Executor>> + Send + Sync + 'static,
@@ -166,8 +205,19 @@ where
 
 	let parachain_config = prepare_node_config(parachain_config);
 
-	let polkadot_full_node = cumulus_client_service::build_polkadot_full_node(polkadot_config, collator_key.public())
-		.map_err(|e| match e {
+	let params = new_partial(&parachain_config, false)?;
+	params
+		.inherent_data_providers
+		.register_provider(sp_timestamp::InherentDataProvider)
+		.unwrap();
+	let (mut telemetry, telemetry_worker_handle) = params.other;
+
+	let polkadot_full_node = cumulus_client_service::build_polkadot_full_node(
+		polkadot_config,
+		collator_key.clone(),
+		telemetry_worker_handle,
+	)
+	.map_err(|e| match e {
 		polkadot_service::Error::Sub(x) => x,
 		s => format!("{}", s).into(),
 	})?;
@@ -220,15 +270,11 @@ where
 	if parachain_config.offchain_worker.enabled {
 		sc_service::build_offchain_workers(
 			&parachain_config,
-			backend.clone(),
 			task_manager.spawn_handle(),
 			client.clone(),
 			network.clone(),
 		);
 	};
-
-	let telemetry_span = TelemetrySpan::new();
-	let _telemetry_span_entered = telemetry_span.enter();
 
 	sc_service::spawn_tasks(sc_service::SpawnTasksParams {
 		on_demand: None,
@@ -243,12 +289,12 @@ where
 		network: network.clone(),
 		network_status_sinks,
 		system_rpc_tx,
-		telemetry_span: Some(telemetry_span.clone()),
+		telemetry: telemetry.as_mut(),
 	})?;
 
 	let announce_block = {
 		let network = network.clone();
-		Arc::new(move |hash, data| network.announce_block(hash, Some(data)))
+		Arc::new(move |hash, data| network.announce_block(hash, data))
 	};
 
 	if validator {
@@ -257,6 +303,7 @@ where
 			client.clone(),
 			transaction_pool,
 			prometheus_registry.as_ref(),
+			telemetry.as_ref().map(|x| x.handle()),
 		);
 		let spawner = task_manager.spawn_handle();
 
@@ -313,7 +360,6 @@ where
 	RuntimeApi::RuntimeApi: RuntimeApiCollection<StateBackend = sc_client_api::StateBackendFor<FullBackend, Block>>,
 	Executor: NativeExecutionDispatch + 'static,
 {
-
 	start_node_impl(parachain_config, collator_key, polkadot_config, id, validator, |_| {
 		Default::default()
 	})
@@ -343,10 +389,10 @@ pub fn new_chain_ops(
 				task_manager,
 				..
 			} = new_partial(config, false)?;
-			Ok((Arc::new(Client::Dawn(client)), backend, import_queue, task_manager))
+			Ok((Arc::new(Client::Steam(client)), backend, import_queue, task_manager))
 		}
 		#[cfg(not(feature = "with-steam-runtime"))]
-		Err("Dawn runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.".into())
+		Err("Steam runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.".into())
 	} else {
 		#[cfg(feature = "with-eave-runtime")]
 		{

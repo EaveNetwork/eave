@@ -1586,7 +1586,7 @@ dependencies = [
 name = "eave-rpc"
 version = "0.1.0"
 dependencies = [
- "eave-primitives",
+ "acala-primitives",
  "eave-runtime-common",
  "evm-rpc",
  "jsonrpc-core",
@@ -1623,7 +1623,6 @@ dependencies = [
  "cumulus-pallet-parachain-system",
  "cumulus-pallet-xcm-handler",
  "cumulus-primitives-core",
- "eave-primitives",
  "eave-runtime-common",
  "ecosystem-renvm-bridge",
  "evm",
@@ -1731,7 +1730,6 @@ name = "eave-runtime-common"
 version = "0.1.0"
 dependencies = [
  "acala-primitives",
- "eave-primitives",
  "frame-support",
  "frame-system",
  "hex-literal 0.3.1",
@@ -1764,11 +1762,11 @@ dependencies = [
 name = "eave-service"
 version = "0.1.0"
 dependencies = [
+ "acala-primitives",
  "cumulus-client-consensus-relay-chain",
  "cumulus-client-network",
  "cumulus-client-service",
  "cumulus-primitives-core",
- "eave-primitives",
  "eave-rpc",
  "eave-runtime-common",
  "ecosystem-renvm-bridge",
@@ -10186,7 +10184,6 @@ dependencies = [
  "cumulus-pallet-parachain-system",
  "cumulus-pallet-xcm-handler",
  "cumulus-primitives-core",
- "eave-primitives",
  "eave-runtime-common",
  "ecosystem-renvm-bridge",
  "evm",

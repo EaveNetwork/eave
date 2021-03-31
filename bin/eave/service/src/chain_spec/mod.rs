@@ -1,6 +1,6 @@
 //! Eave chain configurations.
 
-use eave_primitives::{AccountId, AccountPublic, Balance, Nonce};
+use acala_primitives::{AccountId, AccountPublic, Balance, Nonce};
 use module_evm::GenesisAccount;
 use sc_chain_spec::ChainSpecExtension;
 use serde::{Deserialize, Serialize};

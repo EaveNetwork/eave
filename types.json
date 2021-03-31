@@ -18,7 +18,7 @@
       "Loans": "CurrencyId",
       "DexIncentive": "CurrencyId",
       "DexSaving": "CurrencyId",
-      "Slip": "Null"
+      "Homa": "Null"
     }
   },
   "AccountIdOf": "AccountId",
@@ -252,7 +252,7 @@
       "Burnable": 2
     }
   },
-  "SlipUnlockChunk": {
+  "HomaUnlockChunk": {
     "value": "Compact<Balance>",
     "era": "Compact<EraIndex>"
   },
@@ -275,7 +275,7 @@
       "PLM": 7,
       "PHA": 8,
       "HDT": 9,
-      "BEAM": 128,
+      "ICE": 128,
       "KUSD": 129,
       "KSM": 130,
       "LKSM": 131,
@@ -284,7 +284,7 @@
   },
   "AirDropCurrencyId": {
     "_enum": [
-      "BEAM",
+      "ICE",
       "EAVE"
     ]
   },
@@ -292,8 +292,8 @@
     "_enum": [
       "Root",
       "EaveTreasury",
-      "ShyTreasury",
-      "SlipTreasury",
+      "CdpTreasury",
+      "HomaTreasury",
       "DSWF"
     ]
   },
@@ -371,8 +371,8 @@
       "GeneralCouncilMembership": "Null",
       "ShyCouncil": "CollectiveOrigin",
       "ShyCouncilMembership": "Null",
-      "SlipCouncil": "CollectiveOrigin",
-      "SlipCouncilMembership": "Null",
+      "HomaCouncil": "CollectiveOrigin",
+      "HomaCouncilMembership": "Null",
       "TechnicalCommittee": "CollectiveOrigin",
       "TechnicalCommitteeMembership": "Null",
       "Authority": "DelayedOrigin",
@@ -389,10 +389,10 @@
       "AuctionManager": "Null",
       "Loans": "Null",
       "Shy": "Null",
-      "ShyTreasury": "Null",
-      "ShyEngine": "Null",
+      "CdpTreasury": "Null",
+      "CdpEngine": "Null",
       "EmergencyShutdown": "Null",
-      "Slip": "Null",
+      "Homa": "Null",
       "NomineesElection": "Null",
       "StakingPool": "Null",
       "PolkadotBridge": "Null",

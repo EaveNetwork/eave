@@ -21,7 +21,7 @@
 
 //! Eave chain configurations.
 
-use eave_primitives::{AccountId, AccountPublic, Balance, Nonce};
+use acala_primitives::{AccountId, AccountPublic, Balance, Nonce};
 use module_evm::GenesisAccount;
 use sc_chain_spec::ChainSpecExtension;
 use serde::{Deserialize, Serialize};
@@ -45,9 +45,9 @@ pub const TELEMETRY_URL: &str = "wss://telemetry.polkadot.io/submit/";
 #[serde(rename_all = "camelCase")]
 pub struct Extensions {
 	/// Block numbers with known hashes.
-	pub fork_blocks: sc_client_api::ForkBlocks<eave_primitives::Block>,
+	pub fork_blocks: sc_client_api::ForkBlocks<acala_primitives::Block>,
 	/// Known bad block hashes.
-	pub bad_blocks: sc_client_api::BadBlocks<eave_primitives::Block>,
+	pub bad_blocks: sc_client_api::BadBlocks<acala_primitives::Block>,
 }
 
 /// Helper function to generate a crypto pair from seed

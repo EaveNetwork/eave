@@ -21,7 +21,7 @@ orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features =
 module-evm = { path = "../../ecosystem-pallets/aca/modules/evm", default-features = false }
 module-support = { path = "../../ecosystem-pallets/aca/modules/support", default-features = false }
 acala-primitives = { path = '../../ecosystem-pallets/aca/primitives', default-features = false }
-eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
+##eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
 module-transaction-payment = { path = "../../ecosystem-pallets/aca/modules/transaction-payment", default-features = false }
 module-staking-pool = { path = "../../ecosystem-pallets/aca/modules/staking-pool", default-features = false }
 
@@ -57,6 +57,6 @@ std = [
 	"module-transaction-payment/std",
 	"module-support/std",
  	"acala-primitives/std",
-	"eave-primitives/std",
+##	"eave-primitives/std",
 ]
 with-ethereum-compatibility = []

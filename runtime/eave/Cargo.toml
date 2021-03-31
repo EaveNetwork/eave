@@ -105,7 +105,7 @@ orml-xcm-support = { path = "../../ecosystem-pallets/orml/xcm-support", default-
 
 # local dependencies
 acala-primitives = { path = '../../ecosystem-pallets/aca/primitives', default-features = false }
-eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
+##eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
 eave-runtime-common = { path = "../common", default-features = false }
 module-airdrop = { path = '../../ecosystem-pallets/aca/modules/airdrop', default-features = false }
 module-auction-manager = { path = '../../ecosystem-pallets/aca/modules/auction-manager', default-features = false }
@@ -251,7 +251,7 @@ std = [
 ## 	"module-example/std",
  	"module-transaction-payment/std",
 
- 	"eave-primitives/std",
+## 	"eave-primitives/std",
 	"eave-runtime-common/std",
 
 	"ecosystem-renvm-bridge/std",

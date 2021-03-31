@@ -2,7 +2,7 @@
 
 /// Money matters.
 pub mod currency {
-	use eave_primitives::Balance;
+	use acala_primitives::Balance;
 
 	pub const DOLLARS: Balance = 1_000_000_000_000_000_000;
 	pub const CENTS: Balance = DOLLARS / 100; // 10_000_000_000_000_000
@@ -16,7 +16,7 @@ pub mod currency {
 
 /// Time and blocks.
 pub mod time {
-	use eave_primitives::{BlockNumber, Moment};
+	use acala_primitives::{BlockNumber, Moment};
 
 	pub const SECS_PER_BLOCK: Moment = 4;
 	pub const MILLISECS_PER_BLOCK: Moment = SECS_PER_BLOCK * 1000;
@@ -46,7 +46,7 @@ pub mod fee {
 	use frame_support::weights::{
 		constants::ExtrinsicBaseWeight, WeightToFeeCoefficient, WeightToFeeCoefficients, WeightToFeePolynomial,
 	};
-	use eave_primitives::Balance;
+	use acala_primitives::Balance;
 	use smallvec::smallvec;
 	use sp_runtime::Perbill;
 

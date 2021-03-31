@@ -1,4 +1,4 @@
-use eave_primitives::AccountId;
+use acala_primitives::AccountId;
 use hex_literal::hex;
 use sc_chain_spec::ChainType;
 use sc_telemetry::TelemetryEndpoints;
@@ -23,7 +23,7 @@ pub fn development_testnet_config() -> Result<ChainSpec, String> {
 	let wasm_binary = steam_runtime::WASM_BINARY.unwrap_or_default();
 
 	Ok(ChainSpec::from_genesis(
-		"Dawn PC Dev",
+		"Steam PC Dev",
 		"steam-pc-dev",
 		ChainType::Development,
 		move || {
@@ -105,10 +105,10 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 	properties.insert("tokenSymbol".into(), "EAVE".into());
 	properties.insert("tokenDecimals".into(), 13.into());
 
-	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Dawn runtime wasm binary not available")?;
+	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Steam runtime wasm binary not available")?;
 
 	Ok(ChainSpec::from_genesis(
-		"Eave Dawn NW1",
+		"Eave Steam NW1",
 		"steam-nw1",
 		ChainType::Live,
 		// SECRET="..."
@@ -186,11 +186,11 @@ fn testnet_genesis(
 ) -> steam_runtime::GenesisConfig {
 	use steam_runtime::{
 		dollar, get_all_module_accounts, EaveOracleConfig, AirDropConfig, Balance, BalancesConfig, BandOracleConfig,
-		ShyEngineConfig, ShyTreasuryConfig, DexConfig, EVMConfig, EnabledTradingPairs, GeneralCouncilMembershipConfig,
-		SlipCouncilMembershipConfig, ShyCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit,
+		CdpEngineConfig, CdpTreasuryConfig, DexConfig, EVMConfig, EnabledTradingPairs, GeneralCouncilMembershipConfig,
+		HomaCouncilMembershipConfig, HonzonCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit,
 		OperatorMembershipEaveConfig, OperatorMembershipBandConfig, OrmlNFTConfig, ParachainInfoConfig,
 		RenVmBridgeConfig, StakingPoolConfig, SudoConfig, SystemConfig, TechnicalCommitteeMembershipConfig,
-		ORMLTokensConfig, VestingConfig, EAVE, EUSD, DOT, LDOT, RENBTC, XBTC, 
+		TokensConfig, VestingConfig, EAVE, EUSD, DOT, LDOT, RENBTC, XBTC, 
 	};
 	#[cfg(feature = "std")]
 	use sp_std::collections::btree_map::BTreeMap;
@@ -242,12 +242,12 @@ fn testnet_genesis(
 			phantom: Default::default(),
 		},
 		pallet_collective_Instance2: Default::default(),
-		pallet_membership_Instance2: ShyCouncilMembershipConfig {
+		pallet_membership_Instance2: HonzonCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
 		pallet_collective_Instance3: Default::default(),
-		pallet_membership_Instance3: SlipCouncilMembershipConfig {
+		pallet_membership_Instance3: HomaCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
@@ -265,21 +265,21 @@ fn testnet_genesis(
 			phantom: Default::default(),
 		},
 		pallet_treasury: Default::default(),
-		orml_tokens: ORMLTokensConfig {
+		orml_tokens: TokensConfig {
 			endowed_accounts: endowed_accounts.clone()
 				.iter()
 				.flat_map(|x| vec![(x.clone(), DOT, initial_balance), (x.clone(), XBTC, initial_balance)])
 				.collect(),
 		},
 		orml_vesting: VestingConfig { vesting: vec![] },
-		module_cdp_treasury: ShyTreasuryConfig {
+		module_cdp_treasury: CdpTreasuryConfig {
 			collateral_auction_maximum_size: vec![
 				(DOT, dollar(DOT)), // (currency_id, max size of a collateral auction)
 				(XBTC, dollar(XBTC)),
 				(RENBTC, dollar(RENBTC)),
 			],
 		},
-		module_cdp_engine: ShyEngineConfig {
+		module_cdp_engine: CdpEngineConfig {
 			collaterals_params: vec![
 				(
 					DOT,
@@ -362,11 +362,11 @@ fn steam_genesis(
 ) -> steam_runtime::GenesisConfig {
 	use steam_runtime::{
 		cent, dollar, get_all_module_accounts, EaveOracleConfig, AirDropConfig, AirDropCurrencyId, Balance,
-		BalancesConfig, BandOracleConfig, ShyEngineConfig, ShyTreasuryConfig, DexConfig, EVMConfig,
-		EnabledTradingPairs, GeneralCouncilMembershipConfig, SlipCouncilMembershipConfig,
-		ShyCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit, OperatorMembershipEaveConfig,
+		BalancesConfig, BandOracleConfig, CdpEngineConfig, CdpTreasuryConfig, DexConfig, EVMConfig,
+		EnabledTradingPairs, GeneralCouncilMembershipConfig, HomaCouncilMembershipConfig,
+		HonzonCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit, OperatorMembershipEaveConfig,
 		OperatorMembershipBandConfig, OrmlNFTConfig, ParachainInfoConfig, RenVmBridgeConfig, StakingPoolConfig,
-		SudoConfig, SystemConfig, TechnicalCommitteeMembershipConfig, ORMLTokensConfig, VestingConfig, EAVE, EUSD, DOT,
+		SudoConfig, SystemConfig, TechnicalCommitteeMembershipConfig, TokensConfig, VestingConfig, EAVE, EUSD, DOT,
 		LDOT, RENBTC, XBTC, 
 	};
 	#[cfg(feature = "std")]
@@ -419,12 +419,12 @@ fn steam_genesis(
 			phantom: Default::default(),
 		},
 		pallet_collective_Instance2: Default::default(),
-		pallet_membership_Instance2: ShyCouncilMembershipConfig {
+		pallet_membership_Instance2: HonzonCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
 		pallet_collective_Instance3: Default::default(),
-		pallet_membership_Instance3: SlipCouncilMembershipConfig {
+		pallet_membership_Instance3: HomaCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
@@ -442,21 +442,21 @@ fn steam_genesis(
 			phantom: Default::default(),
 		},
 		pallet_treasury: Default::default(),
-		orml_tokens: ORMLTokensConfig {
+		orml_tokens: TokensConfig {
 			endowed_accounts: vec![
 				(root_key.clone(), DOT, initial_balance),
 				(root_key.clone(), XBTC, initial_balance),
 			],
 		},
 		orml_vesting: VestingConfig { vesting: vec![] },
-	    module_cdp_treasury: ShyTreasuryConfig {
+	    module_cdp_treasury: CdpTreasuryConfig {
 			collateral_auction_maximum_size: vec![
 				(DOT, dollar(DOT)), // (currency_id, max size of a collateral auction)
 				(XBTC, 5 * cent(XBTC)),
 				(RENBTC, 5 * cent(RENBTC)),
 			],
 		},
-		module_cdp_engine: ShyEngineConfig {
+		module_cdp_engine: CdpEngineConfig {
 			collaterals_params: vec![
 				(
 					DOT,
@@ -499,18 +499,18 @@ fn steam_genesis(
 					&include_bytes!("../../../../../resources/steam-airdrop-EAVE.json")[..];
 				let eave_airdrop_accounts: Vec<(AccountId, Balance)> =
 					serde_json::from_slice(eave_airdrop_accounts_json).unwrap();
-				let beam_airdrop_accounts_json =
-					&include_bytes!("../../../../../resources/steam-airdrop-BEAM.json")[..];
-				let beam_airdrop_accounts: Vec<(AccountId, Balance)> =
-					serde_json::from_slice(beam_airdrop_accounts_json).unwrap();
+				let ice_airdrop_accounts_json =
+					&include_bytes!("../../../../../resources/steam-airdrop-ICE.json")[..];
+				let ice_airdrop_accounts: Vec<(AccountId, Balance)> =
+					serde_json::from_slice(ice_airdrop_accounts_json).unwrap();
 
 				eave_airdrop_accounts
 					.iter()
 					.map(|(account_id, eave_amount)| (account_id.clone(), AirDropCurrencyId::EAVE, *eave_amount))
 					.chain(
-						beam_airdrop_accounts
+						ice_airdrop_accounts
 							.iter()
-							.map(|(account_id, beam_amount)| (account_id.clone(), AirDropCurrencyId::BEAM, *beam_amount)),
+							.map(|(account_id, ice_amount)| (account_id.clone(), AirDropCurrencyId::ICE, *ice_amount)),
 					)
 					.collect::<Vec<_>>()
 			},

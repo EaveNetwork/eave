@@ -49,7 +49,7 @@ module-staking-pool = { path = "../../../ecosystem-pallets/aca/modules/staking-p
 module-staking-pool-rpc = { path = "../../../ecosystem-pallets/aca/modules/staking-pool/rpc" }
 module-nft = { path = "../../../ecosystem-pallets/aca/modules/nft" }
 orml-oracle-rpc = { path = "../../../ecosystem-pallets/orml/oracle/rpc" }
-eave-primitives = { path = "../../../primitives" }
+acala-primitives = { path = '../../../ecosystem-pallets/aca/primitives', default-features = false }
 eave-rpc = { path = "../../../rpc", features = ["standalone"]}
 
 eave-runtime-common = { path = "../../../runtime/common" }
