@@ -29,6 +29,9 @@ test:
 # Build WindMill
 
 # Build Steam
+.PHONY: steam
+steam: 
+	./scripts/steam.sh
 
 # Build ICE 
 
