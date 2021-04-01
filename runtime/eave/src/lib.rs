@@ -1181,7 +1181,7 @@ impl ecosystem_renvm_bridge::Config for Runtime {
 }
 
 parameter_types! {
-	pub const ChainId: u64 = 888;
+	pub const ChainId: u64 = 7;
 	pub NetworkContractSource: H160 = H160::from_low_u64_be(0);
 }
 
