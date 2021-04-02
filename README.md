@@ -55,17 +55,17 @@ cd polkadot
 # Create the steam paracahain
 cdss
 cargo build --release --bin steam-collator
-./target/release/steam-collator export-genesis-state --parachain-id 888 > ./node/steam/para-888-genesis
-./target/release/steam-collator export-genesis-wasm > ./node/steam/para-888-wasm
+./target/release/steam-collator export-genesis-state --parachain-id 77 > ./node/steam/para-77-genesis
+./target/release/steam-collator export-genesis-wasm > ./node/steam/para-77-wasm
 
 # Start the collator node for the steam parachain Alioth
 rm -rf local-alioth/
 ./target/release/steam-collator purge-chain --chain ./node/steam/chain_spec/local.json -d local-alioth
-./target/release/steam-collator -d local-alioth --collator --name Alioth --ws-port 9946 --chain ./node/steam/chain_spec/local.json --parachain-id 888 -- --chain ../polkadot/rococo_local.json
+./target/release/steam-collator -d local-alioth --collator --name Alioth --ws-port 9946 --chain ./node/steam/chain_spec/local.json --parachain-id 77 -- --chain ../polkadot/rococo_local.json
 
 # Start the collator node for the steam parachain Bibha
 rm -rf local-bibha/
 ./target/release/steam-collator purge-chain --chain ./node/steam/chain_spec/local.json -d local-bibha
-./target/release/steam-collator -d local-bibha --collator --name Bibha --ws-port 9947 --chain ./node/steam/chain_spec/local.json --parachain-id 888 -- --chain ../polkadot/rococo_local.json
+./target/release/steam-collator -d local-bibha --collator --name Bibha --ws-port 9947 --chain ./node/steam/chain_spec/local.json --parachain-id 77 -- --chain ../polkadot/rococo_local.json
 
 ```

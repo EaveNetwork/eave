@@ -23,8 +23,8 @@ pub fn development_testnet_config() -> Result<ChainSpec, String> {
 	let wasm_binary = steam_runtime::WASM_BINARY.unwrap_or_default();
 
 	Ok(ChainSpec::from_genesis(
-		"Steam PC Dev",
-		"steam-pc-dev",
+		"Steam PC Rococo",
+		"steam-pc-rococo",
 		ChainType::Development,
 		move || {
 			testnet_genesis(
@@ -48,7 +48,7 @@ pub fn development_testnet_config() -> Result<ChainSpec, String> {
 		Some(properties),
 		Extensions {
 			relay_chain: "rococo".into(),
-			para_id: 888_u32,
+			para_id: 77_u32,
 		},
 	))
 }
@@ -95,7 +95,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		Some(properties),
 		Extensions {
 			relay_chain: "rococo".into(),
-			para_id: 888_u32,
+			para_id: 77_u32,
 		},
 	))
 }
@@ -169,13 +169,13 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 		Some(properties),
 		Extensions {
 			relay_chain: "rococo".into(),
-			para_id: 888_u32,
+			para_id: 77_u32,
 		},
 	))
 }
 
 pub fn steam_testnet_config() -> Result<ChainSpec, String> {
-	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-nw1-dist.json")[..])
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-rococo.json")[..])
 }
 
 fn testnet_genesis(
@@ -345,7 +345,7 @@ fn testnet_genesis(
 			initial_added_liquidity_pools: vec![],
 		},
 		parachain_info: ParachainInfoConfig {
-			parachain_id: 888.into(),
+			parachain_id: 77.into(),
 		},
 		ecosystem_renvm_bridge: RenVmBridgeConfig {
 			ren_vm_public_key: hex!["4b939fc8ade87cb50b78987b1dda927460dc456a"],
@@ -541,7 +541,7 @@ fn steam_genesis(
 			initial_added_liquidity_pools: vec![],
 		},
 		parachain_info: ParachainInfoConfig {
-			parachain_id: 888.into(),
+			parachain_id: 77.into(),
 		},
 		ecosystem_renvm_bridge: RenVmBridgeConfig {
 			ren_vm_public_key: hex!["4b939fc8ade87cb50b78987b1dda927460dc456a"],
