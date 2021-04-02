@@ -54,7 +54,7 @@ use sp_std::prelude::*;
 use sp_version::NativeVersion;
 use sp_version::RuntimeVersion;
 
-use frame_system::{EnsureOneOf, EnsureRoot, RawOrigin};
+use frame_system::{EnsureOneOf, EnsureRoot, RawOrigin, SetCode};
 use module_currencies::{BasicCurrencyAdapter, Currency};
 use module_evm::{CallInfo, CreateInfo};
 use module_evm_accounts::EvmAddressMapping;
@@ -227,6 +227,7 @@ impl frame_system::Config for Runtime {
 	type BaseCallFilter = ();
 	type SystemWeightInfo = ();
 	type SS58Prefix = SS58Prefix;
+	type OnSetCode = ();
 }
 
 parameter_types! {
@@ -1456,7 +1457,7 @@ mod parachain_impl {
 		type OnValidationData = ();
 		type SelfParaId = parachain_info::Pallet<Runtime>;
 		type DownwardMessageHandlers = XcmHandler;
-		type HrmpMessageHandlers = XcmHandler;
+		type XcmpMessageHandlers = XcmHandler;
 	}
 
 	impl parachain_info::Config for Runtime {}
@@ -1540,7 +1541,7 @@ mod parachain_impl {
 		type Event = Event;
 		type XcmExecutor = XcmExecutor<XcmConfig>;
 		type UpwardMessageSender = ParachainSystem;
-		type HrmpMessageSender = ParachainSystem;
+		type XcmpMessageSender = ParachainSystem;
 		type SendXcmOrigin = EnsureRoot<AccountId>;
 		type AccountIdConverter = LocationConverter;
 	}
