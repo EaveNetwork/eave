@@ -45,6 +45,10 @@ with-steam-runtime = [
 	"service/with-steam-runtime",
 ]
 
+with-eave-runtime = [
+	"service/with-eave-runtime",
+]
+
 with-all-runtime = [
 	"service/with-all-runtime",
 ]

@@ -18,7 +18,7 @@
       "Loans": "CurrencyId",
       "DexIncentive": "CurrencyId",
       "DexSaving": "CurrencyId",
-      "Homa": "Null"
+      "Elp": "Null"
     }
   },
   "AccountIdOf": "AccountId",
@@ -252,7 +252,7 @@
       "Burnable": 2
     }
   },
-  "HomaUnlockChunk": {
+  "ElpUnlockChunk": {
     "value": "Compact<Balance>",
     "era": "Compact<EraIndex>"
   },
@@ -293,7 +293,7 @@
       "Root",
       "EaveTreasury",
       "CdpTreasury",
-      "HomaTreasury",
+      "ElpTreasury",
       "DSWF"
     ]
   },
@@ -369,10 +369,10 @@
       "Historical": "Null",
       "GeneralCouncil": "CollectiveOrigin",
       "GeneralCouncilMembership": "Null",
-      "ShyCouncil": "CollectiveOrigin",
-      "ShyCouncilMembership": "Null",
-      "HomaCouncil": "CollectiveOrigin",
-      "HomaCouncilMembership": "Null",
+      "EYECouncil": "CollectiveOrigin",
+      "EYECouncilMembership": "Null",
+      "ElpCouncil": "CollectiveOrigin",
+      "ElpCouncilMembership": "Null",
       "TechnicalCommittee": "CollectiveOrigin",
       "TechnicalCommitteeMembership": "Null",
       "Authority": "DelayedOrigin",
@@ -388,11 +388,11 @@
       "Dex": "Null",
       "AuctionManager": "Null",
       "Loans": "Null",
-      "Shy": "Null",
+      "EYE": "Null",
       "CdpTreasury": "Null",
       "CdpEngine": "Null",
       "EmergencyShutdown": "Null",
-      "Homa": "Null",
+      "Elp": "Null",
       "NomineesElection": "Null",
       "StakingPool": "Null",
       "PolkadotBridge": "Null",

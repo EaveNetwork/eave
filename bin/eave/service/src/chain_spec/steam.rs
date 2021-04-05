@@ -23,7 +23,7 @@ pub fn development_testnet_config() -> Result<ChainSpec, String> {
 	let wasm_binary = steam_runtime::WASM_BINARY.unwrap_or_default();
 
 	Ok(ChainSpec::from_genesis(
-		"Steam PC Rococo",
+		"Steam PC",
 		"steam-pc-rococo",
 		ChainType::Development,
 		move || {
@@ -100,6 +100,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 	))
 }
 
+/// Used for Rococo Steam
 pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 	let mut properties = Map::new();
 	properties.insert("tokenSymbol".into(), "EAVE".into());
@@ -174,6 +175,7 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 	))
 }
 
+/// Sourced from json file for Rococo - will be used for Standalone Testnet Beast
 pub fn steam_testnet_config() -> Result<ChainSpec, String> {
 	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-rococo.json")[..])
 }

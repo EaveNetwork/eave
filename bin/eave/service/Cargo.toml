@@ -92,6 +92,9 @@ runtime-benchmarks = [
 with-steam-runtime = [
 	"steam-runtime",
 ]
+with-eave-runtime = [
+	"steam-runtime",
+]
 with-all-runtime = [
 	"with-steam-runtime",
 ]
