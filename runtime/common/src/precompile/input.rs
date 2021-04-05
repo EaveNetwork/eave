@@ -1,3 +1,23 @@
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
+// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+// Modifications Copyright (c) 2021 John Whitton
+// 2021-03 : Customize for EAVE Protocol
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 use frame_support::ensure;
 use sp_std::{
 	convert::{TryFrom, TryInto},
@@ -7,17 +27,17 @@ use sp_std::{
 	vec::Vec,
 };
 
-use eave_pallet_evm::ExitError;
-use eave_primitives::{evm::AddressMapping as AddressMappingT, Amount, Balance, CurrencyId};
+use module_evm::ExitError;
+use acala_primitives::{evm::AddressMapping as AddressMappingT, Amount, Balance, CurrencyId};
 use sp_core::H160;
 
 pub const PER_PARAM_BYTES: usize = 32;
-const ACTION_INDEX: usize = 0;
+pub const ACTION_INDEX: usize = 0;
 
-const BALANCE_BYTES: usize = mem::size_of::<Balance>();
-const AMOUNT_BYTES: usize = mem::size_of::<Amount>();
-const U64_BYTES: usize = mem::size_of::<u64>();
-const U32_BYTES: usize = mem::size_of::<u32>();
+pub const BALANCE_BYTES: usize = mem::size_of::<Balance>();
+pub const AMOUNT_BYTES: usize = mem::size_of::<Amount>();
+pub const U64_BYTES: usize = mem::size_of::<u64>();
+pub const U32_BYTES: usize = mem::size_of::<u32>();
 
 pub trait InputT {
 	type Error;
@@ -153,7 +173,10 @@ where
 	fn bytes_at(&self, start: usize, len: usize) -> Result<Vec<u8>, Self::Error> {
 		let end = start + len;
 
-		ensure!(end <= self.content.len(), ExitError::Other("invalid input".into()));
+		ensure!(
+			end <= self.content.len(),
+			ExitError::Other("invalid bytes input".into())
+		);
 
 		let bytes = &self.content[start..end];
 
@@ -238,12 +261,12 @@ mod tests {
 	#[test]
 	fn currency_id_works() {
 		let input = TestInput::new(&[0u8; 32][..]);
-		assert_ok!(input.currency_id_at(0), CurrencyId::Token(TokenSymbol::EAVE));
+		assert_ok!(input.currency_id_at(0), CurrencyId::Token(TokenSymbol::ACA));
 
 		let mut raw_input = [0u8; 32];
 		raw_input[30] = 1;
 		let input = TestInput::new(&raw_input[..]);
-		assert_ok!(input.currency_id_at(0), CurrencyId::Token(TokenSymbol::EUSD));
+		assert_ok!(input.currency_id_at(0), CurrencyId::Token(TokenSymbol::AUSD));
 	}
 
 	#[test]

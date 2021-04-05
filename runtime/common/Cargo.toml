@@ -15,14 +15,15 @@ frame-support = { git = "https://github.com/paritytech/substrate", branch = "roc
 frame-system = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-scheduler  = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 
-orml-oracle = { path = "../../orml/oracle", default-features = false }
-orml-traits = { path = "../../orml/traits", default-features = false }
+orml-oracle = { path = "../../ecosystem-pallets/orml/oracle", default-features = false }
+orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features = false }
 
-eave-pallet-evm = { path = "../../pallets/evm", default-features = false }
-eave-pallet-support = { path = "../../pallets/support", default-features = false }
-eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
-eave-pallet-transaction-payment = { path = "../../pallets/transaction-payment", default-features = false }
-eave-pallet-staking-pool = { path = "../../pallets/staking-pool", default-features = false }
+module-evm = { path = "../../ecosystem-pallets/aca/modules/evm", default-features = false }
+module-support = { path = "../../ecosystem-pallets/aca/modules/support", default-features = false }
+acala-primitives = { path = '../../ecosystem-pallets/aca/primitives', default-features = false }
+##eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
+module-transaction-payment = { path = "../../ecosystem-pallets/aca/modules/transaction-payment", default-features = false }
+module-staking-pool = { path = "../../ecosystem-pallets/aca/modules/staking-pool", default-features = false }
 
 
 [dev-dependencies]
@@ -33,11 +34,11 @@ pallet-timestamp = { git = "https://github.com/paritytech/substrate", branch = "
 pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-proxy = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-utility = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-orml-tokens = { path = "../../orml/tokens" }
-eave-pallet-currencies = { path = "../../pallets/currencies" }
-eave-pallet-dex = { path = '../../pallets/dex'}
-eave-pallet-evm-bridge = { path = "../../pallets/evm-bridge" }
-eave-pallet-nft = { path = '../../pallets/nft'}
+orml-tokens = { path = "../../ecosystem-pallets/orml/tokens" }
+module-currencies = { path = "../../ecosystem-pallets/aca/modules/currencies" }
+module-dex = { path = '../../ecosystem-pallets/aca/modules/dex'}
+module-evm-bridge = { path = "../../ecosystem-pallets/aca/modules/evm-bridge" }
+module-nft = { path = '../../ecosystem-pallets/aca/modules/nft'}
 
 [features]
 default = ["std"]
@@ -51,10 +52,11 @@ std = [
 	"pallet-scheduler/std",
 	"orml-oracle/std",
 	"orml-traits/std",
-	"eave-pallet-evm/std",
-	"eave-pallet-staking-pool/std",
-	"eave-pallet-transaction-payment/std",
-	"eave-pallet-support/std",
-	"eave-primitives/std",
+	"module-evm/std",
+	"module-staking-pool/std",
+	"module-transaction-payment/std",
+	"module-support/std",
+ 	"acala-primitives/std",
+##	"eave-primitives/std",
 ]
 with-ethereum-compatibility = []

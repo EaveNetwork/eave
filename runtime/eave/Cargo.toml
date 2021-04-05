@@ -87,49 +87,51 @@ xcm-builder = { git = "https://github.com/paritytech/polkadot", branch = "rococo
 
 
 #orml
-orml-auction = { path = "../../orml/auction", default-features = false }
-orml-authority = { path = "../../orml/authority", default-features = false }
-orml-benchmarking = { path = "../../orml/benchmarking", default-features = false, optional = true }
-orml-currencies = { path = "../../orml/currencies", default-features = false}
-orml-oracle = { path = "../../orml/oracle", default-features = false }
-orml-oracle-rpc-runtime-api = { path = "../../orml/oracle/rpc/runtime-api", default-features = false }
-orml-gradually-update = { path = "../../orml/gradually-update", default-features = false }
-orml-tokens = { path = "../../orml/tokens", default-features = false }
-orml-traits = { path = "../../orml/traits", default-features = false }
-orml-vesting = { path = "../../orml/vesting", default-features = false }
-orml-rewards = { path = "../../orml/rewards", default-features = false }
-orml-nft= { path = "../../orml/nft", default-features = false }
-orml-xtokens = { path = "../../orml/xtokens", default-features = false }
-orml-xcm-support = { path = "../../orml/xcm-support", default-features = false }
+orml-auction = { path = "../../ecosystem-pallets/orml/auction", default-features = false }
+orml-authority = { path = "../../ecosystem-pallets/orml/authority", default-features = false }
+orml-benchmarking = { path = "../../ecosystem-pallets/orml/benchmarking", default-features = false, optional = true }
+orml-currencies = { path = "../../ecosystem-pallets/orml/currencies", default-features = false}
+orml-oracle = { path = "../../ecosystem-pallets/orml/oracle", default-features = false }
+orml-oracle-rpc-runtime-api = { path = "../../ecosystem-pallets/orml/oracle/rpc/runtime-api", default-features = false }
+orml-gradually-update = { path = "../../ecosystem-pallets/orml/gradually-update", default-features = false }
+orml-tokens = { path = "../../ecosystem-pallets/orml/tokens", default-features = false }
+orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features = false }
+orml-vesting = { path = "../../ecosystem-pallets/orml/vesting", default-features = false }
+orml-rewards = { path = "../../ecosystem-pallets/orml/rewards", default-features = false }
+orml-nft= { path = "../../ecosystem-pallets/orml/nft", default-features = false }
+orml-xtokens = { path = "../../ecosystem-pallets/orml/xtokens", default-features = false }
+orml-unknown-tokens = { path = "../../ecosystem-pallets/orml/unknown-tokens", default-features = false }
+orml-xcm-support = { path = "../../ecosystem-pallets/orml/xcm-support", default-features = false }
 
 # local dependencies
-eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
+acala-primitives = { path = '../../ecosystem-pallets/aca/primitives', default-features = false }
+##eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
 eave-runtime-common = { path = "../common", default-features = false }
-eave-pallet-airdrop = { path = '../../pallets/airdrop', default-features = false }
-eave-pallet-auction-manager = { path = '../../pallets/auction-manager', default-features = false }
-eave-pallet-currencies = { path = '../../pallets/currencies', default-features = false }
-eave-pallet-dex = { path = '../../pallets/dex', default-features = false }
-eave-pallet-emergency-shutdown = { path = "../../pallets/emergency-shutdown", default-features = false }
-eave-pallet-evm = { path = "../../pallets/evm", default-features = false }
-eave-pallet-evm-rpc-runtime-api = { path = "../../pallets/evm/rpc/runtime_api", default-features = false }
-eave-pallet-evm-accounts = { path = "../../pallets/evm-accounts", default-features = false }
-eave-pallet-evm-bridge = { path = "../../pallets/evm-bridge", default-features = false }
-eave-pallet-incentives = { path = '../../pallets/incentives', default-features = false }
-eave-pallet-loans = { path = '../../pallets/loans', default-features = false }
-eave-pallet-nft = { path = '../../pallets/nft', default-features = false }
-eave-pallet-nft-benchmarking = { path = '../../pallets/nft/benchmarking', default-features = false, optional = true  }
-eave-pallet-nominees-election = { path = '../../pallets/nominees-election', default-features = false }
-eave-pallet-polkadot-bridge = { path = '../../pallets/polkadot-bridge', default-features = false }
-eave-pallet-prices = { path = '../../pallets/prices', default-features = false }
-eave-pallet-shy = { path = '../../pallets/shy', default-features = false }
-eave-pallet-shy-engine = { path = '../../pallets/shy-engine', default-features = false }
-eave-pallet-shy-treasury = { path = '../../pallets/shy-treasury', default-features = false }
-eave-pallet-slip = { path = '../../pallets/slip', default-features = false }
-eave-pallet-staking-pool = { path = '../../pallets/staking-pool', default-features = false }
-eave-pallet-staking-pool-rpc-runtime-api = { path = '../../pallets/staking-pool/rpc/runtime-api', default-features = false }
-eave-pallet-support = { path = '../../pallets/support', default-features = false }
-eave-pallet-template = { path = '../../pallets/template', default-features = false }
-eave-pallet-transaction-payment = { path = '../../pallets/transaction-payment', default-features = false }
+module-airdrop = { path = '../../ecosystem-pallets/aca/modules/airdrop', default-features = false }
+module-auction-manager = { path = '../../ecosystem-pallets/aca/modules/auction-manager', default-features = false }
+module-cdp-engine = { path = '../../ecosystem-pallets/aca/modules/cdp-engine', default-features = false }
+module-cdp-treasury = { path = '../../ecosystem-pallets/aca/modules/cdp-treasury', default-features = false }
+module-currencies = { path = '../../ecosystem-pallets/aca/modules/currencies', default-features = false }
+module-dex = { path = '../../ecosystem-pallets/aca/modules/dex', default-features = false }
+module-emergency-shutdown = { path = "../../ecosystem-pallets/aca/modules/emergency-shutdown", default-features = false }
+module-evm = { path = "../../ecosystem-pallets/aca/modules/evm", default-features = false }
+module-evm-rpc-runtime-api = { path = "../../ecosystem-pallets/aca/modules/evm/rpc/runtime_api", default-features = false }
+module-evm-accounts = { path = "../../ecosystem-pallets/aca/modules/evm-accounts", default-features = false }
+module-evm-bridge = { path = "../../ecosystem-pallets/aca/modules/evm-bridge", default-features = false }
+module-homa = { path = '../../ecosystem-pallets/aca/modules/homa', default-features = false }
+module-homa-validator-list = { path = '../../ecosystem-pallets/aca/modules/homa-validator-list', default-features = false }
+module-honzon = { path = '../../ecosystem-pallets/aca/modules/honzon', default-features = false }
+module-incentives = { path = '../../ecosystem-pallets/aca/modules/incentives', default-features = false }
+module-loans = { path = '../../ecosystem-pallets/aca/modules/loans', default-features = false }
+module-nft = { path = '../../ecosystem-pallets/aca/modules/nft', default-features = false }
+module-nominees-election = { path = '../../ecosystem-pallets/aca/modules/nominees-election', default-features = false }
+module-polkadot-bridge = { path = '../../ecosystem-pallets/aca/modules/polkadot-bridge', default-features = false }
+module-prices = { path = '../../ecosystem-pallets/aca/modules/prices', default-features = false }
+module-staking-pool = { path = '../../ecosystem-pallets/aca/modules/staking-pool', default-features = false }
+module-staking-pool-rpc-runtime-api = { path = '../../ecosystem-pallets/aca/modules/staking-pool/rpc/runtime-api', default-features = false }
+module-support = { path = '../../ecosystem-pallets/aca/modules/support', default-features = false }
+## module-example = { path = '../../ecosystem-pallets/aca/modules/example', default-features = false }
+module-transaction-payment = { path = '../../ecosystem-pallets/aca/modules/transaction-payment', default-features = false }
 
 # ecosystem dependencies
 ecosystem-renvm-bridge = { path = "../../ecosystem-pallets/ren/renvm-bridge", default-features = false }
@@ -218,35 +220,38 @@ std = [
 	"orml-vesting/std",
 	"orml-rewards/std",
 	"orml-nft/std",
+	"orml-unknown-tokens/std",
 	"orml-xtokens/std",
 	"orml-xcm-support/std",
 
- 	"eave-pallet-airdrop/std",
- 	"eave-pallet-auction-manager/std",
- 	"eave-pallet-currencies/std",
- 	"eave-pallet-dex/std",
-  	"eave-pallet-emergency-shutdown/std",
-  	"eave-pallet-evm/std",
-  	"eave-pallet-evm-rpc-runtime-api/std",
-  	"eave-pallet-evm-accounts/std",
-  	"eave-pallet-evm-bridge/std",
- 	"eave-pallet-incentives/std",
- 	"eave-pallet-loans/std",
- 	"eave-pallet-nft/std",
- 	"eave-pallet-nominees-election/std",
- 	"eave-pallet-polkadot-bridge/std",
- 	"eave-pallet-prices/std",
- 	"eave-pallet-slip/std",
- 	"eave-pallet-shy/std",
- 	"eave-pallet-shy-engine/std",
- 	"eave-pallet-shy-treasury/std",
- 	"eave-pallet-staking-pool/std",
- 	"eave-pallet-staking-pool-rpc-runtime-api/std",
- 	"eave-pallet-support/std",
- 	"eave-pallet-template/std",
- 	"eave-pallet-transaction-payment/std",
+ 	"acala-primitives/std",
+ 	"module-airdrop/std",
+ 	"module-auction-manager/std",
+ 	"module-currencies/std",
+ 	"module-dex/std",
+  	"module-emergency-shutdown/std",
+  	"module-evm/std",
+  	"module-evm-rpc-runtime-api/std",
+  	"module-evm-accounts/std",
+  	"module-evm-bridge/std",
+ 	"module-incentives/std",
+ 	"module-loans/std",
+ 	"module-nft/std",
+ 	"module-nominees-election/std",
+ 	"module-polkadot-bridge/std",
+ 	"module-prices/std",
+ 	"module-homa/std",
+ 	"module-homa-validator-list/std",
+ 	"module-honzon/std",
+ 	"module-cdp-engine/std",
+ 	"module-cdp-treasury/std",
+ 	"module-staking-pool/std",
+ 	"module-staking-pool-rpc-runtime-api/std",
+ 	"module-support/std",
+## 	"module-example/std",
+ 	"module-transaction-payment/std",
 
- 	"eave-primitives/std",
+## 	"eave-primitives/std",
 	"eave-runtime-common/std",
 
 	"ecosystem-renvm-bridge/std",
@@ -264,9 +269,9 @@ runtime-benchmarks = [
 	"sp-runtime/runtime-benchmarks",
 	"orml-authority/runtime-benchmarks",
 
-	"eave-pallet-shy-treasury/runtime-benchmarks",
-	"eave-pallet-dex/runtime-benchmarks",
-	"eave-pallet-nft-benchmarking",
+	"module-cdp-treasury/runtime-benchmarks",
+	"module-dex/runtime-benchmarks",
+	"module-nft/runtime-benchmarks",
 ]
 
 # When enabled, the runtime api will not be build.
@@ -277,7 +282,7 @@ runtime-benchmarks = [
 disable-runtime-api = []
 with-ethereum-compatibility = [
 	"evm",
- 	"eave-pallet-evm/with-ethereum-compatibility",
+ 	"module-evm/with-ethereum-compatibility",
  	"eave-runtime-common/with-ethereum-compatibility",
 ]
 standalone = [] 

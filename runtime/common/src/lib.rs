@@ -1,4 +1,23 @@
-//! Common runtime code for Eave and Dawn.
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
+// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+// Modifications Copyright (c) 2021 John Whitton
+// 2021-03 : Customize for EAVE Protocol
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+//! Common runtime code for Eave and Steam.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -10,15 +29,14 @@ use frame_support::{
 	},
 };
 use frame_system::limits;
-pub use eave_pallet_support::{ExchangeRate, PrecompileCallerFilter, Price, Rate, Ratio};
-use eave_primitives::{Balance, CurrencyId, PRECOMPILE_ADDRESS_START, PREDEPLOY_ADDRESS_START};
+pub use module_support::{ExchangeRate, PrecompileCallerFilter, Price, Rate, Ratio};
+use acala_primitives::{Balance, CurrencyId, PRECOMPILE_ADDRESS_START, PREDEPLOY_ADDRESS_START};
 use sp_core::H160;
 use sp_runtime::{
 	traits::{Convert, Saturating},
 	transaction_validity::TransactionPriority,
 	FixedPointNumber, FixedPointOperand, Perbill,
 };
-
 use static_assertions::const_assert;
 
 pub mod precompile;
@@ -27,18 +45,17 @@ pub use precompile::{
 	StateRentPrecompile,
 };
 
-pub use eave_primitives::currency::{
-	GetDecimals, EAVE, EUSD, DOT, BEAM, KSM, KUSD, LDOT, LKSM, PHA, PLM, POLKABTC, RENBTC, SDN, XBTC,
+pub use acala_primitives::currency::{
+	GetDecimals, DOT, EAVE, EUSD, ICE, IUSD, KILT, KSM, LDOT, LKSM, PHA, PLM, POLKABTC, RENBTC, SDN, XBTC,
 };
 
-pub type TimeStampedPrice = orml_oracle::TimestampedValue<Price, eave_primitives::Moment>;
-
+pub type TimeStampedPrice = orml_oracle::TimestampedValue<Price, acala_primitives::Moment>;
 
 // Priority of unsigned transactions
 parameter_types! {
 	pub const StakingUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
 	pub const RenvmBridgeUnsignedPriority: TransactionPriority = TransactionPriority::max_value() / 2;
-	pub const ShyEngineUnsignedPriority: TransactionPriority = TransactionPriority::max_value();
+	pub const CdpEngineUnsignedPriority: TransactionPriority = TransactionPriority::max_value();
 	pub const AuctionManagerUnsignedPriority: TransactionPriority = TransactionPriority::max_value() - 1;
 }
 
@@ -202,7 +219,7 @@ parameter_types! {
 }
 
 pub struct CurveFeeModel;
-impl<Balance: FixedPointOperand> eave_pallet_staking_pool::FeeModel<Balance> for CurveFeeModel {
+impl<Balance: FixedPointOperand> module_staking_pool::FeeModel<Balance> for CurveFeeModel {
 	/// The parameter `base_rate` does not work in this fee model, base fee is
 	/// fixed at 2%
 	fn get_fee(
@@ -344,6 +361,13 @@ parameter_types! {
 		.saturating_sub(BlockExecutionWeight::get());
 }
 
+pub struct RelaychainValidatorFilter;
+impl<AccountId> orml_traits::Contains<AccountId> for RelaychainValidatorFilter {
+	fn contains(_: &AccountId) -> bool {
+		true
+	}
+}
+
 pub fn dollar(currency_id: CurrencyId) -> Balance {
 	10u128.saturating_pow(currency_id.decimals())
 }
@@ -363,7 +387,6 @@ pub fn microcent(currency_id: CurrencyId) -> Balance {
 pub fn deposit(items: u32, bytes: u32, currency_id: CurrencyId) -> Balance {
 	items as Balance * 15 * cent(currency_id) + (bytes as Balance) * 6 * cent(currency_id)
 }
-
 
 #[cfg(test)]
 mod tests {

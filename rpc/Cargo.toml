@@ -7,7 +7,8 @@ edition = "2018"
 [dependencies]
 jsonrpc-core = "15.0.0"
 codec = { package = "parity-scale-codec", version = "2.0.0" }
-eave-primitives = { package = "eave-primitives", path = "../primitives" }
+acala-primitives = { path = '../ecosystem-pallets/aca/primitives', default-features = false }
+##eave-primitives = { package = "eave-primitives", path = "../primitives" }
 sp-api = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
 sp-blockchain = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
 sp-block-builder = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
@@ -29,10 +30,10 @@ sc-rpc-api = { git = "https://github.com/paritytech/substrate", branch = "rococo
 substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
 pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
 
-eave-pallet-staking-pool-rpc = { path = "../pallets/staking-pool/rpc" }
-orml-oracle-rpc = { path = "../orml/oracle/rpc" }
+module-staking-pool-rpc = { path = "../ecosystem-pallets/aca/modules/staking-pool/rpc" }
+orml-oracle-rpc = { path = "../ecosystem-pallets/orml/oracle/rpc" }
 eave-runtime-common = { path = "../runtime/common" }
-eave-pallet-evm-rpc = { path = "../pallets/evm/rpc" }
+evm-rpc = { path = "../ecosystem-pallets/aca/modules/evm/rpc" }
 
 [features]
 standalone = []

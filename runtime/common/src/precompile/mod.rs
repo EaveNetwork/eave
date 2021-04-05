@@ -1,17 +1,39 @@
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
+// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+// Modifications Copyright (c) 2021 John Whitton
+// 2021-03 : Customize for EAVE Protocol
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 //! The precompiles for EVM, includes standard Ethereum precompiles, and more:
 //! - MultiCurrency at address `H160::from_low_u64_be(1024)`.
+
+#![allow(clippy::upper_case_acronyms)]
 
 mod mock;
 mod tests;
 
 use crate::is_eave_precompile;
 use frame_support::log;
-use eave_pallet_evm::{
+use module_evm::{
 	precompiles::{Precompile, Precompiles},
 	Context, ExitError, ExitSucceed,
 };
-use eave_pallet_support::PrecompileCallerFilter as PrecompileCallerFilterT;
-use eave_primitives::PRECOMPILE_ADDRESS_START;
+use module_support::PrecompileCallerFilter as PrecompileCallerFilterT;
+use acala_primitives::PRECOMPILE_ADDRESS_START;
 use sp_core::H160;
 use sp_std::{marker::PhantomData, prelude::*};
 
@@ -31,10 +53,10 @@ pub use schedule_call::ScheduleCallPrecompile;
 pub use state_rent::StateRentPrecompile;
 
 pub type EthereumPrecompiles = (
-	eave_pallet_evm::precompiles::ECRecover,
-	eave_pallet_evm::precompiles::Sha256,
-	eave_pallet_evm::precompiles::Ripemd160,
-	eave_pallet_evm::precompiles::Identity,
+	module_evm::precompiles::ECRecover,
+	module_evm::precompiles::Sha256,
+	module_evm::precompiles::Ripemd160,
+	module_evm::precompiles::Identity,
 );
 
 pub struct AllPrecompiles<

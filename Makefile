@@ -1,7 +1,6 @@
 # Initialize
 .PHONY: init
-init:
-	./scripts/init.sh
+init: toolchain submodule build-full
 
 # Clean
 .PHONY: clean
@@ -29,7 +28,10 @@ test:
 
 # Build WindMill
 
-# Build Dawn
+# Build Steam
+.PHONY: steam
+steam: 
+	./scripts/steam.sh
 
 # Build ICE 
 
@@ -44,3 +46,14 @@ buildwasm:
 .PHONY: buildrun
 buildrun:
 	WASM_BUILD_TOOLCHAIN=nightly-2020-10-06 cargo build --release; ./target/release/eave purge-chain -y --chain node/eave/chain_spec/local.json; ./target/release/eave --alice --chain node/eave/chain_spec/local.json
+
+.PHONY: submodule
+submodule:
+	git submodule update --init --recursive
+
+.PHONY: toolchain
+toolchain:
+	./scripts/init.sh
+
+.PHONY: build-full
+build-full: cargo clean; cargo build;

@@ -18,7 +18,7 @@
       "Loans": "CurrencyId",
       "DexIncentive": "CurrencyId",
       "DexSaving": "CurrencyId",
-      "Slip": "Null"
+      "Elp": "Null"
     }
   },
   "AccountIdOf": "AccountId",
@@ -252,7 +252,7 @@
       "Burnable": 2
     }
   },
-  "SlipUnlockChunk": {
+  "ElpUnlockChunk": {
     "value": "Compact<Balance>",
     "era": "Compact<EraIndex>"
   },
@@ -275,8 +275,8 @@
       "PLM": 7,
       "PHA": 8,
       "HDT": 9,
-      "BEAM": 128,
-      "KUSD": 129,
+      "ICE": 128,
+      "IUSD": 129,
       "KSM": 130,
       "LKSM": 131,
       "SDN": 135
@@ -284,7 +284,7 @@
   },
   "AirDropCurrencyId": {
     "_enum": [
-      "BEAM",
+      "ICE",
       "EAVE"
     ]
   },
@@ -292,8 +292,8 @@
     "_enum": [
       "Root",
       "EaveTreasury",
-      "ShyTreasury",
-      "SlipTreasury",
+      "CdpTreasury",
+      "ElpTreasury",
       "DSWF"
     ]
   },
@@ -369,10 +369,10 @@
       "Historical": "Null",
       "GeneralCouncil": "CollectiveOrigin",
       "GeneralCouncilMembership": "Null",
-      "ShyCouncil": "CollectiveOrigin",
-      "ShyCouncilMembership": "Null",
-      "SlipCouncil": "CollectiveOrigin",
-      "SlipCouncilMembership": "Null",
+      "EYECouncil": "CollectiveOrigin",
+      "EYECouncilMembership": "Null",
+      "ElpCouncil": "CollectiveOrigin",
+      "ElpCouncilMembership": "Null",
       "TechnicalCommittee": "CollectiveOrigin",
       "TechnicalCommitteeMembership": "Null",
       "Authority": "DelayedOrigin",
@@ -388,11 +388,11 @@
       "Dex": "Null",
       "AuctionManager": "Null",
       "Loans": "Null",
-      "Shy": "Null",
-      "ShyTreasury": "Null",
-      "ShyEngine": "Null",
+      "EYE": "Null",
+      "CdpTreasury": "Null",
+      "CdpEngine": "Null",
       "EmergencyShutdown": "Null",
-      "Slip": "Null",
+      "Elp": "Null",
       "NomineesElection": "Null",
       "StakingPool": "Null",
       "PolkadotBridge": "Null",
