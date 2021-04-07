@@ -44,8 +44,8 @@ pub fn development_testnet_config() -> Result<ChainSpec, String> {
 	let wasm_binary = steam_runtime::WASM_BINARY.unwrap_or_default();
 
 	Ok(ChainSpec::from_genesis(
-		"Steam PC Dev",
-		"steam-pc-dev",
+		"Beast Developer",
+		"beast-dev",
 		ChainType::Development,
 		move || {
 			testnet_genesis(
@@ -187,7 +187,7 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 }
 
 pub fn steam_testnet_config() -> Result<ChainSpec, String> {
-	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-nw1-dist.json")[..])
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-init.json")[..])
 }
 
 fn testnet_genesis(
@@ -203,7 +203,7 @@ fn testnet_genesis(
 		OperatorMembershipEaveConfig, OperatorMembershipBandConfig, OrmlNFTConfig,
 		RenVmBridgeConfig, StakingPoolConfig, SudoConfig, SystemConfig, TechnicalCommitteeMembershipConfig,
 		TokensConfig, VestingConfig, EAVE, EUSD, DOT, LDOT, RENBTC, XBTC, 
-		BabeConfig, GrandpaConfig, SessionConfig, StakerStatus, StakingConfig,
+		BabeConfig, GrandpaConfig, SessionConfig, StakerStatus, StakingConfig, BABE_GENESIS_EPOCH_CONFIG,
 	};
 	#[cfg(feature = "std")]
 	use sp_std::collections::btree_map::BTreeMap;
@@ -265,7 +265,10 @@ fn testnet_genesis(
 			slash_reward_fraction: Perbill::from_percent(10),
 			..Default::default()
 		},
-		pallet_babe: BabeConfig { authorities: vec![] },
+		pallet_babe: BabeConfig {
+			authorities: vec![],
+			epoch_config: Some(BABE_GENESIS_EPOCH_CONFIG),
+		},
 		pallet_grandpa: GrandpaConfig { authorities: vec![] },
 		pallet_sudo: SudoConfig { key: root_key.clone() },
 		pallet_collective_Instance1: Default::default(),
@@ -396,7 +399,7 @@ fn steam_genesis(
 		HonzonCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit, OperatorMembershipEaveConfig,
 		OperatorMembershipBandConfig, OrmlNFTConfig, RenVmBridgeConfig, StakingPoolConfig,
 		SudoConfig, SystemConfig, TechnicalCommitteeMembershipConfig, TokensConfig, VestingConfig, EAVE, EUSD, DOT,
-		LDOT, RENBTC, XBTC, BabeConfig, GrandpaConfig, SessionConfig, StakerStatus, StakingConfig,
+		LDOT, RENBTC, XBTC, BabeConfig, GrandpaConfig, SessionConfig, StakerStatus, StakingConfig, BABE_GENESIS_EPOCH_CONFIG,
 	};
 	#[cfg(feature = "std")]
 	use sp_std::collections::btree_map::BTreeMap;
@@ -458,7 +461,10 @@ fn steam_genesis(
 			slash_reward_fraction: Perbill::from_percent(10),
 			..Default::default()
 		},
-		pallet_babe: BabeConfig { authorities: vec![] },
+		pallet_babe: BabeConfig {
+			authorities: vec![],
+			epoch_config: Some(BABE_GENESIS_EPOCH_CONFIG),
+		},
 		pallet_grandpa: GrandpaConfig { authorities: vec![] },
 		pallet_sudo: SudoConfig { key: root_key.clone() },
 		pallet_collective_Instance1: Default::default(),

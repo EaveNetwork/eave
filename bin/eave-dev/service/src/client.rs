@@ -205,12 +205,12 @@ impl sc_client_api::BlockBackend<Block> for Client {
 		}
 	}
 
-	fn justification(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<Justification>> {
+	fn justifications(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<Justifications>> {
 		match self {
 			#[cfg(feature = "with-steam-runtime")]
-			Self::Steam(client) => client.justification(id),
+			Self::Steam(client) => client.justifications(id),
 			#[cfg(feature = "with-eave-runtime")]
-			Self::Eave(client) => client.justification(id),
+			Self::Eave(client) => client.justifications(id),
 		}
 	}
 
@@ -223,21 +223,21 @@ impl sc_client_api::BlockBackend<Block> for Client {
 		}
 	}
 
-	fn extrinsic(&self, hash: &<Block as BlockT>::Hash) -> sp_blockchain::Result<Option<<Block as BlockT>::Extrinsic>> {
+	fn indexed_transaction(&self, hash: &<Block as BlockT>::Hash) -> sp_blockchain::Result<Option<Vec<u8>>> {
 		match self {
 			#[cfg(feature = "with-steam-runtime")]
-			Self::Steam(client) => client.extrinsic(hash),
+			Self::Steam(client) => client.indexed_transaction(hash),
 			#[cfg(feature = "with-eave-runtime")]
-			Self::Eave(client) => client.extrinsic(hash),
+			Self::Eave(client) => client.indexed_transaction(hash),
 		}
 	}
 
-	fn have_extrinsic(&self, hash: &<Block as BlockT>::Hash) -> sp_blockchain::Result<bool> {
+	fn has_indexed_transaction(&self, hash: &<Block as BlockT>::Hash) -> sp_blockchain::Result<bool> {
 		match self {
 			#[cfg(feature = "with-steam-runtime")]
-			Self::Steam(client) => client.have_extrinsic(hash),
+			Self::Steam(client) => client.has_indexed_transaction(hash),
 			#[cfg(feature = "with-eave-runtime")]
-			Self::Eave(client) => client.have_extrinsic(hash),
+			Self::Eave(client) => client.has_indexed_transaction(hash),
 		}
 	}
 }

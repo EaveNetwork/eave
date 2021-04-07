@@ -23,8 +23,8 @@ pub fn development_testnet_config() -> Result<ChainSpec, String> {
 	let wasm_binary = steam_runtime::WASM_BINARY.unwrap_or_default();
 
 	Ok(ChainSpec::from_genesis(
-		"Steam PC",
-		"steam-pc-rococo",
+		"Beast Developer",
+		"beast-dev",
 		ChainType::Development,
 		move || {
 			testnet_genesis(
@@ -177,7 +177,7 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 
 /// Sourced from json file for Rococo - will be used for Standalone Testnet Beast
 pub fn steam_testnet_config() -> Result<ChainSpec, String> {
-	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-rococo.json")[..])
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-init.json")[..])
 }
 
 fn testnet_genesis(

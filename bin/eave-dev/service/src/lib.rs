@@ -542,7 +542,7 @@ where
 	));
 
 	let (grandpa_block_import, _) =
-		sc_finality_grandpa::block_import(client.clone(), &(client.clone() as Arc<_>), select_chain.clone())?;
+	sc_finality_grandpa::block_import(client.clone(), &(client.clone() as Arc<_>), select_chain.clone(), telemetry.as_ref().map(|x| x.handle()),)?;
 	let justification_import = grandpa_block_import.clone();
 
 	let (babe_block_import, babe_link) = sc_consensus_babe::block_import(
