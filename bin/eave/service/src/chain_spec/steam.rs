@@ -62,8 +62,8 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Dev runtime wasm binary not available")?;
 
 	Ok(ChainSpec::from_genesis(
-		"Local",
-		"local",
+		"Aqua Local",
+		"aqua-local",
 		ChainType::Local,
 		move || {
 			testnet_genesis(
@@ -109,8 +109,8 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Steam runtime wasm binary not available")?;
 
 	Ok(ChainSpec::from_genesis(
-		"Eave Steam NW1",
-		"steam-nw1",
+		"Steam PC",
+		"steam-pc",
 		ChainType::Live,
 		// SECRET="..."
 		// ./target/debug/subkey inspect "$SECRET//eave//root"
