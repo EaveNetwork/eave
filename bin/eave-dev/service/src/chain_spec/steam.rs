@@ -187,7 +187,7 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 }
 
 pub fn steam_testnet_config() -> Result<ChainSpec, String> {
-	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-init.json")[..])
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-stable.json")[..])
 }
 
 fn testnet_genesis(

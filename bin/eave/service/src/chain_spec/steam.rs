@@ -177,7 +177,7 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 
 /// Sourced from json file for Rococo - will be used for Standalone Testnet Beast
 pub fn steam_testnet_config() -> Result<ChainSpec, String> {
-	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-init.json")[..])
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-stable.json")[..])
 }
 
 fn testnet_genesis(

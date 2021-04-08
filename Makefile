@@ -12,13 +12,17 @@ clean:
 check:
 	SKIP_WASM_BUILD=1 cargo check
 
-# Build Developer Instance Beast
-.PHONY: build
-build: 
-	SKIP_WASM_BUILD= cargo build --manifest-path bin/eave-dev/Cargo.toml
+# Build Developer Instance Beast - #Currently cant do both
+.PHONY: builddev
+builddev: 
+	SKIP_WASM_BUILD= cargo build --release --manifest-path bin/eave-dev/Cargo.toml
 
-.PHONY: run
-run: 
+.PHONY: rundev
+rundev: 
+	./bin/eave-dev/target/release/eave-dev --dev -lruntime=debug --instant-sealing
+
+.PHONY: rundebug
+rundebug: 
 	cargo run --manifest-path bin/eave-dev/Cargo.toml -- --dev -lruntime=debug --instant-sealing
 
 .PHONY: test
