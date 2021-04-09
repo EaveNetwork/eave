@@ -79,14 +79,24 @@ impl SubstrateCli for Cli {
 		};
 
 		Ok(match id {
+			//Beast (standalone instant seal) is in eave-dev
+			//Steam Local 
+			#[cfg(feature = "with-steam-runtime")]
+			"steam-local" => Box::new(chain_spec::steam::steam_local_config()?),
+			//Steam Rococo Latest 
+			#[cfg(feature = "with-steam-runtime")]
+			"steam-latest" => Box::new(chain_spec::steam::steam_latest_config()?),
+			//Steam Stable uses imported chain_spec from resources folder (Default when no chain is passed)
+			#[cfg(feature = "with-steam-runtime")]
+			"steam" => Box::new(chain_spec::steam::steam_config()?),
+			//Aqua Local
+			//Noria for Aqua
+			//Windmill Local - One node Testnet
+			//Windmill Dev - Two node Testnet
 			#[cfg(feature = "with-steam-runtime")]
 			"dev" => Box::new(chain_spec::steam::development_testnet_config()?),
 			#[cfg(feature = "with-steam-runtime")]
 			"local" => Box::new(chain_spec::steam::local_testnet_config()?),
-			#[cfg(feature = "with-steam-runtime")]
-			"steam" => Box::new(chain_spec::steam::steam_testnet_config()?),
-			#[cfg(feature = "with-steam-runtime")]
-			"steam-latest" => Box::new(chain_spec::steam::latest_steam_testnet_config()?),
 //			#[cfg(feature = "with-eave-runtime")]
 //			"eave" => Box::new(chain_spec::eave::eave_config()?),
 //			#[cfg(feature = "with-eave-runtime")]
