@@ -57,7 +57,7 @@ steam-runtime = { path = "../../../runtime/steam", features = ["standalone"], op
 eave-runtime = { path = "../../../runtime/eave", optional = true }
 
 [dev-dependencies]
-sc-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", features = ["test-helpers"] }
+sc-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
 
 [features]
 default = ["std", "with-steam-runtime"]
