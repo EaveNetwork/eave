@@ -75,7 +75,7 @@ pub fn steam_local_config() -> Result<ChainSpec, String> {
 		Some(properties),
 		Extensions {
 			relay_chain: "rococo".into(),
-			para_id: 77_u32,
+			para_id: 7777_u32,
 		},
 	))
 }
@@ -141,7 +141,7 @@ pub fn steam_latest_config() -> Result<ChainSpec, String> {
 		Some(properties),
 		Extensions {
 			relay_chain: "rococo".into(),
-			para_id: 77_u32,
+			para_id: 7777_u32,
 		},
 	))
 }
@@ -185,7 +185,7 @@ pub fn development_testnet_config() -> Result<ChainSpec, String> {
 		Some(properties),
 		Extensions {
 			relay_chain: "rococo".into(),
-			para_id: 77_u32,
+			para_id: 7777_u32,
 		},
 	))
 }
@@ -232,7 +232,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		Some(properties),
 		Extensions {
 			relay_chain: "rococo".into(),
-			para_id: 77_u32,
+			para_id: 7777_u32,
 		},
 	))
 }
@@ -409,7 +409,7 @@ fn testnet_genesis(
 			initial_added_liquidity_pools: vec![],
 		},
 		parachain_info: ParachainInfoConfig {
-			parachain_id: 77.into(),
+			parachain_id: 7777.into(),
 		},
 		ecosystem_renvm_bridge: RenVmBridgeConfig {
 			ren_vm_public_key: hex!["4b939fc8ade87cb50b78987b1dda927460dc456a"],
@@ -605,7 +605,7 @@ fn steam_genesis(
 			initial_added_liquidity_pools: vec![],
 		},
 		parachain_info: ParachainInfoConfig {
-			parachain_id: 77.into(),
+			parachain_id: 7777.into(),
 		},
 		ecosystem_renvm_bridge: RenVmBridgeConfig {
 			ren_vm_public_key: hex!["4b939fc8ade87cb50b78987b1dda927460dc456a"],
