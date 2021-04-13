@@ -13,12 +13,12 @@ check:
 	SKIP_WASM_BUILD=1 cargo check
 
 # Build Developer Instance Beast - #Currently cant do both
-.PHONY: builddev
-builddev: 
+.PHONY: beast
+beast: 
 	SKIP_WASM_BUILD= cargo build --release --manifest-path bin/eave-dev/Cargo.toml
 
-.PHONY: rundev
-rundev: 
+.PHONY: runbeast
+runbeast: 
 	./bin/eave-dev/target/release/eave-dev --dev -lruntime=debug --instant-sealing
 
 .PHONY: rundebug
