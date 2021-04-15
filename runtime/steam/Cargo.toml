@@ -73,17 +73,20 @@ sp-version = { git = "https://github.com/paritytech/substrate", branch = "rococo
 libsecp256k1 = { version = "0.3.4", default-features = false, optional = true }
 
 # Cumulus dependencies
-cumulus-primitives-core = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
 cumulus-pallet-parachain-system = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
-cumulus-pallet-xcm-handler = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
-parachain-info = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
+cumulus-primitives-core = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
+cumulus-primitives-utility = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
+cumulus-pallet-xcm = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
+cumulus-pallet-xcmp-queue = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
+cumulus-ping = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
+## parachain-info = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
 
 # Polkadot dependencies
 polkadot-parachain = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1", default-features = false }
 xcm = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1", default-features = false }
-xcm-executor = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1", default-features = false }
 xcm-builder = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1", default-features = false }
-
+xcm-executor = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1", default-features = false }
+pallet-xcm = { git = "https://github.com/paritytech/polkadot", default-features = false, branch = "master" }
 
 #orml
 orml-auction = { path = "../../ecosystem-pallets/orml/auction", default-features = false }
@@ -98,9 +101,9 @@ orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features =
 orml-vesting = { path = "../../ecosystem-pallets/orml/vesting", default-features = false }
 orml-rewards = { path = "../../ecosystem-pallets/orml/rewards", default-features = false }
 orml-nft= { path = "../../ecosystem-pallets/orml/nft", default-features = false }
-orml-xtokens = { path = "../../ecosystem-pallets/orml/xtokens", default-features = false }
-orml-unknown-tokens = { path = "../../ecosystem-pallets/orml/unknown-tokens", default-features = false }
-orml-xcm-support = { path = "../../ecosystem-pallets/orml/xcm-support", default-features = false }
+##orml-unknown-tokens = { path = "../../ecosystem-pallets/orml/unknown-tokens", default-features = false }
+##orml-xtokens = { path = "../../ecosystem-pallets/orml/xtokens", default-features = false }
+##orml-xcm-support = { path = "../../ecosystem-pallets/orml/xcm-support", default-features = false }
 
 # local dependencies
 acala-primitives = { path = '../../ecosystem-pallets/aca/primitives', default-features = false }
@@ -196,14 +199,18 @@ std = [
 
  	"cumulus-pallet-parachain-system/std",
  	"cumulus-primitives-core/std",
- 	"cumulus-pallet-xcm-handler/std",
+ 	"cumulus-primitives-utility/std",
+ 	"cumulus-pallet-xcm/std",
+ 	"cumulus-pallet-xcmp-queue/std",
+ 	"cumulus-ping/std",
 
- 	"parachain-info/std",
+## 	"parachain-info/std",
  	"polkadot-parachain/std",
 
  	"xcm/std",
- 	"xcm-executor/std",
  	"xcm-builder/std",
+ 	"xcm-executor/std",
+ 	"pallet-xcm/std",
 
 
 	"orml-auction/std",
@@ -218,9 +225,9 @@ std = [
 	"orml-vesting/std",
 	"orml-rewards/std",
 	"orml-nft/std",
-	"orml-unknown-tokens/std",
-	"orml-xtokens/std",
-	"orml-xcm-support/std",
+##	"orml-unknown-tokens/std",
+##	"orml-xtokens/std",
+##	"orml-xcm-support/std",
 
  	"acala-primitives/std",
  	"module-airdrop/std",
@@ -267,7 +274,6 @@ runtime-benchmarks = [
 	"sp-runtime/runtime-benchmarks",
 	"orml-authority/runtime-benchmarks",
 
-	"module-cdp-treasury/runtime-benchmarks",
 	"module-dex/runtime-benchmarks",
 	"module-nft/runtime-benchmarks",
 ]

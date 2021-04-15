@@ -46,7 +46,7 @@ pub use frame_support::{
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
 		DispatchClass, IdentityFee, Weight,
 	},
-	StorageValue,
+	PalletId, StorageValue,
 };
 use frame_system::{EnsureOneOf, EnsureRoot, RawOrigin};
 use hex_literal::hex;
@@ -69,7 +69,7 @@ use sp_runtime::{
 	create_runtime_str, generic, impl_opaque_keys,
 	traits::{AccountIdConversion, BadOrigin, BlakeTwo256, Block as BlockT, SaturatedConversion, StaticLookup, Zero},
 	transaction_validity::{TransactionSource, TransactionValidity},
-	ApplyExtrinsicResult, DispatchResult, FixedPointNumber, ModuleId,
+	ApplyExtrinsicResult, DispatchResult, FixedPointNumber,
 };
 use sp_std::prelude::*;
 #[cfg(feature = "std")]
@@ -99,7 +99,7 @@ use parachain_use::*;
 mod parachain_use {
 	pub use codec::Decode;
 	pub use cumulus_primitives_core::ParaId;
-	pub use orml_xcm_support::{IsNativeConcrete, MultiCurrencyAdapter, MultiNativeAsset, XcmHandler as XcmHandlerT};
+	//pub use orml_xcm_support::{IsNativeConcrete, MultiCurrencyAdapter, MultiNativeAsset, XcmHandler as XcmHandlerT};
 	pub use polkadot_parachain::primitives::Sibling;
 	pub use sp_runtime::traits::{Convert, Identity};
 	pub use sp_std::collections::btree_set::BTreeSet;
@@ -170,31 +170,31 @@ impl_opaque_keys! {
 
 // Pallet accounts of runtime
 parameter_types! {
-	pub const EaveTreasuryModuleId: ModuleId = ModuleId(*b"eave/trs");
-	pub const LoansModuleId: ModuleId = ModuleId(*b"aca/loan");
-	pub const DEXModuleId: ModuleId = ModuleId(*b"aca/dexm");
-	pub const CDPTreasuryModuleId: ModuleId = ModuleId(*b"aca/cdpt");
-	pub const StakingPoolModuleId: ModuleId = ModuleId(*b"aca/stkp");
-	pub const HonzonTreasuryModuleId: ModuleId = ModuleId(*b"aca/hztr");
-	pub const HomaTreasuryModuleId: ModuleId = ModuleId(*b"aca/hmtr");
-	pub const IncentivesModuleId: ModuleId = ModuleId(*b"aca/inct");
+	pub const EaveTreasuryPalletiId: PalletiId = PalletiId(*b"eave/trs");
+	pub const LoansPalletiId: PalletiId = PalletiId(*b"aca/loan");
+	pub const DEXPalletiId: PalletiId = PalletiId(*b"aca/dexm");
+	pub const CDPTreasuryPalletiId: PalletiId = PalletiId(*b"aca/cdpt");
+	pub const StakingPoolPalletiId: PalletiId = PalletiId(*b"aca/stkp");
+	pub const HonzonTreasuryPalletiId: PalletiId = PalletiId(*b"aca/hztr");
+	pub const HomaTreasuryPalletiId: PalletiId = PalletiId(*b"aca/hmtr");
+	pub const IncentivesPalletiId: PalletiId = PalletiId(*b"aca/inct");
 	// Decentralized Sovereign Wealth Fund
-	pub const DSWFModuleId: ModuleId = ModuleId(*b"aca/dswf");
-	pub const ElectionsPhragmenModuleId: LockIdentifier = *b"aca/phre";
-	pub const NftModuleId: ModuleId = ModuleId(*b"aca/aNFT");
+	pub const DSWFPalletiId: PalletiId = PalletiId(*b"aca/dswf");
+	pub const ElectionsPhragmenPalletiId: LockIdentifier = *b"aca/phre";
+	pub const NftPalletiId: PalletiId = PalletiId(*b"aca/aNFT");
 }
 
 pub fn get_all_module_accounts() -> Vec<AccountId> {
 	vec![
-		EaveTreasuryModuleId::get().into_account(),
-		LoansModuleId::get().into_account(),
-		DEXModuleId::get().into_account(),
-		CDPTreasuryModuleId::get().into_account(),
-		StakingPoolModuleId::get().into_account(),
-		HonzonTreasuryModuleId::get().into_account(),
-		HomaTreasuryModuleId::get().into_account(),
-		IncentivesModuleId::get().into_account(),
-		DSWFModuleId::get().into_account(),
+		EaveTreasuryPalletiId::get().into_account(),
+		LoansPalletiId::get().into_account(),
+		DEXPalletiId::get().into_account(),
+		CDPTreasuryPalletiId::get().into_account(),
+		StakingPoolPalletiId::get().into_account(),
+		HonzonTreasuryPalletiId::get().into_account(),
+		HomaTreasuryPalletiId::get().into_account(),
+		IncentivesPalletiId::get().into_account(),
+		DSWFPalletiId::get().into_account(),
 		ZeroAccountId::get(),
 	]
 }
@@ -545,7 +545,7 @@ parameter_types! {
 }
 
 impl pallet_treasury::Config for Runtime {
-	type ModuleId = EaveTreasuryModuleId;
+	type PalletiId = EaveTreasuryPalletiId;
 	type Currency = Balances;
 	type ApproveOrigin = EnsureRootOrHalfGeneralCouncil;
 	type RejectOrigin = EnsureRootOrHalfGeneralCouncil;
@@ -629,7 +629,7 @@ parameter_types! {
 }
 
 impl pallet_elections_phragmen::Config for Runtime {
-	type ModuleId = ElectionsPhragmenModuleId;
+	type PalletiId = ElectionsPhragmenPalletiId;
 	type Event = Event;
 	type Currency = CurrencyAdapter<Runtime, GetLiquidCurrencyId>;
 	type CurrencyToVote = U128CurrencyToVote;
@@ -697,7 +697,7 @@ parameter_type_with_key! {
 }
 
 parameter_types! {
-	pub TreasuryModuleAccount: AccountId = EaveTreasuryModuleId::get().into_account();
+	pub TreasuryModuleAccount: AccountId = EaveTreasuryPalletiId::get().into_account();
 }
 
 impl orml_tokens::Config for Runtime {
@@ -756,9 +756,9 @@ impl EnsureOrigin<Origin> for EnsureRootOrEaveTreasury {
 
 	fn try_origin(o: Origin) -> Result<Self::Success, Origin> {
 		Into::<Result<RawOrigin<AccountId>, Origin>>::into(o).and_then(|o| match o {
-			RawOrigin::Root => Ok(EaveTreasuryModuleId::get().into_account()),
+			RawOrigin::Root => Ok(EaveTreasuryPalletiId::get().into_account()),
 			RawOrigin::Signed(caller) => {
-				if caller == EaveTreasuryModuleId::get().into_account() {
+				if caller == EaveTreasuryPalletiId::get().into_account() {
 					Ok(caller)
 				} else {
 					Err(Origin::from(Some(caller)))
@@ -827,7 +827,6 @@ impl module_auction_manager::Config for Runtime {
 	type AuctionTimeToClose = AuctionTimeToClose;
 	type AuctionDurationSoftCap = AuctionDurationSoftCap;
 	type GetStableCurrencyId = GetStableCurrencyId;
-	type GetNativeCurrencyId = GetNativeCurrencyId;
 	type CDPTreasury = CdpTreasury;
 	type DEX = Dex;
 	type PriceSource = Prices;
@@ -842,7 +841,7 @@ impl module_loans::Config for Runtime {
 	type Currency = Currencies;
 	type RiskManager = CdpEngine;
 	type CDPTreasury = CdpTreasury;
-	type ModuleId = LoansModuleId;
+	type PalletiId = LoansPalletiId;
 	type OnUpdateLoan = module_incentives::OnUpdateLoan<Runtime>;
 }
 
@@ -968,7 +967,7 @@ impl module_dex::Config for Runtime {
 	type Currency = Currencies;
 	type GetExchangeFee = GetExchangeFee;
 	type TradingPathLimit = TradingPathLimit;
-	type ModuleId = DEXModuleId;
+	type PalletiId = DEXPalletiId;
 	type DEXIncentives = Incentives;
 	type WeightInfo = weights::module_dex::WeightInfo<Runtime>;
 	type ListingOrigin = EnsureRootOrHalfGeneralCouncil;
@@ -986,7 +985,7 @@ impl module_cdp_treasury::Config for Runtime {
 	type UpdateOrigin = EnsureRootOrHalfHonzonCouncil;
 	type DEX = Dex;
 	type MaxAuctionsCount = MaxAuctionsCount;
-	type ModuleId = CDPTreasuryModuleId;
+	type PalletiId = CDPTreasuryPalletiId;
 	type WeightInfo = weights::module_cdp_treasury::WeightInfo<Runtime>;
 }
 
@@ -1059,7 +1058,7 @@ impl module_incentives::Config for Runtime {
 	type Currency = Currencies;
 	type DEX = Dex;
 	type EmergencyShutdown = EmergencyShutdown;
-	type ModuleId = IncentivesModuleId;
+	type PalletiId = IncentivesPalletiId;
 	type WeightInfo = weights::module_incentives::WeightInfo<Runtime>;
 }
 
@@ -1092,7 +1091,7 @@ impl module_staking_pool::Config for Runtime {
 	type StakingCurrencyId = GetStakingCurrencyId;
 	type LiquidCurrencyId = GetLiquidCurrencyId;
 	type DefaultExchangeRate = DefaultExchangeRate;
-	type ModuleId = StakingPoolModuleId;
+	type PalletiId = StakingPoolPalletiId;
 	type PoolAccountIndexes = PoolAccountIndexes;
 	type UpdateOrigin = EnsureRootOrHalfHomaCouncil;
 	type FeeModel = CurveFeeModel;
@@ -1153,7 +1152,7 @@ impl module_nft::Config for Runtime {
 	type Event = Event;
 	type CreateClassDeposit = CreateClassDeposit;
 	type CreateTokenDeposit = CreateTokenDeposit;
-	type ModuleId = NftModuleId;
+	type PalletiId = NftPalletiId;
 	type WeightInfo = weights::module_nft::WeightInfo<Runtime>;
 }
 
@@ -1492,9 +1491,15 @@ mod parachain_impl {
 		type Event = Event;
 		type OnValidationData = ();
 		type SelfParaId = parachain_info::Pallet<Runtime>;
-		type DownwardMessageHandlers = XcmHandler;
-		type XcmpMessageHandlers = XcmHandler;
-	}
+		type DownwardMessageHandlers = cumulus_primitives_utility::UnqueuedDmpAsParent<
+		MaxDownwardMessageWeight,
+		XcmExecutor<XcmConfig>,
+		Call,
+		>;
+		type OutboundXcmpMessageSource = XcmpQueue;
+		type XcmpMessageHandler = XcmpQueue;
+		type ReservedXcmpWeight = ReservedXcmpWeight;
+		}
 
 	impl parachain_info::Config for Runtime {}
 
@@ -1622,7 +1627,7 @@ mod parachain_impl {
 			}
 		}
 	}
-
+/* Remove orml_xtokens for now
 	parameter_types! {
 		pub SelfLocation: MultiLocation = X2(Parent, Parachain { id: ParachainInfo::get().into() });
 	}
@@ -1641,6 +1646,7 @@ mod parachain_impl {
 		type Event = Event;
 	}
 }
+*/
 
 macro_rules! construct_steam_runtime {
 	($( $modules:tt )*) => {
@@ -1764,7 +1770,7 @@ construct_steam_runtime! {
 	ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Storage, Inherent, Event} = 56,
 	ParachainInfo: parachain_info::{Pallet, Storage, Config} = 57,
 	XcmHandler: cumulus_pallet_xcm_handler::{Pallet, Call, Event<T>, Origin} = 58,
-	XTokens: orml_xtokens::{Pallet, Storage, Call, Event<T>} = 59,
+	//XTokens: orml_xtokens::{Pallet, Storage, Call, Event<T>} = 59,
 	UnknownTokens: orml_unknown_tokens::{Pallet, Storage, Event} = 60,
 }
 

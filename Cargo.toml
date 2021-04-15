@@ -27,8 +27,9 @@ members = [
 	"ecosystem-pallets/orml/traits",
 	"ecosystem-pallets/orml/utilities",
 	"ecosystem-pallets/orml/vesting",
-	"ecosystem-pallets/orml/xtokens",
-	"ecosystem-pallets/orml/xcm-support",
+##	"ecosystem-pallets/orm/xcm-tokens",
+##	"ecosystem-pallets/orml/xtokens",
+##	"ecosystem-pallets/orml/xcm-support",
 
 	"ecosystem-pallets/ren/renvm-bridge",
 ]
@@ -107,8 +108,8 @@ yamux = { opt-level = 3 }
 zeroize = { opt-level = 3 }
 
 [patch.crates-io]
-evm = { git = "https://github.com/AcalaNetwork/evm.git", branch = "master" }
-evm-core = { git = "https://github.com/AcalaNetwork/evm.git", branch = "master" }
-evm-gasometer = { git = "https://github.com/AcalaNetwork/evm.git", branch = "master" }
-evm-runtime = { git = "https://github.com/AcalaNetwork/evm.git", branch = "master" }
+##evm = { git = "https://github.com/AcalaNetwork/evm.git", branch = "master" }
+##evm-core = { git = "https://github.com/AcalaNetwork/evm.git", branch = "master" }
+##evm-gasometer = { git = "https://github.com/AcalaNetwork/evm.git", branch = "master" }
+##evm-runtime = { git = "https://github.com/AcalaNetwork/evm.git", branch = "master" }
 ##ethereum = { git = "https://github.com/rust-blockchain/ethereum.git" }
