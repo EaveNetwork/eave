@@ -23,10 +23,10 @@ use module_evm::{Context, ExitError, ExitSucceed, Precompile};
 use sp_core::U256;
 use sp_std::{borrow::Cow, convert::TryFrom, marker::PhantomData, prelude::*, result};
 
-use module_support::EVMStateRentTrait;
+use module_support::{AddressMapping as AddressMappingT, CurrencyIdMapping as CurrencyIdMappingT, EVMStateRentTrait};
 
 use super::input::{Input, InputT};
-use acala_primitives::{evm::AddressMapping as AddressMappingT, Balance};
+use acala_primitives::Balance;
 
 /// The `EVM` impl precompile.
 ///
@@ -40,7 +40,9 @@ use acala_primitives::{evm::AddressMapping as AddressMappingT, Balance};
 /// - QueryDeploymentFee.
 /// - TransferMaintainer. Rest `input` bytes: `from`, `contract`,
 ///   `new_maintainer`.
-pub struct StateRentPrecompile<AccountId, AddressMapping, EVM>(PhantomData<(AccountId, AddressMapping, EVM)>);
+pub struct StateRentPrecompile<AccountId, AddressMapping, CurrencyIdMapping, EVM>(
+	PhantomData<(AccountId, AddressMapping, CurrencyIdMapping, EVM)>,
+);
 
 enum Action {
 	QueryNewContractExtraBytes,
@@ -68,10 +70,12 @@ impl TryFrom<u8> for Action {
 	}
 }
 
-impl<AccountId, AddressMapping, EVM> Precompile for StateRentPrecompile<AccountId, AddressMapping, EVM>
+impl<AccountId, AddressMapping, CurrencyIdMapping, EVM> Precompile
+	for StateRentPrecompile<AccountId, AddressMapping, CurrencyIdMapping, EVM>
 where
 	AccountId: Clone,
 	AddressMapping: AddressMappingT<AccountId>,
+	CurrencyIdMapping: CurrencyIdMappingT,
 	EVM: EVMStateRentTrait<AccountId, Balance>,
 {
 	fn execute(
@@ -80,7 +84,7 @@ where
 		_context: &Context,
 	) -> result::Result<(ExitSucceed, Vec<u8>, u64), ExitError> {
 		log::debug!(target: "evm", "state_rent input: {:?}", input);
-		let input = Input::<Action, AccountId, AddressMapping>::new(input);
+		let input = Input::<Action, AccountId, AddressMapping, CurrencyIdMapping>::new(input);
 
 		let action = input.action()?;
 

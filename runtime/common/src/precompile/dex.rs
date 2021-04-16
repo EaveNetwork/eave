@@ -21,8 +21,8 @@
 use super::input::{Input, InputT};
 use frame_support::log;
 use module_evm::{Context, ExitError, ExitSucceed, Precompile};
-use module_support::DEXManager;
-use acala_primitives::{evm::AddressMapping as AddressMappingT, Balance, CurrencyId};
+use module_support::{AddressMapping as AddressMappingT, CurrencyIdMapping as CurrencyIdMappingT, DEXManager};
+use acala_primitives::{Balance, CurrencyId};
 use sp_core::U256;
 use sp_std::{convert::TryFrom, fmt::Debug, marker::PhantomData, prelude::*, result};
 
@@ -35,7 +35,9 @@ use sp_std::{convert::TryFrom, fmt::Debug, marker::PhantomData, prelude::*, resu
 /// - Get liquidity. Rest `input` bytes: `currency_id_a`, `currency_id_b`.
 /// - Swap with exact supply. Rest `input` bytes: `who`, `currency_id_a`,
 ///   `currency_id_b`, `supply_amount`, `min_target_amount`.
-pub struct DexPrecompile<AccountId, AddressMapping, Dex>(PhantomData<(AccountId, AddressMapping, Dex)>);
+pub struct DexPrecompile<AccountId, AddressMapping, CurrencyIdMapping, Dex>(
+	PhantomData<(AccountId, AddressMapping, CurrencyIdMapping, Dex)>,
+);
 
 enum Action {
 	GetLiquidityPool,
@@ -43,6 +45,8 @@ enum Action {
 	GetSwapSupplyAmount,
 	SwapWithExactSupply,
 	SwapWithExactTarget,
+	AddLiquidity,
+	RemoveLiquidity,
 }
 
 impl TryFrom<u8> for Action {
@@ -55,15 +59,19 @@ impl TryFrom<u8> for Action {
 			2 => Ok(Action::GetSwapSupplyAmount),
 			3 => Ok(Action::SwapWithExactSupply),
 			4 => Ok(Action::SwapWithExactTarget),
+			5 => Ok(Action::AddLiquidity),
+			6 => Ok(Action::RemoveLiquidity),
 			_ => Err(()),
 		}
 	}
 }
 
-impl<AccountId, AddressMapping, Dex> Precompile for DexPrecompile<AccountId, AddressMapping, Dex>
+impl<AccountId, AddressMapping, CurrencyIdMapping, Dex> Precompile
+	for DexPrecompile<AccountId, AddressMapping, CurrencyIdMapping, Dex>
 where
 	AccountId: Debug + Clone,
 	AddressMapping: AddressMappingT<AccountId>,
+	CurrencyIdMapping: CurrencyIdMappingT,
 	Dex: DEXManager<AccountId, CurrencyId, Balance>,
 {
 	fn execute(
@@ -77,7 +85,7 @@ where
 
 		// Solidity dynamic arrays will add the array size to the front of the array,
 		// pre-compile needs to deal with the `size`.
-		let input = Input::<Action, AccountId, AddressMapping>::new(&input[32..]);
+		let input = Input::<Action, AccountId, AddressMapping, CurrencyIdMapping>::new(&input[32..]);
 
 		let action = input.action()?;
 
@@ -106,7 +114,7 @@ where
 				for i in 0..path_len {
 					path.push(input.currency_id_at((2 + i) as usize)?);
 				}
-				let supply_amount = input.balance_at((path_len + 1) as usize)?;
+				let supply_amount = input.balance_at((path_len + 2) as usize)?;
 				log::debug!(
 					target: "evm",
 					"dex: get_swap_target_amount path: {:?}, supply_amount: {:?}",
@@ -128,14 +136,14 @@ where
 				for i in 0..path_len {
 					path.push(input.currency_id_at((2 + i) as usize)?);
 				}
-				let target_amount = input.balance_at((path_len + 1) as usize)?;
+				let target_amount = input.balance_at((path_len + 2) as usize)?;
 				log::debug!(
 					target: "evm",
 					"dex: get_swap_supply_amount path: {:?}, target_amount: {:?}",
 					path, target_amount
 				);
 
-				let value = Dex::get_swap_target_amount(&path, target_amount, None)
+				let value = Dex::get_swap_supply_amount(&path, target_amount, None)
 					.ok_or_else(|| ExitError::Other("Dex get_swap_supply_amount failed".into()))?;
 
 				// output
@@ -197,6 +205,45 @@ where
 				U256::from(value).to_big_endian(&mut be_bytes[..32]);
 
 				Ok((ExitSucceed::Returned, be_bytes.to_vec(), 0))
+			}
+			Action::AddLiquidity => {
+				let who = input.account_id_at(1)?;
+				let currency_id_a = input.currency_id_at(2)?;
+				let currency_id_b = input.currency_id_at(3)?;
+				let max_amount_a = input.balance_at(4)?;
+				let max_amount_b = input.balance_at(5)?;
+				log::debug!(
+					target: "evm",
+					"dex: add_liquidity who: {:?}, currency_id_a: {:?}, currency_id_b: {:?}, max_amount_a: {:?}, max_amount_b: {:?}",
+					who, currency_id_a, currency_id_b, max_amount_a, max_amount_b,
+				);
+
+				Dex::add_liquidity(&who, currency_id_a, currency_id_b, max_amount_a, max_amount_b, false).map_err(
+					|e| {
+						let err_msg: &str = e.into();
+						ExitError::Other(err_msg.into())
+					},
+				)?;
+
+				Ok((ExitSucceed::Returned, vec![], 0))
+			}
+			Action::RemoveLiquidity => {
+				let who = input.account_id_at(1)?;
+				let currency_id_a = input.currency_id_at(2)?;
+				let currency_id_b = input.currency_id_at(3)?;
+				let remove_share = input.balance_at(4)?;
+				log::debug!(
+					target: "evm",
+					"dex: remove_liquidity who: {:?}, currency_id_a: {:?}, currency_id_b: {:?}, remove_share: {:?}",
+					who, currency_id_a, currency_id_b, remove_share
+				);
+
+				Dex::remove_liquidity(&who, currency_id_a, currency_id_b, remove_share, false).map_err(|e| {
+					let err_msg: &str = e.into();
+					ExitError::Other(err_msg.into())
+				})?;
+
+				Ok((ExitSucceed::Returned, vec![], 0))
 			}
 		}
 	}
