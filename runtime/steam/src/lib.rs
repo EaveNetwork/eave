@@ -40,7 +40,8 @@ pub use frame_support::{
 	construct_runtime, log, parameter_types,
 	traits::{
 		Contains, ContainsLengthBound, EnsureOrigin, Filter, Get, IsInVec, IsType, KeyOwnerProofSystem, LockIdentifier,
-		Randomness, U128CurrencyToVote, WithdrawReasons, All
+		Randomness, SortedMembers, U128CurrencyToVote, WithdrawReasons, All
+		rte
 	},
 	weights::{
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
@@ -56,6 +57,7 @@ use hex_literal::hex;
 use module_currencies::{BasicCurrencyAdapter, Currency};
 use module_evm::{CallInfo, CreateInfo};
 use module_evm_accounts::EvmAddressMapping;
+use module_evm_manager::EvmCurrencyIdMapping;
 use module_transaction_payment::{Multiplier, TargetedFeeAdjustment};
 use orml_tokens::CurrencyAdapter;
 use orml_traits::{
@@ -103,16 +105,16 @@ use parachain_use::*;
 mod parachain_use {
 	pub use codec::Decode;
 	pub use cumulus_primitives_core::ParaId;
-	//pub use orml_xcm_support::{IsNativeConcrete, MultiCurrencyAdapter, MultiNativeAsset, XcmHandler as XcmHandlerT};
+	pub use orml_xcm_support::{IsNativeConcrete, MultiCurrencyAdapter, MultiNativeAsset, XcmHandler as XcmHandlerT};
 	pub use sp_runtime::traits::{Convert, Identity};
 	pub use sp_std::collections::btree_set::BTreeSet;
 	// XCM imports
 	pub use polkadot_parachain::primitives::Sibling;
 	pub use xcm::v0::{
-		Junction::{GeneralKey, Parachain, Parent},
+		Junction::{self, GeneralKey, Parachain, Parent},
 		MultiAsset,
 		MultiLocation::{self, X1, X2, X3},
-		NetworkId, Xcm,
+		NetworkId
 	};
 	pub use xcm_builder::{
 		AccountId32Aliases, LocationInverter, ParentIsDefault, RelayChainAsNative, 
@@ -523,14 +525,18 @@ impl Contains<AccountId> for GeneralCouncilProvider {
 		GeneralCouncil::is_member(who)
 	}
 
-//	fn sorted_members() -> Vec<AccountId> {
-//		GeneralCouncil::members()
-//	}
-
 	#[cfg(feature = "runtime-benchmarks")]
 	fn add(_: &AccountId) {
 		todo!()
 	}
+}
+
+impl SortedMembers<AccountId> for GeneralCouncilProvider {
+
+	fn sorted_members() -> Vec<AccountId> {
+		GeneralCouncil::members()
+	}
+
 }
 
 impl ContainsLengthBound for GeneralCouncilProvider {
@@ -743,6 +749,7 @@ impl module_prices::Config for Runtime {
 	type LiquidStakingExchangeRateProvider = LiquidStakingExchangeRateProvider;
 	type DEX = Dex;
 	type Currency = Currencies;
+	type CurrencyIdMapping = EvmCurrencyIdMapping<Runtime>;
 	type WeightInfo = weights::module_prices::WeightInfo<Runtime>;
 }
 
@@ -943,9 +950,9 @@ impl module_cdp_engine::Config for Runtime {
 	type CDPTreasury = CdpTreasury;
 	type UpdateOrigin = EnsureRootOrHalfHonzonCouncil;
 	type MaxSlippageSwapWithDEX = MaxSlippageSwapWithDEX;
-	type DEX = Dex;
 	type UnsignedPriority = eave_runtime_common::CdpEngineUnsignedPriority;
 	type EmergencyShutdown = EmergencyShutdown;
+	type UnixTime = Timestamp;
 	type WeightInfo = weights::module_cdp_engine::WeightInfo<Runtime>;
 }
 
@@ -986,6 +993,7 @@ impl module_dex::Config for Runtime {
 	type GetExchangeFee = GetExchangeFee;
 	type TradingPathLimit = TradingPathLimit;
 	type PalletId = DEXPalletId;
+	type CurrencyIdMapping = EvmCurrencyIdMapping<Runtime>;
 	type DEXIncentives = Incentives;
 	type WeightInfo = weights::module_dex::WeightInfo<Runtime>;
 	type ListingOrigin = EnsureRootOrHalfGeneralCouncil;
@@ -1004,6 +1012,7 @@ impl module_cdp_treasury::Config for Runtime {
 	type DEX = Dex;
 	type MaxAuctionsCount = MaxAuctionsCount;
 	type PalletId = CDPTreasuryPalletId;
+	type TreasuryAccount = HonzonTreasuryAccount;
 	type WeightInfo = weights::module_cdp_treasury::WeightInfo<Runtime>;
 }
 
@@ -1052,6 +1061,11 @@ impl module_evm_accounts::Config for Runtime {
 	type WeightInfo = weights::module_evm_accounts::WeightInfo<Runtime>;
 }
 
+impl module_evm_manager::Config for Runtime {
+	type Currency = Balances;
+	type EVMBridge = EVMBridge;
+}
+
 impl orml_rewards::Config for Runtime {
 	type Share = Balance;
 	type Balance = Balance;
@@ -1066,6 +1080,7 @@ parameter_types! {
 impl module_incentives::Config for Runtime {
 	type Event = Event;
 	type RelaychainAccountId = AccountId;
+	type NativeRewardsSource = UnreleasedNativeVaultAccountId;
 	type RewardsVaultAccountId = ZeroAccountId;
 	type NativeCurrencyId = GetNativeCurrencyId;
 	type StableCurrencyId = GetStableCurrencyId;
@@ -1244,15 +1259,23 @@ parameter_types! {
 	pub DeploymentFee: Balance = dollar(EAVE);
 }
 
-pub type MultiCurrencyPrecompile =
-	eave_runtime_common::MultiCurrencyPrecompile<AccountId, EvmAddressMapping<Runtime>, Currencies>;
+pub type MultiCurrencyPrecompile = eave_runtime_common::MultiCurrencyPrecompile<
+	AccountId, 
+	EvmAddressMapping<Runtime>, 
+	EvmCurrencyIdMapping<Runtime>,
+	Currencies
+>;
 
-pub type NFTPrecompile = eave_runtime_common::NFTPrecompile<AccountId, EvmAddressMapping<Runtime>, NFT>;
-pub type StateRentPrecompile = eave_runtime_common::StateRentPrecompile<AccountId, EvmAddressMapping<Runtime>, EVM>;
-pub type OraclePrecompile = eave_runtime_common::OraclePrecompile<AccountId, EvmAddressMapping<Runtime>, Prices>;
+pub type NFTPrecompile = 
+	eave_runtime_common::NFTPrecompile<AccountId, EvmAddressMapping<Runtime>,  EvmCurrencyIdMapping<Runtime>, NFT>;
+pub type StateRentPrecompile = 
+	eave_runtime_common::StateRentPrecompile<AccountId, EvmAddressMapping<Runtime>, EvmCurrencyIdMapping<Runtime>, EVM>;
+pub type OraclePrecompile = 
+	eave_runtime_common::OraclePrecompile<AccountId, EvmAddressMapping<Runtime>, EvmCurrencyIdMapping<Runtime>, Prices>;
 pub type ScheduleCallPrecompile = eave_runtime_common::ScheduleCallPrecompile<
 	AccountId,
 	EvmAddressMapping<Runtime>,
+	EvmCurrencyIdMapping<Runtime>,
 	Scheduler,
 	module_transaction_payment::ChargeTransactionPayment<Runtime>,
 	Call,
@@ -1260,7 +1283,8 @@ pub type ScheduleCallPrecompile = eave_runtime_common::ScheduleCallPrecompile<
 	OriginCaller,
 	Runtime,
 >;
-pub type DexPrecompile = eave_runtime_common::DexPrecompile<AccountId, EvmAddressMapping<Runtime>, Dex>;
+pub type DexPrecompile = 
+	eave_runtime_common::DexPrecompile<AccountId, EvmAddressMapping<Runtime>, EvmCurrencyIdMapping<Runtime>, Dex>;
 
 #[cfg(feature = "with-ethereum-compatibility")]
 static ISTANBUL_CONFIG: evm::Config = evm::Config::istanbul();
@@ -1546,6 +1570,56 @@ mod parachain_impl {
 		pub const RelayChainCurrencyId: CurrencyId = CurrencyId::Token(TokenSymbol::DOT);
 	}
 
+
+	//// Type for specifying how a `MultiLocation` can be converted into an `AccountId`. This is used
+	/// when determining ownership of accounts for asset transacting and when attempting to use XCM
+	/// `Transact` in order to determine the dispatch Origin.
+	pub type LocationToAccountId = (
+		// The parent (Relay-chain) origin converts to the default `AccountId`.
+		ParentIsDefault<AccountId>,
+		// Sibling parachain origins convert to AccountId via the `ParaId::into`.
+		SiblingParachainConvertsVia<Sibling, AccountId>,
+		// Straight up local `AccountId32` origins just alias directly to `AccountId`.
+		AccountId32Aliases<SteamNetwork, AccountId>,
+	);
+
+	/*
+	/// Means for transacting assets on this chain.
+	pub type LocalAssetTransactor = CurrencyAdapter<
+		// Use this currency:
+		Balances,
+		// Use this currency when it is a fungible asset matching the given location or name:
+		IsConcrete<RelayLocation>,
+		// Do a simple punn to convert an AccountId32 MultiLocation into a native chain account ID:
+		LocationToAccountId,
+		// Our chain's account ID type (we can't get away without mentioning it explicitly):
+		AccountId,
+	>;
+	*/
+
+	pub type LocationConverter = (
+		ParentIsDefault<AccountId>,
+		SiblingParachainConvertsVia<Sibling, AccountId>,
+		AccountId32Aliases<SteamNetwork, AccountId>,
+	);
+
+	pub type LocalAssetTransactor = MultiCurrencyAdapter<
+			Currencies,
+			UnknownTokens,
+			IsNativeConcrete<CurrencyId, CurrencyIdConvert>,
+			AccountId,
+			LocationConverter,
+			CurrencyId,
+			CurrencyIdConvert,
+		>;
+
+	pub type LocalOriginConverter = (
+		SovereignSignedViaLocation<LocationConverter, Origin>,
+		RelayChainAsNative<RelayChainOrigin, Origin>,
+		SiblingParachainAsNative<cumulus_pallet_xcm::Origin, Origin>,
+		SignedAccountId32AsNative<SteamNetwork, Origin>,
+	);
+
 	/// This is the type we use to convert an (incoming) XCM origin into a local `Origin` instance,
 	/// ready for dispatching a transaction with Xcm's `Transact`. There is an `OriginKind` which can
 	/// biases the kind of local `Origin` it will become.
@@ -1565,8 +1639,9 @@ mod parachain_impl {
 		ParentAsSuperuser<Origin>,
 		// Native signed account converter; this just converts an `AccountId32` origin into a normal
 		// `Origin::Signed` origin of the same 32-byte value.
-		SignedAccountId32AsNative<EaveNetwork, Origin>,
+		SignedAccountId32AsNative<SteamNetwork, Origin>,
 	);
+
 
 	parameter_types! {
 		pub UnitWeightCost: Weight = 1_000;
@@ -1694,8 +1769,6 @@ mod parachain_impl {
 			}
 		}
 	}
-}	
-/* Remove orml_xtokens for now
 	parameter_types! {
 		pub SelfLocation: MultiLocation = X2(Parent, Parachain { id: ParachainInfo::get().into() });
 	}
@@ -1707,14 +1780,13 @@ mod parachain_impl {
 		type CurrencyIdConvert = CurrencyIdConvert;
 		type AccountId32Convert = AccountId32Convert;
 		type SelfLocation = SelfLocation;
-		type XcmHandler = HandleXcm;
+		type XcmHandler = CumulusXcm;
 	}
 
 	impl orml_unknown_tokens::Config for Runtime {
 		type Event = Event;
 	}
 }
-*/
 
 macro_rules! construct_steam_runtime {
 	($( $modules:tt )*) => {
@@ -1735,84 +1807,85 @@ macro_rules! construct_steam_runtime {
 
 				TransactionPayment: module_transaction_payment::{Pallet, Call, Storage} = 4,
 				EvmAccounts: module_evm_accounts::{Pallet, Call, Storage, Event<T>} = 5,
-				Currencies: module_currencies::{Pallet, Call, Event<T>} = 6,
-				Tokens: orml_tokens::{Pallet, Storage, Event<T>, Config<T>} = 7,
-				Vesting: orml_vesting::{Pallet, Storage, Call, Event<T>, Config<T>} = 8,
+				EvmManager: module_evm_manager::{Pallet, Storage} = 6,
+				Currencies: module_currencies::{Pallet, Call, Event<T>} = 7,
+				Tokens: orml_tokens::{Pallet, Storage, Event<T>, Config<T>} = 8,
+				Vesting: orml_vesting::{Pallet, Storage, Call, Event<T>, Config<T>} = 9,
 
-				EaveTreasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>} = 9,
-				Bounties: pallet_bounties::{Pallet, Call, Storage, Event<T>} = 10,
-				Tips: pallet_tips::{Pallet, Call, Storage, Event<T>} = 11,
+				EaveTreasury: pallet_treasury::{Pallet, Call, Storage, Config, Event<T>} = 10,
+				Bounties: pallet_bounties::{Pallet, Call, Storage, Event<T>} = 11,
+				Tips: pallet_tips::{Pallet, Call, Storage, Event<T>} = 12,
 
 				// Utility
-				Utility: pallet_utility::{Pallet, Call, Event} = 12,
-				Multisig: pallet_multisig::{Pallet, Call, Storage, Event<T>} = 13,
-				Recovery: pallet_recovery::{Pallet, Call, Storage, Event<T>} = 14,
-				Proxy: pallet_proxy::{Pallet, Call, Storage, Event<T>} = 15,
-				Scheduler: pallet_scheduler::{Pallet, Call, Storage, Event<T>} = 16,
+				Utility: pallet_utility::{Pallet, Call, Event} = 13,
+				Multisig: pallet_multisig::{Pallet, Call, Storage, Event<T>} = 14,
+				Recovery: pallet_recovery::{Pallet, Call, Storage, Event<T>} = 15,
+				Proxy: pallet_proxy::{Pallet, Call, Storage, Event<T>} = 16,
+				Scheduler: pallet_scheduler::{Pallet, Call, Storage, Event<T>} = 17,
 
-				Indices: pallet_indices::{Pallet, Call, Storage, Config<T>, Event<T>} = 17,
-				GraduallyUpdate: orml_gradually_update::{Pallet, Storage, Call, Event<T>} = 18,
+				Indices: pallet_indices::{Pallet, Call, Storage, Config<T>, Event<T>} = 18,
+				GraduallyUpdate: orml_gradually_update::{Pallet, Storage, Call, Event<T>} = 19,
 
 				// Governance
-				GeneralCouncil: pallet_collective::<Instance1>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 19,
-				GeneralCouncilMembership: pallet_membership::<Instance1>::{Pallet, Call, Storage, Event<T>, Config<T>} = 20,
-				HonzonCouncil: pallet_collective::<Instance2>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 21,
-				HonzonCouncilMembership: pallet_membership::<Instance2>::{Pallet, Call, Storage, Event<T>, Config<T>} = 22,
-				HomaCouncil: pallet_collective::<Instance3>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 23,
-				HomaCouncilMembership: pallet_membership::<Instance3>::{Pallet, Call, Storage, Event<T>, Config<T>} = 24,
-				TechnicalCommittee: pallet_collective::<Instance4>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 25,
-				TechnicalCommitteeMembership: pallet_membership::<Instance4>::{Pallet, Call, Storage, Event<T>, Config<T>} = 26,
+				GeneralCouncil: pallet_collective::<Instance1>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 20,
+				GeneralCouncilMembership: pallet_membership::<Instance1>::{Pallet, Call, Storage, Event<T>, Config<T>} = 21,
+				HonzonCouncil: pallet_collective::<Instance2>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 22,
+				HonzonCouncilMembership: pallet_membership::<Instance2>::{Pallet, Call, Storage, Event<T>, Config<T>} = 23,
+				HomaCouncil: pallet_collective::<Instance3>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 24,
+				HomaCouncilMembership: pallet_membership::<Instance3>::{Pallet, Call, Storage, Event<T>, Config<T>} = 25,
+				TechnicalCommittee: pallet_collective::<Instance4>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 26,
+				TechnicalCommitteeMembership: pallet_membership::<Instance4>::{Pallet, Call, Storage, Event<T>, Config<T>} = 27,
 
-				Authority: orml_authority::{Pallet, Call, Event<T>, Origin<T>} = 27,
-				ElectionsPhragmen: pallet_elections_phragmen::{Pallet, Call, Storage, Event<T>} = 28,
+				Authority: orml_authority::{Pallet, Call, Event<T>, Origin<T>} = 28,
+				ElectionsPhragmen: pallet_elections_phragmen::{Pallet, Call, Storage, Event<T>} = 29,
 
 				// Oracle
-				EaveOracle: orml_oracle::<Instance1>::{Pallet, Storage, Call, Config<T>, Event<T>} = 29,
-				BandOracle: orml_oracle::<Instance2>::{Pallet, Storage, Call, Config<T>, Event<T>} = 30,
+				EaveOracle: orml_oracle::<Instance1>::{Pallet, Storage, Call, Config<T>, Event<T>} = 30,
+				BandOracle: orml_oracle::<Instance2>::{Pallet, Storage, Call, Config<T>, Event<T>} = 31,
 				// OperatorMembership must be placed after Oracle or else will have race condition on initialization
-				OperatorMembershipEave: pallet_membership::<Instance5>::{Pallet, Call, Storage, Event<T>, Config<T>} = 31,
-				OperatorMembershipBand: pallet_membership::<Instance6>::{Pallet, Call, Storage, Event<T>, Config<T>} = 32,
+				OperatorMembershipEave: pallet_membership::<Instance5>::{Pallet, Call, Storage, Event<T>, Config<T>} = 32,
+				OperatorMembershipBand: pallet_membership::<Instance6>::{Pallet, Call, Storage, Event<T>, Config<T>} = 33,
 
 				// ORML Core
-				Auction: orml_auction::{Pallet, Storage, Call, Event<T>} = 33,
-				Rewards: orml_rewards::{Pallet, Storage, Call} = 34,
-				OrmlNFT: orml_nft::{Pallet, Storage, Config<T>} =35,
+				Auction: orml_auction::{Pallet, Storage, Call, Event<T>} = 34,
+				Rewards: orml_rewards::{Pallet, Storage, Call} = 35,
+				OrmlNFT: orml_nft::{Pallet, Storage, Config<T>} = 36,
 
 				// Acala Core
-				Prices: module_prices::{Pallet, Storage, Call, Event<T>} = 36,
+				Prices: module_prices::{Pallet, Storage, Call, Event<T>} = 37,
 
 				// DEX
-				Dex: module_dex::{Pallet, Storage, Call, Event<T>, Config<T>} = 37,
+				Dex: module_dex::{Pallet, Storage, Call, Event<T>, Config<T>} = 38,
 
 				// Honzon 
-				AuctionManager: module_auction_manager::{Pallet, Storage, Call, Event<T>, ValidateUnsigned} = 38,
-				Loans: module_loans::{Pallet, Storage, Call, Event<T>} = 39,
-				Honzon: module_honzon::{Pallet, Storage, Call, Event<T>} = 40,
-				CdpTreasury: module_cdp_treasury::{Pallet, Storage, Call, Config, Event<T>} = 41,
-				CdpEngine: module_cdp_engine::{Pallet, Storage, Call, Event<T>, Config, ValidateUnsigned} = 42,
-				EmergencyShutdown: module_emergency_shutdown::{Pallet, Storage, Call, Event<T>} = 43,
+				AuctionManager: module_auction_manager::{Pallet, Storage, Call, Event<T>, ValidateUnsigned} = 39,
+				Loans: module_loans::{Pallet, Storage, Call, Event<T>} = 40,
+				Honzon: module_honzon::{Pallet, Storage, Call, Event<T>} = 41,
+				CdpTreasury: module_cdp_treasury::{Pallet, Storage, Call, Config, Event<T>} = 42,
+				CdpEngine: module_cdp_engine::{Pallet, Storage, Call, Event<T>, Config, ValidateUnsigned} = 43,
+				EmergencyShutdown: module_emergency_shutdown::{Pallet, Storage, Call, Event<T>} = 44,
 
 				// Homa
-				//Homa: module_homa::{Pallet, Call} = 44,
-				NomineesElection: module_nominees_election::{Pallet, Call, Storage} = 45,
-				StakingPool: module_staking_pool::{Pallet, Call, Storage, Event<T>, Config} = 46,
-				PolkadotBridge: module_polkadot_bridge::{Pallet, Call, Storage} = 47,
-				HomaValidatorListModule: module_homa_validator_list::{Pallet, Call, Storage, Event<T>} = 48,
+				//Homa: module_homa::{Pallet, Call} = 45,
+				NomineesElection: module_nominees_election::{Pallet, Call, Storage} = 46,
+				StakingPool: module_staking_pool::{Pallet, Call, Storage, Event<T>, Config} = 47,
+				PolkadotBridge: module_polkadot_bridge::{Pallet, Call, Storage} = 48,
+				HomaValidatorListModule: module_homa_validator_list::{Pallet, Call, Storage, Event<T>} = 49,
 
 				// Acala Other
-				Incentives: module_incentives::{Pallet, Storage, Call, Event<T>} = 49,
-				AirDrop: module_airdrop::{Pallet, Call, Storage, Event<T>, Config<T>} = 50,
-				NFT: module_nft::{Pallet, Call, Event<T>} = 51,
+				Incentives: module_incentives::{Pallet, Storage, Call, Event<T>} = 50,
+				AirDrop: module_airdrop::{Pallet, Call, Storage, Event<T>, Config<T>} = 51,
+				NFT: module_nft::{Pallet, Call, Event<T>} = 52,
 
 				// Ecosystem modules
-				RenVmBridge: ecosystem_renvm_bridge::{Pallet, Call, Config, Storage, Event<T>, ValidateUnsigned} = 52,
+				RenVmBridge: ecosystem_renvm_bridge::{Pallet, Call, Config, Storage, Event<T>, ValidateUnsigned} = 53,
 
 				// Smart contracts
-				EVM: module_evm::{Pallet, Config<T>, Call, Storage, Event<T>} = 53,
-				EVMBridge: module_evm_bridge::{Pallet} = 54,
+				EVM: module_evm::{Pallet, Config<T>, Call, Storage, Event<T>} = 54,
+				EVMBridge: module_evm_bridge::{Pallet} = 55,
 
 				// Dev
-				Sudo: pallet_sudo::{Pallet, Call, Config<T>, Storage, Event<T>} = 55,
+				Sudo: pallet_sudo::{Pallet, Call, Config<T>, Storage, Event<T>} = 56,
 
 				$($modules)*
 			}
@@ -1823,31 +1896,31 @@ macro_rules! construct_steam_runtime {
 #[cfg(feature = "standalone")]
 construct_steam_runtime! {
 	// Consensus & Staking
-	Authorship: pallet_authorship::{Pallet, Call, Storage, Inherent} = 56,
-	Babe: pallet_babe::{Pallet, Call, Storage, Config, ValidateUnsigned} = 57,
-	Grandpa: pallet_grandpa::{Pallet, Call, Storage, Config, Event, ValidateUnsigned} = 58,
-	ElectionProviderMultiPhase: pallet_election_provider_multi_phase::{Pallet, Call, Storage, Event<T>, ValidateUnsigned} = 59,
-	Staking: pallet_staking::{Pallet, Call, Config<T>, Storage, Event<T>} = 60,
-	Session: pallet_session::{Pallet, Call, Storage, Event, Config<T>} = 61,
-	Historical: pallet_session_historical::{Pallet} = 62,
+	Authorship: pallet_authorship::{Pallet, Call, Storage, Inherent} = 57,
+	Babe: pallet_babe::{Pallet, Call, Storage, Config, ValidateUnsigned} = 58,
+	Grandpa: pallet_grandpa::{Pallet, Call, Storage, Config, Event, ValidateUnsigned} = 59,
+	ElectionProviderMultiPhase: pallet_election_provider_multi_phase::{Pallet, Call, Storage, Event<T>, ValidateUnsigned} = 60,
+	Staking: pallet_staking::{Pallet, Call, Config<T>, Storage, Event<T>} = 61,
+	Session: pallet_session::{Pallet, Call, Storage, Event, Config<T>} = 62,
+	Historical: pallet_session_historical::{Pallet} = 63,
 }
 
 #[cfg(not(feature = "standalone"))]
 construct_steam_runtime! {
 
 	// Parachain
-	ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Storage, Inherent, Event<T>} = 56,
-	ParachainInfo: parachain_info::{Pallet, Storage, Config} = 57,
+	ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Storage, Inherent, Event<T>} = 57,
+	ParachainInfo: parachain_info::{Pallet, Storage, Config} = 58,
 	// XCM helpers.
-	//XcmHandler: cumulus_pallet_xcm::{Pallet, Event<T>, Origin} = 58,
-	XcmpQueue: cumulus_pallet_xcmp_queue::{Pallet, Call, Storage, Event<T>}= 59,
-	PolkadotXcm: pallet_xcm::{Pallet, Call, Event<T>, Origin} = 60,
-	CumulusXcm: cumulus_pallet_xcm::{Pallet, Origin} = 61,
+	//XcmHandler: cumulus_pallet_xcm::{Pallet, Event<T>, Origin} = 59,
+	XcmpQueue: cumulus_pallet_xcmp_queue::{Pallet, Call, Storage, Event<T>}= 60,
+	PolkadotXcm: pallet_xcm::{Pallet, Call, Event<T>, Origin} = 61,
+	CumulusXcm: cumulus_pallet_xcm::{Pallet, Origin} = 62,
 
-	Spambot: cumulus_ping::{Pallet, Call, Storage, Event<T>} = 62,
+	Spambot: cumulus_ping::{Pallet, Call, Storage, Event<T>} = 63,
 
-	//XTokens: orml_xtokens::{Pallet, Storage, Call, Event<T>} = 63,
-	//UnknownTokens: orml_unknown_tokens::{Pallet, Storage, Event} = 64,
+	XTokens: orml_xtokens::{Pallet, Storage, Call, Event<T>} = 64,
+	UnknownTokens: orml_unknown_tokens::{Pallet, Storage, Event} = 65,
 }
 
 /// The address format for describing accounts.

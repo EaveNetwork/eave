@@ -8,19 +8,11 @@ repository = 'https://github.com/eaveprotocol/eave'
 version = '0.1.0'
 build = "build.rs"
 
-## [package.metadata.docs.rs]
-## targets = ['x86_64-unknown-linux-gnu']
-
 [dependencies]
 smallvec = "1.4.0"
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
-serde = { version = "1.0.101", optional = true, default-features = false }
-log = { version = "0.4.14", default-features = false }
-### serde = { version = "1.0.101", optional = true, features = ["derive"] }
-serde_json = "1.0.60"
-hex = { version = "0.4", default-features = false, optional = true }
+serde = { version = "1.0.124", optional = true, default-features = false }
 hex-literal = { version = "0.3.1" }
-evm = { version = "0.26.0", optional = true, default-features = false }
 
 # Substrate dependencises
 frame-benchmarking = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false, optional = true }
@@ -30,12 +22,10 @@ frame-system = { git = "https://github.com/paritytech/substrate", branch = "roco
 frame-system-rpc-runtime-api = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 
 pallet-authorship = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-# pallet-aura = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-babe = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-bounties = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-collective = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-pallet-election-provider-multi-phase = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-elections-phragmen = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-grandpa = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 pallet-indices = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
@@ -72,8 +62,6 @@ sp-std = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1"
 sp-transaction-pool = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 sp-version = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 
-libsecp256k1 = { version = "0.3.4", default-features = false, optional = true }
-
 # Cumulus dependencies
 cumulus-pallet-parachain-system = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
 cumulus-primitives-core = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1", default-features = false }
@@ -104,9 +92,9 @@ orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features =
 orml-vesting = { path = "../../ecosystem-pallets/orml/vesting", default-features = false }
 orml-rewards = { path = "../../ecosystem-pallets/orml/rewards", default-features = false }
 orml-nft= { path = "../../ecosystem-pallets/orml/nft", default-features = false }
-## orml-unknown-tokens = { path = "../../ecosystem-pallets/orml/unknown-tokens", default-features = false }
-## orml-xtokens = { path = "../../ecosystem-pallets/orml/xtokens", default-features = false }
-## orml-xcm-support = { path = "../../ecosystem-pallets/orml/xcm-support", default-features = false }
+orml-unknown-tokens = { path = "../../ecosystem-pallets/orml/unknown-tokens", default-features = false }
+orml-xtokens = { path = "../../ecosystem-pallets/orml/xtokens", default-features = false }
+orml-xcm-support = { path = "../../ecosystem-pallets/orml/xcm-support", default-features = false }
 
 # local dependencies
 acala-primitives = { path = '../../ecosystem-pallets/aca/primitives', default-features = false }
@@ -123,6 +111,7 @@ module-evm = { path = "../../ecosystem-pallets/aca/modules/evm", default-feature
 module-evm-rpc-runtime-api = { path = "../../ecosystem-pallets/aca/modules/evm/rpc/runtime_api", default-features = false }
 module-evm-accounts = { path = "../../ecosystem-pallets/aca/modules/evm-accounts", default-features = false }
 module-evm-bridge = { path = "../../ecosystem-pallets/aca/modules/evm-bridge", default-features = false }
+module-evm-manager = { path = "../../ecosystem-pallets/aca/modules/evm-manager", default-features = false }
 module-homa = { path = '../../ecosystem-pallets/aca/modules/homa', default-features = false }
 module-homa-validator-list = { path = '../../ecosystem-pallets/aca/modules/homa-validator-list', default-features = false }
 module-honzon = { path = '../../ecosystem-pallets/aca/modules/honzon', default-features = false }
@@ -156,8 +145,6 @@ no_std = []
 std = [
 	"codec/std",
 	"serde",
-	"log/std",
-	"hex/std",
 
 	"frame-executive/std",
 	"frame-support/std",
@@ -169,7 +156,6 @@ std = [
 	"pallet-balances/std",
 	"pallet-bounties/std",
 	"pallet-collective/std",
-	"pallet-election-provider-multi-phase/std",
 	"pallet-elections-phragmen/std",
 	"pallet-grandpa/std",
 	"pallet-indices/std",
@@ -230,9 +216,9 @@ std = [
 	"orml-vesting/std",
 	"orml-rewards/std",
 	"orml-nft/std",
-##	"orml-unknown-tokens/std",
-##	"orml-xtokens/std",
-##	"orml-xcm-support/std",
+	"orml-unknown-tokens/std",
+	"orml-xtokens/std",
+	"orml-xcm-support/std",
 
  	"acala-primitives/std",
  	"module-airdrop/std",
@@ -244,6 +230,7 @@ std = [
   	"module-evm-rpc-runtime-api/std",
   	"module-evm-accounts/std",
   	"module-evm-bridge/std",
+	"module-evm-manager/std",
  	"module-incentives/std",
  	"module-loans/std",
  	"module-nft/std",
@@ -278,6 +265,8 @@ runtime-benchmarks = [
 	"pallet-collective/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 	"orml-authority/runtime-benchmarks",
+	"orml-vesting/runtime-benchmarks",
+	"orml-tokens/runtime-benchmarks",
 
 	"module-dex/runtime-benchmarks",
 	"module-nft/runtime-benchmarks",
@@ -289,9 +278,3 @@ runtime-benchmarks = [
 # runtime without clashing with the runtime api exported functions
 # in WASM.
 disable-runtime-api = []
-with-ethereum-compatibility = [
-	"evm",
- 	"module-evm/with-ethereum-compatibility",
- 	"eave-runtime-common/with-ethereum-compatibility",
-]
-standalone = [] 

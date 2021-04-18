@@ -1796,7 +1796,6 @@ dependencies = [
  "cumulus-primitives-utility",
  "eave-runtime-common",
  "ecosystem-renvm-bridge",
- "evm",
  "frame-benchmarking",
  "frame-executive",
  "frame-support",
@@ -1805,7 +1804,6 @@ dependencies = [
  "hex",
  "hex-literal 0.3.1",
  "libsecp256k1",
- "log",
  "module-airdrop",
  "module-auction-manager",
  "module-cdp-engine",
@@ -1816,6 +1814,7 @@ dependencies = [
  "module-evm",
  "module-evm-accounts",
  "module-evm-bridge",
+ "module-evm-manager",
  "module-evm-rpc-runtime-api",
  "module-homa",
  "module-homa-validator-list",
@@ -1841,13 +1840,15 @@ dependencies = [
  "orml-rewards",
  "orml-tokens",
  "orml-traits",
+ "orml-unknown-tokens",
  "orml-vesting",
+ "orml-xcm-support",
+ "orml-xtokens",
  "pallet-authorship",
  "pallet-babe",
  "pallet-balances",
  "pallet-bounties",
  "pallet-collective",
- "pallet-election-provider-multi-phase",
  "pallet-elections-phragmen",
  "pallet-grandpa",
  "pallet-indices",
@@ -1873,7 +1874,6 @@ dependencies = [
  "parity-scale-codec",
  "polkadot-parachain",
  "serde",
- "serde_json",
  "smallvec 1.6.1",
  "sp-api",
  "sp-application-crypto",
@@ -4871,6 +4871,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "module-evm-manager"
+version = "0.7.11"
+dependencies = [
+ "acala-primitives",
+ "frame-support",
+ "frame-system",
+ "module-evm",
+ "module-evm-bridge",
+ "module-support",
+ "orml-currencies",
+ "orml-tokens",
+ "orml-traits",
+ "orml-utilities",
+ "pallet-balances",
+ "pallet-timestamp",
+ "parity-scale-codec",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "module-evm-rpc-runtime-api"
 version = "0.1.0"
 dependencies = [
@@ -5597,6 +5621,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "orml-unknown-tokens"
+version = "0.4.1-dev"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "orml-xcm-support",
+ "parity-scale-codec",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+ "xcm",
+]
+
+[[package]]
 name = "orml-utilities"
 version = "0.4.1-dev"
 dependencies = [
@@ -5625,6 +5665,46 @@ dependencies = [
  "sp-io",
  "sp-runtime",
  "sp-std",
+]
+
+[[package]]
+name = "orml-xcm-support"
+version = "0.4.1-dev"
+dependencies = [
+ "frame-support",
+ "orml-traits",
+ "parity-scale-codec",
+ "sp-runtime",
+ "sp-std",
+ "xcm",
+ "xcm-executor",
+]
+
+[[package]]
+name = "orml-xtokens"
+version = "0.4.1-dev"
+dependencies = [
+ "cumulus-pallet-xcm",
+ "cumulus-primitives-core",
+ "frame-support",
+ "frame-system",
+ "orml-tokens",
+ "orml-traits",
+ "orml-xcm-support",
+ "pallet-balances",
+ "parachain-info",
+ "parity-scale-codec",
+ "polkadot-core-primitives",
+ "polkadot-parachain",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+ "xcm",
+ "xcm-builder",
+ "xcm-executor",
+ "xcm-simulator",
 ]
 
 [[package]]
@@ -10540,7 +10620,6 @@ dependencies = [
  "hex",
  "hex-literal 0.3.1",
  "libsecp256k1",
- "log",
  "module-airdrop",
  "module-auction-manager",
  "module-cdp-engine",
@@ -10551,6 +10630,7 @@ dependencies = [
  "module-evm",
  "module-evm-accounts",
  "module-evm-bridge",
+ "module-evm-manager",
  "module-evm-rpc-runtime-api",
  "module-homa",
  "module-homa-validator-list",
@@ -10568,7 +10648,6 @@ dependencies = [
  "orml-auction",
  "orml-authority",
  "orml-benchmarking",
- "orml-currencies",
  "orml-gradually-update",
  "orml-nft",
  "orml-oracle",
@@ -10576,7 +10655,10 @@ dependencies = [
  "orml-rewards",
  "orml-tokens",
  "orml-traits",
+ "orml-unknown-tokens",
  "orml-vesting",
+ "orml-xcm-support",
+ "orml-xtokens",
  "pallet-authorship",
  "pallet-babe",
  "pallet-balances",
@@ -10617,6 +10699,7 @@ dependencies = [
  "sp-core",
  "sp-inherents",
  "sp-io",
+ "sp-npos-elections",
  "sp-offchain",
  "sp-runtime",
  "sp-session",
@@ -12280,6 +12363,33 @@ dependencies = [
  "sp-runtime",
  "sp-std",
  "xcm",
+]
+
+[[package]]
+name = "xcm-simulator"
+version = "0.0.1-alpha"
+source = "git+https://github.com/shaunxw/xcm-simulator?branch=master#c3885f44503fcf4945ffeb3be72c6eacf7ac6cc0"
+dependencies = [
+ "cumulus-pallet-parachain-system",
+ "cumulus-pallet-xcm",
+ "cumulus-primitives-core",
+ "frame-support",
+ "frame-system",
+ "pallet-balances",
+ "parachain-info",
+ "parity-scale-codec",
+ "paste 1.0.5",
+ "polkadot-core-primitives",
+ "polkadot-parachain",
+ "polkadot-runtime-parachains",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+ "xcm",
+ "xcm-builder",
+ "xcm-executor",
 ]
 
 [[package]]

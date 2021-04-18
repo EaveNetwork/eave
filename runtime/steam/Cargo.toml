@@ -8,16 +8,11 @@ repository = 'https://github.com/eaveprotocol/eave'
 version = '0.1.0'
 build = "build.rs"
 
-## [package.metadata.docs.rs]
-## targets = ['x86_64-unknown-linux-gnu']
-
 [dependencies]
 smallvec = "1.4.0"
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
-serde = { version = "1.0.101", optional = true, default-features = false }
-log = { version = "0.4.14", default-features = false }
-### serde = { version = "1.0.101", optional = true, features = ["derive"] }
-serde_json = "1.0.60"
+serde = { version = "1.0.124", optional = true, default-features = false }
+serde_json = "1.0.64"
 hex = { version = "0.4", default-features = false, optional = true }
 hex-literal = { version = "0.3.1" }
 evm = { version = "0.26.0", optional = true, default-features = false }
@@ -63,6 +58,7 @@ sp-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = 
 sp-core = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 sp-inherents = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 sp-io = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+sp-npos-elections = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 sp-offchain = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
 sp-session = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
@@ -93,7 +89,7 @@ pallet-xcm = { git = "https://github.com/paritytech/polkadot", default-features 
 orml-auction = { path = "../../ecosystem-pallets/orml/auction", default-features = false }
 orml-authority = { path = "../../ecosystem-pallets/orml/authority", default-features = false }
 orml-benchmarking = { path = "../../ecosystem-pallets/orml/benchmarking", default-features = false, optional = true }
-orml-currencies = { path = "../../ecosystem-pallets/orml/currencies", default-features = false}
+## orml-currencies = { path = "../../ecosystem-pallets/orml/currencies", default-features = false}
 orml-oracle = { path = "../../ecosystem-pallets/orml/oracle", default-features = false }
 orml-oracle-rpc-runtime-api = { path = "../../ecosystem-pallets/orml/oracle/rpc/runtime-api", default-features = false }
 orml-gradually-update = { path = "../../ecosystem-pallets/orml/gradually-update", default-features = false }
@@ -102,9 +98,9 @@ orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features =
 orml-vesting = { path = "../../ecosystem-pallets/orml/vesting", default-features = false }
 orml-rewards = { path = "../../ecosystem-pallets/orml/rewards", default-features = false }
 orml-nft= { path = "../../ecosystem-pallets/orml/nft", default-features = false }
-##orml-unknown-tokens = { path = "../../ecosystem-pallets/orml/unknown-tokens", default-features = false }
-##orml-xtokens = { path = "../../ecosystem-pallets/orml/xtokens", default-features = false }
-##orml-xcm-support = { path = "../../ecosystem-pallets/orml/xcm-support", default-features = false }
+orml-unknown-tokens = { path = "../../ecosystem-pallets/orml/unknown-tokens", default-features = false }
+orml-xtokens = { path = "../../ecosystem-pallets/orml/xtokens", default-features = false }
+orml-xcm-support = { path = "../../ecosystem-pallets/orml/xcm-support", default-features = false }
 
 # local dependencies
 acala-primitives = { path = '../../ecosystem-pallets/aca/primitives', default-features = false }
@@ -117,10 +113,13 @@ module-cdp-treasury = { path = '../../ecosystem-pallets/aca/modules/cdp-treasury
 module-currencies = { path = '../../ecosystem-pallets/aca/modules/currencies', default-features = false }
 module-dex = { path = '../../ecosystem-pallets/aca/modules/dex', default-features = false }
 module-emergency-shutdown = { path = "../../ecosystem-pallets/aca/modules/emergency-shutdown", default-features = false }
+
 module-evm = { path = "../../ecosystem-pallets/aca/modules/evm", default-features = false }
-module-evm-rpc-runtime-api = { path = "../../ecosystem-pallets/aca/modules/evm/rpc/runtime_api", default-features = false }
 module-evm-accounts = { path = "../../ecosystem-pallets/aca/modules/evm-accounts", default-features = false }
 module-evm-bridge = { path = "../../ecosystem-pallets/aca/modules/evm-bridge", default-features = false }
+module-evm-manager = { path = "../../ecosystem-pallets/aca/modules/evm-manager", default-features = false }
+module-evm-rpc-runtime-api = { path = "../../ecosystem-pallets/aca/modules/evm/rpc/runtime_api", default-features = false }
+
 module-homa = { path = '../../ecosystem-pallets/aca/modules/homa', default-features = false }
 module-homa-validator-list = { path = '../../ecosystem-pallets/aca/modules/homa-validator-list', default-features = false }
 module-honzon = { path = '../../ecosystem-pallets/aca/modules/honzon', default-features = false }
@@ -153,7 +152,6 @@ no_std = []
 std = [
 	"codec/std",
 	"serde",
-	"log/std",
 	"hex/std",
 
 	"frame-executive/std",
@@ -191,6 +189,7 @@ std = [
 	"sp-block-builder/std",
 	"sp-consensus-babe/std",
  	"sp-core/std",
+	"sp-npos-elections/std",
 	"sp-offchain/std",
 	"sp-runtime/std",
 	"sp-session/std",
@@ -218,7 +217,7 @@ std = [
 	"orml-auction/std",
 	"orml-authority/std",
 	"orml-benchmarking/std",
-	"orml-currencies/std",
+##	"orml-currencies/std",
 	"orml-oracle-rpc-runtime-api/std",
 	"orml-oracle/std",
 	"orml-gradually-update/std",
@@ -227,9 +226,9 @@ std = [
 	"orml-vesting/std",
 	"orml-rewards/std",
 	"orml-nft/std",
-##	"orml-unknown-tokens/std",
-##	"orml-xtokens/std",
-##	"orml-xcm-support/std",
+	"orml-unknown-tokens/std",
+	"orml-xtokens/std",
+	"orml-xcm-support/std",
 
  	"acala-primitives/std",
  	"module-airdrop/std",
@@ -237,10 +236,13 @@ std = [
  	"module-currencies/std",
  	"module-dex/std",
   	"module-emergency-shutdown/std",
+
   	"module-evm/std",
-  	"module-evm-rpc-runtime-api/std",
   	"module-evm-accounts/std",
   	"module-evm-bridge/std",
+  	"module-evm-manager/std",
+  	"module-evm-rpc-runtime-api/std",
+
  	"module-incentives/std",
  	"module-loans/std",
  	"module-nft/std",
@@ -285,8 +287,7 @@ runtime-benchmarks = [
 # This is required by Cumulus to access certain types of the
 # runtime without clashing with the runtime api exported functions
 # in WASM.
-disable-runtime-api = []
-with-ethereum-compatibility = [
+disable-runtime-api = [
 	"evm",
  	"module-evm/with-ethereum-compatibility",
  	"eave-runtime-common/with-ethereum-compatibility",
