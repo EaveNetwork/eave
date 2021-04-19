@@ -1,3 +1,0 @@
-[submodule "open-runtime-module-library"]
-	path = orml
-	url = git@github.com:eavenetwork/open-runtime-module-library.git
