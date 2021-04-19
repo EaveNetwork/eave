@@ -1,0 +1,3 @@
+[submodule "ecosystem-pallets"]
+	path = ecosystem-pallets
+	url = git@github.com:eavenetwork/ecosystem-pallets.git
