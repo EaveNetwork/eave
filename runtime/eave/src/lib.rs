@@ -64,7 +64,7 @@ use orml_tokens::CurrencyAdapter;
 use orml_traits::{create_median_value_data_provider, parameter_type_with_key, DataFeeder, DataProviderExtended};
 use pallet_transaction_payment::RuntimeDispatchInfo;
 use cumulus_primitives_core::ParaId;
-use orml_xcm_support::{IsNativeConcrete, MultiCurrencyAdapter, MultiNativeAsset, XcmHandler as XcmHandlerT};
+use orml_xcm_support::{IsNativeConcrete, MultiCurrencyAdapter, MultiNativeAsset, XcmHandler };
 
 // XCM imports
 use polkadot_parachain::primitives::Sibling;
@@ -73,7 +73,7 @@ use xcm::v0::{
 	Junction::{self, GeneralKey, Parachain, Parent},
 	MultiAsset,
 	MultiLocation::{self, X1, X2, X3},
-	NetworkId
+	NetworkId, opaque::Xcm,
 };
 
 
@@ -172,6 +172,7 @@ parameter_types! {
 	pub const DSWFPalletId: PalletId = PalletId(*b"aca/dswf");
 	pub const ElectionsPhragmenPalletId: LockIdentifier = *b"aca/phre";
 	pub const NftPalletId: PalletId = PalletId(*b"aca/aNFT");
+	pub UnreleasedNativeVaultAccountId: AccountId = PalletId(*b"aca/urls").into_account();
 }
 
 pub fn get_all_module_accounts() -> Vec<AccountId> {
@@ -687,7 +688,7 @@ parameter_type_with_key! {
 }
 
 parameter_types! {
-	pub TreasuryModuleAccount: AccountId = EaveTreasuryPalletId::get().into_account();
+	pub EAVETreasuryAccount: AccountId = EaveTreasuryPalletId::get().into_account();
 }
 
 impl orml_tokens::Config for Runtime {
@@ -697,7 +698,7 @@ impl orml_tokens::Config for Runtime {
 	type CurrencyId = CurrencyId;
 	type WeightInfo = weights::orml_tokens::WeightInfo<Runtime>;
 	type ExistentialDeposits = ExistentialDeposits;
-	type OnDust = orml_tokens::TransferDust<Runtime, TreasuryModuleAccount>;
+	type OnDust = orml_tokens::TransferDust<Runtime, EAVETreasuryAccount>;
 }
 
 parameter_types! {
@@ -978,7 +979,7 @@ impl module_cdp_treasury::Config for Runtime {
 	type DEX = Dex;
 	type MaxAuctionsCount = MaxAuctionsCount;
 	type PalletId = CDPTreasuryPalletId;
-	type TreasuryAccount = HonzonTreasuryAccount;
+	type TreasuryAccount = EAVETreasuryAccount;
 	type WeightInfo = weights::module_cdp_treasury::WeightInfo<Runtime>;
 }
 
@@ -1245,7 +1246,7 @@ impl module_evm::Config for Runtime {
 	type NetworkContractSource = NetworkContractSource;
 	type DeveloperDeposit = DeveloperDeposit;
 	type DeploymentFee = DeploymentFee;
-	type TreasuryAccount = TreasuryModuleAccount;
+	type TreasuryAccount = EAVETreasuryAccount;
 	type FreeDeploymentOrigin = EnsureRootOrHalfGeneralCouncil;
 	type WeightInfo = weights::module_evm::WeightInfo<Runtime>;
 }
@@ -1471,8 +1472,16 @@ impl orml_xtokens::Config for Runtime {
 	type CurrencyIdConvert = CurrencyIdConvert;
 	type AccountId32Convert = AccountId32Convert;
 	type SelfLocation = SelfLocation;
-	type XcmHandler = CumulusXcm;
+	type XcmHandler = HandleXcm;
 }
+
+pub struct HandleXcm;
+impl XcmHandler<AccountId> for HandleXcm {
+	fn execute_xcm(origin: AccountId, xcm: Xcm) -> DispatchResult {
+		Self::execute_xcm(origin, xcm)
+	}
+}
+
 
 impl orml_unknown_tokens::Config for Runtime {
 	type Event = Event;
@@ -1509,15 +1518,6 @@ impl cumulus_ping::Config for Runtime {
 	type Call = Call;
 	type XcmSender = XcmRouter;
 }
-
-/*
-pub struct HandleXcm;
-impl XcmT<AccountId> for HandleXcm {
-	fn execute_xcm(origin: AccountId, xcm: XcmRouter) -> DispatchResult {
-		Xcm::execute_xcm(origin, xcm)
-	}
-}
-*/
 
 #[allow(clippy::large_enum_variant)]
 construct_runtime!(
@@ -1616,7 +1616,7 @@ construct_runtime!(
 		ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Storage, Inherent, Event<T>} = 55,
 		ParachainInfo: parachain_info::{Pallet, Storage, Config} = 56,
 		// XCM helpers.
-		//XcmHandler: cumulus_pallet_xcm::{Pallet, Event<T>, Origin} = 57, (note this is now CumulusXCM)
+		//XcmHandler: cumulus_pallet_xcm::{Pallet, Event<T>, Origin} = 57, (note this is now CumulusXcm)
 		XcmpQueue: cumulus_pallet_xcmp_queue::{Pallet, Call, Storage, Event<T>}= 57,
 		PolkadotXcm: pallet_xcm::{Pallet, Call, Event<T>, Origin} = 58,
 		CumulusXcm: cumulus_pallet_xcm::{Pallet, Origin} = 59,
@@ -1765,7 +1765,6 @@ impl_runtime_apis! {
 		fn get_value(provider_id: DataProviderId ,key: CurrencyId) -> Option<TimeStampedPrice> {
 			match provider_id {
 				DataProviderId::Eave => EaveOracle::get_no_op(&key),
-				DataProviderId::Band => BandOracle::get_no_op(&key),
 				DataProviderId::Aggregated => <AggregatedDataProvider as DataProviderExtended<_, _>>::get_no_op(&key)
 			}
 		}
@@ -1773,7 +1772,6 @@ impl_runtime_apis! {
 		fn get_all_values(provider_id: DataProviderId) -> Vec<(CurrencyId, Option<TimeStampedPrice>)> {
 			match provider_id {
 				DataProviderId::Eave => EaveOracle::get_all_values(),
-				DataProviderId::Band => BandOracle::get_all_values(),
 				DataProviderId::Aggregated => <AggregatedDataProvider as DataProviderExtended<_, _>>::get_all_values()
 			}
 		}

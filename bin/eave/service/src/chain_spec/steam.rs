@@ -337,7 +337,7 @@ fn testnet_genesis(
 		},
 		orml_vesting: VestingConfig { vesting: vec![] },
 		module_cdp_treasury: CdpTreasuryConfig {
-			collateral_auction_maximum_size: vec![
+			expected_collateral_auction_size: vec![
 				(DOT, dollar(DOT)), // (currency_id, max size of a collateral auction)
 				(XBTC, dollar(XBTC)),
 				(RENBTC, dollar(RENBTC)),
@@ -378,7 +378,10 @@ fn testnet_genesis(
 					10_000_000 * dollar(EUSD),
 				),
 			],
-			global_stability_fee: FixedU128::saturating_from_rational(618_850_393, 100_000_000_000_000_000_u128), /* 5% APR */
+			global_interest_rate_per_sec: FixedU128::saturating_from_rational(
+				1_547_126_000u128,
+				1_000_000_000_000_000_000u128,
+			), /* 5% APR */
 		},
 		module_airdrop: AirDropConfig {
 			airdrop_accounts: vec![],
@@ -425,7 +428,7 @@ fn steam_genesis(
 	endowed_accounts: Vec<AccountId>,
 ) -> steam_runtime::GenesisConfig {
 	use steam_runtime::{
-		cent, dollar, get_all_module_accounts, EaveOracleConfig, AirDropConfig, AirDropCurrencyId, Balance,
+		cent, dollar, get_all_module_accounts, EaveOracleConfig, AirDropConfig, Balance,
 		BalancesConfig, BandOracleConfig, CdpEngineConfig, CdpTreasuryConfig, DexConfig, EVMConfig,
 		EnabledTradingPairs, GeneralCouncilMembershipConfig, HomaCouncilMembershipConfig,
 		HonzonCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit, OperatorMembershipEaveConfig,
@@ -514,7 +517,7 @@ fn steam_genesis(
 		},
 		orml_vesting: VestingConfig { vesting: vec![] },
 	    module_cdp_treasury: CdpTreasuryConfig {
-			collateral_auction_maximum_size: vec![
+			expected_collateral_auction_size: vec![
 				(DOT, dollar(DOT)), // (currency_id, max size of a collateral auction)
 				(XBTC, 5 * cent(XBTC)),
 				(RENBTC, 5 * cent(RENBTC)),
@@ -555,29 +558,13 @@ fn steam_genesis(
 					10_000_000 * dollar(EUSD),
 				),
 			],
-			global_stability_fee: FixedU128::saturating_from_rational(618_850_393, 100_000_000_000_000_000_u128), /* 5% APR */
+			global_interest_rate_per_sec: FixedU128::saturating_from_rational(
+				1_547_126_000u128,
+				1_000_000_000_000_000_000u128,
+			), /* 5% APR */
 		},
 		module_airdrop: AirDropConfig {
-			airdrop_accounts: {
-				let eave_airdrop_accounts_json =
-					&include_bytes!("../../../../../resources/steam-airdrop-EAVE.json")[..];
-				let eave_airdrop_accounts: Vec<(AccountId, Balance)> =
-					serde_json::from_slice(eave_airdrop_accounts_json).unwrap();
-				let ice_airdrop_accounts_json =
-					&include_bytes!("../../../../../resources/steam-airdrop-ICE.json")[..];
-				let ice_airdrop_accounts: Vec<(AccountId, Balance)> =
-					serde_json::from_slice(ice_airdrop_accounts_json).unwrap();
-
-				eave_airdrop_accounts
-					.iter()
-					.map(|(account_id, eave_amount)| (account_id.clone(), AirDropCurrencyId::EAVE, *eave_amount))
-					.chain(
-						ice_airdrop_accounts
-							.iter()
-							.map(|(account_id, ice_amount)| (account_id.clone(), AirDropCurrencyId::ICE, *ice_amount)),
-					)
-					.collect::<Vec<_>>()
-			},
+			airdrop_accounts: vec![],
 		},
 		orml_oracle_Instance1: EaveOracleConfig {
 			members: Default::default(), // initialized by OperatorMembership

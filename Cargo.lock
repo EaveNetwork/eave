@@ -5684,14 +5684,18 @@ dependencies = [
 name = "orml-xtokens"
 version = "0.4.1-dev"
 dependencies = [
+ "cumulus-pallet-parachain-system",
  "cumulus-pallet-xcm",
+ "cumulus-pallet-xcmp-queue",
  "cumulus-primitives-core",
+ "cumulus-primitives-utility",
  "frame-support",
  "frame-system",
  "orml-tokens",
  "orml-traits",
  "orml-xcm-support",
  "pallet-balances",
+ "pallet-xcm",
  "parachain-info",
  "parity-scale-codec",
  "polkadot-core-primitives",
@@ -12368,7 +12372,7 @@ dependencies = [
 [[package]]
 name = "xcm-simulator"
 version = "0.0.1-alpha"
-source = "git+https://github.com/shaunxw/xcm-simulator?branch=master#c3885f44503fcf4945ffeb3be72c6eacf7ac6cc0"
+source = "git+https://github.com/eavenetwork/xcm-simulator?branch=master#95f50f1144f663a204b08cbf013882052646d90f"
 dependencies = [
  "cumulus-pallet-parachain-system",
  "cumulus-pallet-xcm",
