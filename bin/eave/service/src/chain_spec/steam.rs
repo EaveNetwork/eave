@@ -6,7 +6,7 @@ use serde_json::map::Map;
 use sp_consensus_babe::AuthorityId as BabeId;
 use sp_core::{crypto::UncheckedInto, sr25519};
 use sp_finality_grandpa::AuthorityId as GrandpaId;
-use sp_runtime::{FixedPointNumber, FixedU128};
+use sp_runtime::{traits::Zero, FixedPointNumber, FixedU128};
 
 use crate::chain_spec::{
 	evm_genesis, get_account_id_from_seed, get_authority_keys_from_seed, Extensions, TELEMETRY_URL,
@@ -254,7 +254,7 @@ fn testnet_genesis(
 		HomaCouncilMembershipConfig, HonzonCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit,
 		OperatorMembershipEaveConfig, OperatorMembershipBandConfig, OrmlNFTConfig, ParachainInfoConfig,
 		RenVmBridgeConfig, StakingPoolConfig, SudoConfig, SystemConfig, TechnicalCommitteeMembershipConfig,
-		TokensConfig, VestingConfig, EAVE, EUSD, DOT, LDOT, RENBTC, XBTC, 
+		TokensConfig, VestingConfig, EAVE, EUSD, DOT, LDOT, RENBTC, 
 	};
 	#[cfg(feature = "std")]
 	use sp_std::collections::btree_map::BTreeMap;
@@ -332,14 +332,13 @@ fn testnet_genesis(
 		orml_tokens: TokensConfig {
 			endowed_accounts: endowed_accounts.clone()
 				.iter()
-				.flat_map(|x| vec![(x.clone(), DOT, initial_balance), (x.clone(), XBTC, initial_balance)])
+				.flat_map(|x| vec![(x.clone(), DOT, initial_balance), (x.clone(), EUSD, initial_balance)])
 				.collect(),
 		},
 		orml_vesting: VestingConfig { vesting: vec![] },
 		module_cdp_treasury: CdpTreasuryConfig {
 			expected_collateral_auction_size: vec![
 				(DOT, dollar(DOT)), // (currency_id, max size of a collateral auction)
-				(XBTC, dollar(XBTC)),
 				(RENBTC, dollar(RENBTC)),
 			],
 		},
@@ -352,14 +351,6 @@ fn testnet_genesis(
 					Some(FixedU128::saturating_from_rational(10, 100)),  // liquidation penalty rate
 					Some(FixedU128::saturating_from_rational(150, 100)), // required liquidation ratio
 					10_000_000 * dollar(EUSD),                           // maximum debit value in eUSD (cap)
-				),
-				(
-					XBTC,
-					Some(FixedU128::zero()),
-					Some(FixedU128::saturating_from_rational(150, 100)),
-					Some(FixedU128::saturating_from_rational(10, 100)),
-					Some(FixedU128::saturating_from_rational(150, 100)),
-					10_000_000 * dollar(EUSD),
 				),
 				(
 					LDOT,
@@ -396,6 +387,7 @@ fn testnet_genesis(
 		},
 		module_evm: EVMConfig {
 			accounts: evm_genesis_accounts,
+			treasury: root_key,
 		},
 		module_staking_pool: StakingPoolConfig {
 			staking_pool_params: module_staking_pool::Params {
@@ -434,7 +426,7 @@ fn steam_genesis(
 		HonzonCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit, OperatorMembershipEaveConfig,
 		OperatorMembershipBandConfig, OrmlNFTConfig, ParachainInfoConfig, RenVmBridgeConfig, StakingPoolConfig,
 		SudoConfig, SystemConfig, TechnicalCommitteeMembershipConfig, TokensConfig, VestingConfig, EAVE, EUSD, DOT,
-		LDOT, RENBTC, XBTC, 
+		LDOT, RENBTC, 
 	};
 	#[cfg(feature = "std")]
 	use sp_std::collections::btree_map::BTreeMap;
@@ -512,14 +504,12 @@ fn steam_genesis(
 		orml_tokens: TokensConfig {
 			endowed_accounts: vec![
 				(root_key.clone(), DOT, initial_balance),
-				(root_key.clone(), XBTC, initial_balance),
 			],
 		},
 		orml_vesting: VestingConfig { vesting: vec![] },
 	    module_cdp_treasury: CdpTreasuryConfig {
 			expected_collateral_auction_size: vec![
 				(DOT, dollar(DOT)), // (currency_id, max size of a collateral auction)
-				(XBTC, 5 * cent(XBTC)),
 				(RENBTC, 5 * cent(RENBTC)),
 			],
 		},
@@ -532,14 +522,6 @@ fn steam_genesis(
 					Some(FixedU128::saturating_from_rational(3, 100)),   // liquidation penalty rate
 					Some(FixedU128::saturating_from_rational(110, 100)), // required liquidation ratio
 					10_000_000 * dollar(EUSD),                           // maximum debit value in eUSD (cap)
-				),
-				(
-					XBTC,
-					Some(FixedU128::zero()),
-					Some(FixedU128::saturating_from_rational(110, 100)),
-					Some(FixedU128::saturating_from_rational(4, 100)),
-					Some(FixedU128::saturating_from_rational(115, 100)),
-					10_000_000 * dollar(EUSD),
 				),
 				(
 					LDOT,
@@ -576,6 +558,7 @@ fn steam_genesis(
 		},
 		module_evm: EVMConfig {
 			accounts: evm_genesis_accounts,
+			treasury: root_key,
 		},
 		module_staking_pool: StakingPoolConfig {
 			staking_pool_params: module_staking_pool::Params {

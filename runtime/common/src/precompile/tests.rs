@@ -21,7 +21,7 @@ use super::*;
 use crate::precompile::{
 	mock::{
 		alice, bob, get_task_id, new_test_ext, run_to_block, Balances, DexModule, DexPrecompile, Event as TestEvent,
-		Oracle, OraclePrecompile, Origin, Price, ScheduleCallPrecompile, System, Test, ACA_ERC20_ADDRESS, ALICE, AUSD,
+		Oracle, OraclePrecompile, Origin, Price, ScheduleCallPrecompile, System, Test, ACA_ERC20_ADDRESS, ALICE, EUSD,
 		XBTC,
 	},
 	schedule_call::TaskInfo,
@@ -407,13 +407,13 @@ fn schedule_call_precompile_should_handle_invalid_input() {
 #[test]
 fn dex_precompile_get_liquidity_should_work() {
 	new_test_ext().execute_with(|| {
-		// enable XBTC/AUSD
-		assert_ok!(DexModule::enable_trading_pair(Origin::signed(ALICE), XBTC, AUSD,));
+		// enable XBTC/EUSD
+		assert_ok!(DexModule::enable_trading_pair(Origin::signed(ALICE), XBTC, EUSD,));
 
 		assert_ok!(DexModule::add_liquidity(
 			Origin::signed(ALICE),
 			XBTC,
-			AUSD,
+			EUSD,
 			1_000,
 			1_000_000,
 			true
@@ -434,7 +434,7 @@ fn dex_precompile_get_liquidity_should_work() {
 		id[15] = 4; // XBTC
 		U256::from_big_endian(&id.to_vec()).to_big_endian(&mut input[2 * 32..3 * 32]);
 		let mut id = [0u8; 32];
-		id[15] = 1; // AUSD
+		id[15] = 1; // EUSD
 		U256::from_big_endian(&id.to_vec()).to_big_endian(&mut input[3 * 32..4 * 32]);
 
 		let mut expected_output = [0u8; 64];
@@ -451,13 +451,13 @@ fn dex_precompile_get_liquidity_should_work() {
 #[test]
 fn dex_precompile_get_swap_target_amount_should_work() {
 	new_test_ext().execute_with(|| {
-		// enable XBTC/AUSD
-		assert_ok!(DexModule::enable_trading_pair(Origin::signed(ALICE), XBTC, AUSD,));
+		// enable XBTC/EUSD
+		assert_ok!(DexModule::enable_trading_pair(Origin::signed(ALICE), XBTC, EUSD,));
 
 		assert_ok!(DexModule::add_liquidity(
 			Origin::signed(ALICE),
 			XBTC,
-			AUSD,
+			EUSD,
 			1_000,
 			1_000_000,
 			true
@@ -480,7 +480,7 @@ fn dex_precompile_get_swap_target_amount_should_work() {
 		id[15] = 4; // XBTC
 		U256::from_big_endian(&id.to_vec()).to_big_endian(&mut input[3 * 32..4 * 32]);
 		let mut id = [0u8; 32];
-		id[15] = 1; // AUSD
+		id[15] = 1; // EUSD
 		U256::from_big_endian(&id.to_vec()).to_big_endian(&mut input[4 * 32..5 * 32]);
 		U256::from(1).to_big_endian(&mut input[5 * 32..6 * 32]);
 
@@ -497,13 +497,13 @@ fn dex_precompile_get_swap_target_amount_should_work() {
 #[test]
 fn dex_precompile_get_swap_supply_amount_should_work() {
 	new_test_ext().execute_with(|| {
-		// enable XBTC/AUSD
-		assert_ok!(DexModule::enable_trading_pair(Origin::signed(ALICE), XBTC, AUSD,));
+		// enable XBTC/EUSD
+		assert_ok!(DexModule::enable_trading_pair(Origin::signed(ALICE), XBTC, EUSD,));
 
 		assert_ok!(DexModule::add_liquidity(
 			Origin::signed(ALICE),
 			XBTC,
-			AUSD,
+			EUSD,
 			1_000,
 			1_000_000,
 			true
@@ -526,7 +526,7 @@ fn dex_precompile_get_swap_supply_amount_should_work() {
 		id[15] = 4; // XBTC
 		U256::from_big_endian(&id.to_vec()).to_big_endian(&mut input[3 * 32..4 * 32]);
 		let mut id = [0u8; 32];
-		id[15] = 1; // AUSD
+		id[15] = 1; // EUSD
 		U256::from_big_endian(&id.to_vec()).to_big_endian(&mut input[4 * 32..5 * 32]);
 		U256::from(1).to_big_endian(&mut input[5 * 32..6 * 32]);
 
@@ -543,13 +543,13 @@ fn dex_precompile_get_swap_supply_amount_should_work() {
 #[test]
 fn dex_precompile_swap_with_exact_supply_should_work() {
 	new_test_ext().execute_with(|| {
-		// enable XBTC/AUSD
-		assert_ok!(DexModule::enable_trading_pair(Origin::signed(ALICE), XBTC, AUSD,));
+		// enable XBTC/EUSD
+		assert_ok!(DexModule::enable_trading_pair(Origin::signed(ALICE), XBTC, EUSD,));
 
 		assert_ok!(DexModule::add_liquidity(
 			Origin::signed(ALICE),
 			XBTC,
-			AUSD,
+			EUSD,
 			1_000,
 			1_000_000,
 			true
@@ -573,7 +573,7 @@ fn dex_precompile_swap_with_exact_supply_should_work() {
 		id[15] = 4; // XBTC
 		U256::from_big_endian(&id.to_vec()).to_big_endian(&mut input[4 * 32..5 * 32]);
 		let mut id = [0u8; 32];
-		id[15] = 1; // AUSD
+		id[15] = 1; // EUSD
 		U256::from_big_endian(&id.to_vec()).to_big_endian(&mut input[5 * 32..6 * 32]);
 		U256::from(1).to_big_endian(&mut input[6 * 32..7 * 32]);
 		U256::from(0).to_big_endian(&mut input[7 * 32..8 * 32]);
@@ -591,13 +591,13 @@ fn dex_precompile_swap_with_exact_supply_should_work() {
 #[test]
 fn dex_precompile_swap_with_exact_target_should_work() {
 	new_test_ext().execute_with(|| {
-		// enable XBTC/AUSD
-		assert_ok!(DexModule::enable_trading_pair(Origin::signed(ALICE), XBTC, AUSD,));
+		// enable XBTC/EUSD
+		assert_ok!(DexModule::enable_trading_pair(Origin::signed(ALICE), XBTC, EUSD,));
 
 		assert_ok!(DexModule::add_liquidity(
 			Origin::signed(ALICE),
 			XBTC,
-			AUSD,
+			EUSD,
 			1_000,
 			1_000_000,
 			true
@@ -621,7 +621,7 @@ fn dex_precompile_swap_with_exact_target_should_work() {
 		id[15] = 4; // XBTC
 		U256::from_big_endian(&id.to_vec()).to_big_endian(&mut input[4 * 32..5 * 32]);
 		let mut id = [0u8; 32];
-		id[15] = 1; // AUSD
+		id[15] = 1; // EUSD
 		U256::from_big_endian(&id.to_vec()).to_big_endian(&mut input[5 * 32..6 * 32]);
 		U256::from(1).to_big_endian(&mut input[6 * 32..7 * 32]);
 		U256::from(1).to_big_endian(&mut input[7 * 32..8 * 32]);

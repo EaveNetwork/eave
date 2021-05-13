@@ -131,7 +131,7 @@ impl pallet_balances::Config for Test {
 
 pub const ACA: CurrencyId = CurrencyId::Token(TokenSymbol::ACA);
 pub const XBTC: CurrencyId = CurrencyId::Token(TokenSymbol::XBTC);
-pub const AUSD: CurrencyId = CurrencyId::Token(TokenSymbol::AUSD);
+pub const EUSD: CurrencyId = CurrencyId::Token(TokenSymbol::EUSD);
 pub const DOT: CurrencyId = CurrencyId::Token(TokenSymbol::DOT);
 pub const LDOT: CurrencyId = CurrencyId::Token(TokenSymbol::LDOT);
 
@@ -180,8 +180,8 @@ impl orml_nft::Config for Test {
 
 parameter_types! {
 	pub const TransactionByteFee: Balance = 10;
-	pub const GetStableCurrencyId: CurrencyId = CurrencyId::Token(TokenSymbol::AUSD);
-	pub AllNonNativeCurrencyIds: Vec<CurrencyId> = vec![CurrencyId::Token(TokenSymbol::AUSD)];
+	pub const GetStableCurrencyId: CurrencyId = CurrencyId::Token(TokenSymbol::EUSD);
+	pub AllNonNativeCurrencyIds: Vec<CurrencyId> = vec![CurrencyId::Token(TokenSymbol::EUSD)];
 	pub MaxSlippageSwapWithDEX: Ratio = Ratio::one();
 }
 
@@ -529,7 +529,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 			XBTC,
 			1_000_000_000_000
 		));
-		assert_ok!(Currencies::update_balance(Origin::root(), ALICE, AUSD, 1_000_000_000));
+		assert_ok!(Currencies::update_balance(Origin::root(), ALICE, EUSD, 1_000_000_000));
 
 		assert_ok!(Currencies::update_balance(
 			Origin::root(),

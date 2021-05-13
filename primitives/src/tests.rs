@@ -38,7 +38,7 @@ fn currency_id_to_bytes_works() {
 	let mut bytes = [0u8; 32];
 	bytes[29..].copy_from_slice(&[1, 0, 1][..]);
 	assert_eq!(
-		Into::<[u8; 32]>::into(CurrencyId::DEXShare(TokenSymbol::EAVE, TokenSymbol::AUSD)),
+		Into::<[u8; 32]>::into(CurrencyId::DEXShare(TokenSymbol::EAVE, TokenSymbol::EUSD)),
 		bytes
 	);
 }

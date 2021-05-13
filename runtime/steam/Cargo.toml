@@ -278,8 +278,6 @@ runtime-benchmarks = [
 	"sp-runtime/runtime-benchmarks",
 	"orml-authority/runtime-benchmarks",
 
-	"module-dex/runtime-benchmarks",
-	"module-nft/runtime-benchmarks",
 ]
 
 # When enabled, the runtime api will not be build.

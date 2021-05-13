@@ -119,7 +119,7 @@ pub use acala_primitives::{
 pub use eave_runtime_common::{
 	cent, deposit, dollar, microcent, millicent, CurveFeeModel, ExchangeRate, GasToWeight, OffchainSolutionWeightLimit, 
 	Price, Rate, Ratio, RuntimeBlockLength, RuntimeBlockWeights, SystemContractsFilter, TimeStampedPrice, EAVE, EUSD, 
-	DOT, KILT, LDOT, PHA, PLM, POLKABTC, RENBTC, XBTC,
+	DOT, LDOT, RENBTC,
 };
 
 mod authority;
@@ -348,6 +348,8 @@ impl pallet_membership::Config<GeneralCouncilMembershipInstance> for Runtime {
 	type PrimeOrigin = EnsureRootOrThreeFourthsGeneralCouncil;
 	type MembershipInitialized = GeneralCouncil;
 	type MembershipChanged = GeneralCouncil;
+	type MaxMembers = GeneralCouncilMaxMembers;
+	type WeightInfo = ();
 }
 
 parameter_types! {
@@ -378,6 +380,8 @@ impl pallet_membership::Config<HonzonCouncilMembershipInstance> for Runtime {
 	type PrimeOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type MembershipInitialized = HonzonCouncil;
 	type MembershipChanged = HonzonCouncil;
+	type MaxMembers = HonzonCouncilMaxMembers;
+	type WeightInfo = ();
 }
 
 parameter_types! {
@@ -408,6 +412,8 @@ impl pallet_membership::Config<HomaCouncilMembershipInstance> for Runtime {
 	type PrimeOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type MembershipInitialized = HomaCouncil;
 	type MembershipChanged = HomaCouncil;
+	type MaxMembers = HomaCouncilMaxMembers;
+	type WeightInfo = ();
 }
 
 parameter_types! {
@@ -438,6 +444,13 @@ impl pallet_membership::Config<TechnicalCommitteeMembershipInstance> for Runtime
 	type PrimeOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type MembershipInitialized = TechnicalCommittee;
 	type MembershipChanged = TechnicalCommittee;
+	type MaxMembers = TechnicalCouncilMaxMembers;
+	type WeightInfo = ();
+}
+
+parameter_types! {
+	// TODO: update
+	pub const OracleMaxMembers: u32 = 100;
 }
 
 type OperatorMembershipInstanceEave = pallet_membership::Instance5;
@@ -450,6 +463,8 @@ impl pallet_membership::Config<OperatorMembershipInstanceEave> for Runtime {
 	type PrimeOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type MembershipInitialized = EaveOracle;
 	type MembershipChanged = EaveOracle;
+	type MaxMembers = OracleMaxMembers;
+	type WeightInfo = ();
 }
 
 type OperatorMembershipInstanceBand = pallet_membership::Instance6;
@@ -462,6 +477,8 @@ impl pallet_membership::Config<OperatorMembershipInstanceBand> for Runtime {
 	type PrimeOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type MembershipInitialized = BandOracle;
 	type MembershipChanged = BandOracle;
+	type MaxMembers = OracleMaxMembers;
+	type WeightInfo = ();
 }
 
 impl pallet_utility::Config for Runtime {
@@ -897,7 +914,7 @@ where
 }
 
 parameter_types! {
-	pub CollateralCurrencyIds: Vec<CurrencyId> = vec![DOT, LDOT, XBTC, RENBTC, POLKABTC];
+	pub CollateralCurrencyIds: Vec<CurrencyId> = vec![DOT, LDOT, RENBTC];
 	pub DefaultLiquidationRatio: Ratio = Ratio::saturating_from_rational(110, 100);
 	pub DefaultDebitExchangeRate: ExchangeRate = ExchangeRate::saturating_from_rational(1, 10);
 	pub DefaultLiquidationPenalty: Rate = Rate::saturating_from_rational(5, 100);
@@ -923,8 +940,14 @@ impl module_cdp_engine::Config for Runtime {
 	type WeightInfo = weights::module_cdp_engine::WeightInfo<Runtime>;
 }
 
+parameter_types! {
+	pub DepositPerAuthorization: Balance = dollar(EAVE);
+}
+
 impl module_honzon::Config for Runtime {
 	type Event = Event;
+	type Currency = Balances;
+	type DepositPerAuthorization = DepositPerAuthorization;
 	type WeightInfo = weights::module_honzon::WeightInfo<Runtime>;
 }
 
@@ -945,12 +968,7 @@ parameter_types! {
 		TradingPair::new(EUSD, EAVE),
 		TradingPair::new(EUSD, DOT),
 		TradingPair::new(EUSD, LDOT),
-		TradingPair::new(EUSD, XBTC),
 		TradingPair::new(EUSD, RENBTC),
-		TradingPair::new(EUSD, POLKABTC),
-		TradingPair::new(EUSD, PLM),
-		TradingPair::new(EUSD, PHA),
-		TradingPair::new(EUSD, KILT),
 	];
 }
 
@@ -985,7 +1003,7 @@ impl module_cdp_treasury::Config for Runtime {
 
 parameter_types! {
 	// All currency types except for native currency, Sort by fee charge order
-	pub AllNonNativeCurrencyIds: Vec<CurrencyId> = vec![EUSD, LDOT, DOT, XBTC, RENBTC, POLKABTC, PLM, PHA, KILT];
+	pub AllNonNativeCurrencyIds: Vec<CurrencyId> = vec![EUSD, LDOT, DOT, RENBTC];
 }
 
 impl module_transaction_payment::Config for Runtime {
@@ -1007,7 +1025,7 @@ impl module_evm_accounts::Config for Runtime {
 	type Event = Event;
 	type Currency = Balances;
 	type AddressMapping = EvmAddressMapping<Runtime>;
-	type MergeAccount = Currencies;
+	type TransferAll = Currencies;
 	type OnClaim = (); // TODO: update implementation to something to Steam
 	type WeightInfo = weights::module_evm_accounts::WeightInfo<Runtime>;
 }
@@ -1093,8 +1111,9 @@ parameter_types! {
 }
 
 impl module_nominees_election::Config for Runtime {
+	type Event = Event;
 	type Currency = Currency<Runtime, GetLiquidCurrencyId>;
-	type PolkadotAccountId = AccountId;
+	type NomineeId = AccountId;
 	type MinBondThreshold = MinCouncilBondThreshold;
 	type BondingDuration = NomineesElectionBondingDuration;
 	type NominateesCount = NominateesCount;
@@ -1224,7 +1243,7 @@ pub type DexPrecompile =
 impl module_evm::Config for Runtime {
 	type AddressMapping = EvmAddressMapping<Runtime>;
 	type Currency = Balances;
-	type MergeAccount = Currencies;
+	type TransferAll = Currencies;
 	type NewContractExtraBytes = NewContractExtraBytes;
 	type StorageDepositPerByte = StorageDepositPerByte;
 	type MaxCodeSize = MaxCodeSize;
@@ -1596,7 +1615,7 @@ construct_runtime!(
 
 		// Homa
 		//Homa: module_homa::{Pallet, Call} = 45,
-		NomineesElection: module_nominees_election::{Pallet, Call, Storage} = 46,
+		NomineesElection: module_nominees_election::{Pallet, Call, Storage,  Event<T>} = 46,
 		StakingPool: module_staking_pool::{Pallet, Call, Storage, Event<T>, Config} = 47,
 		PolkadotBridge: module_polkadot_bridge::{Pallet, Call, Storage} = 48,
 		HomaValidatorListModule: module_homa_validator_list::{Pallet, Call, Storage, Event<T>} = 49,
