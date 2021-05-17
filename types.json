@@ -23,6 +23,7 @@
   },
   "AccountIdOf": "AccountId",
   "RelaychainAccountId": "AccountId",
+  "NomineeId": "AccountId",
   "TokenBalanceOf": "Balance",
   "TokenInfo": {
     "name": "Text",
