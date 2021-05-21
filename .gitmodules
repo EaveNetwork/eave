@@ -1,3 +1,6 @@
 [submodule "ecosystem-pallets"]
 	path = ecosystem-pallets
 	url = git@github.com:eavenetwork/ecosystem-pallets.git
+[submodule "foundational-contracts"]
+	path = foundational-contracts
+	url = git@github.com:EaveNetwork/foundational-contracts.git
