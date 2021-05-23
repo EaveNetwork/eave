@@ -161,7 +161,7 @@ macro_rules! create_currency_id {
 			];
 			tokens.append(&mut lp_tokens);
 
-			frame_support::assert_ok!(std::fs::write("../predeploy-contracts/resources/tokens.json", serde_json::to_string_pretty(&tokens).unwrap()));
+			frame_support::assert_ok!(std::fs::write("../foundational-contracts/resources/tokens.json", serde_json::to_string_pretty(&tokens).unwrap()));
 		}
     }
 }

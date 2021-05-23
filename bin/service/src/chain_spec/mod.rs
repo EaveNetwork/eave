@@ -64,7 +64,7 @@ pub fn get_authority_keys_from_seed(seed: &str) -> (AccountId, AccountId, Grandp
 
 /// Returns `(evm_genesis_accounts, network_contract_index)`
 pub fn evm_genesis() -> BTreeMap<H160, GenesisAccount<Balance, Nonce>> {
-	let contracts_json = &include_bytes!("../../../../../../predeploy-contracts/resources/bytecodes.json")[..];
+	let contracts_json = &include_bytes!("../../../../foundational-contracts/resources/bytecodes.json")[..];
 	let contracts: Vec<(String, String, String)> = serde_json::from_slice(contracts_json).unwrap();
 	let mut accounts = BTreeMap::new();
 	for (_, address, code_string) in contracts {
@@ -77,7 +77,7 @@ pub fn evm_genesis() -> BTreeMap<H160, GenesisAccount<Balance, Nonce>> {
 
 		let addr = H160::from_slice(
 			from_hex(address.as_str())
-				.expect("predeploy-contracts must specify address")
+				.expect("foundational-contracts must specify address")
 				.as_slice(),
 		);
 		accounts.insert(addr, account);
