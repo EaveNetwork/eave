@@ -2,9 +2,9 @@ cargo-features = ["resolver"]
 
 [workspace]
 members = [
-	"bin/eave",
-	"bin/eave/cli",
-	"bin/eave/service",
+	"bin/",
+	"bin/cli",
+	"bin/service",
 
 	"pallets/*",
 	"inspect",

@@ -3,10 +3,10 @@ name = 'eave'
 version = '0.1.0'
 authors = ['Eave Protocol']
 edition = '2018'
-description = 'Eave Steam Collator'
-homepage = 'https://eaveprotocol.com'
+description = 'Eave'
+homepage = 'https://eave.network'
 license = 'Apache 2.0'
-repository = 'https://github.com/eaveprotocol/eave'
+repository = 'https://github.com/eavenetwork/eave'
 
 [[bin]]
 name = 'eave'
@@ -17,23 +17,21 @@ futures = "0.3.4"
 parity-util-mem = { version = "0.9.0", default-features = false, features = ["jemalloc-global"] }
 eave-cli = { path = "cli" }
 eave-service = { path = "service" }
-steam-runtime = { path = "../../runtime/steam", optional = true }
+## steam-runtime = { path = "../runtime/steam", optional = true }
 
-#TODO: This is a workaround for issue https://github.com/bitvecto-rs/bitvec/issues/105. Remove it once fixed.
-#funty = { version = "=1.1.0" }
 
 [features]
-default = ["with-steam-runtime"]
+default = []
 runtime-benchmarks = [
 	"eave-cli/runtime-benchmarks",
-]
-with-eave-runtime = [
-	"eave-service/with-eave-runtime",
-	"eave-cli/with-eave-runtime",
 ]
 with-steam-runtime = [
 	"eave-service/with-steam-runtime",
 	"eave-cli/with-steam-runtime",
+]
+with-eave-runtime = [
+	"eave-service/with-eave-runtime",
+	"eave-cli/with-eave-runtime",
 ]
 with-all-runtime = [
 	"eave-service/with-all-runtime",

@@ -62,39 +62,48 @@ polkadot-primitives = { git = "https://github.com/paritytech/polkadot", branch =
 polkadot-service = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.2" }
 
 # local dependencies
-orml-oracle-rpc = { path = "../../../ecosystem-pallets/orml/oracle/rpc" }
+orml-oracle-rpc = { path = "../../ecosystem-pallets/orml/oracle/rpc" }
 
-ecosystem-renvm-bridge = { path = "../../../ecosystem-pallets/ren/renvm-bridge" }
+ecosystem-renvm-bridge = { path = "../../ecosystem-pallets/ren/renvm-bridge" }
 
-acala-primitives = { path = '../../../ecosystem-pallets/aca/primitives', default-features = false }
-module-evm = { path = "../../../ecosystem-pallets/aca/modules/evm", default-features = false }
-module-evm-rpc-runtime-api = { path = "../../../ecosystem-pallets/aca/modules/evm/rpc/runtime_api", default-features = false }
-module-nft = { path = "../../../ecosystem-pallets/aca/modules/nft" }
-module-staking-pool = { path = '../../../ecosystem-pallets/aca/modules/staking-pool', default-features = false }
-module-staking-pool-rpc = { path = '../../../ecosystem-pallets/aca/modules/staking-pool/rpc', default-features = false }
+acala-primitives = { path = '../../ecosystem-pallets/aca/primitives', default-features = false }
+module-evm = { path = "../../ecosystem-pallets/aca/modules/evm", default-features = false }
+module-evm-rpc-runtime-api = { path = "../../ecosystem-pallets/aca/modules/evm/rpc/runtime_api", default-features = false }
+module-nft = { path = "../../ecosystem-pallets/aca/modules/nft" }
+module-staking-pool = { path = '../../ecosystem-pallets/aca/modules/staking-pool', default-features = false }
+module-staking-pool-rpc = { path = '../../ecosystem-pallets/aca/modules/staking-pool/rpc', default-features = false }
 
-eave-rpc = { path = "../../../rpc" }
+eave-rpc = { path = "../../rpc" }
 
 
-eave-runtime-common = { path = "../../../runtime/common" }
-steam-runtime = { path = "../../../runtime/steam", optional = true }
+eave-runtime-common = { path = "../../runtime/common" }
+steam-runtime = { path = "../../runtime/steam", optional = true }
+eave-runtime = { path = "../../runtime/eave", optional = true }
 
 
 [dev-dependencies]
 sc-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.2"}
 
 [features]
-default = ["std", "with-steam-runtime"]
+default = ["std"]
 std = []
 runtime-benchmarks = [
 	"steam-runtime/runtime-benchmarks",
+	"eave-runtime/runtime-benchmarks",
+	"polkadot-service/runtime-benchmarks",
+]
+try-runtime = [
+	"steam-runtime/try-runtime",
+	"eave-runtime/try-runtime",
+	"polkadot-service/try-runtime",
 ]
 with-steam-runtime = [
 	"steam-runtime",
 ]
 with-eave-runtime = [
-	"steam-runtime",
+	"eave-runtime",
 ]
 with-all-runtime = [
 	"with-steam-runtime",
+	"with-eave-runtime",
 ]

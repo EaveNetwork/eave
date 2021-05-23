@@ -1,22 +1,30 @@
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
+// Modifications Copyright (c) 2021 John Whitton
+// 2021-03 : Customize for EAVE Protocol
+
+// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 //! A set of constant values used in dev runtime.
-
-/// Money matters.
-pub mod currency {
-	use acala_primitives::Balance;
-
-	pub const DOLLARS: Balance = 1_000_000_000_000_000_000;
-	pub const CENTS: Balance = DOLLARS / 100; // 10_000_000_000_000_000
-	pub const MILLICENTS: Balance = CENTS / 1000; // 10_000_000_000_000
-	pub const MICROCENTS: Balance = MILLICENTS / 1000; // 10_000_000_000
-
-	pub const fn deposit(items: u32, bytes: u32) -> Balance {
-		items as Balance * 15 * CENTS + (bytes as Balance) * 6 * CENTS
-	}
-}
 
 /// Time and blocks.
 pub mod time {
 	use acala_primitives::{BlockNumber, Moment};
+	use runtime_common::{dollar, millicent, EAVE};
 
 	pub const SECS_PER_BLOCK: Moment = 4;
 	pub const MILLISECS_PER_BLOCK: Moment = SECS_PER_BLOCK * 1000;
@@ -28,25 +36,18 @@ pub mod time {
 
 	pub const SLOT_DURATION: Moment = MILLISECS_PER_BLOCK;
 
-	// 1 in 4 blocks (on average, not counting collisions) will be primary BABE
-	// blocks.
-	pub const PRIMARY_PROBABILITY: (u64, u64) = (1, 4);
-
-	pub const EPOCH_DURATION_IN_BLOCKS: BlockNumber = HOURS;
-	pub const EPOCH_DURATION_IN_SLOTS: u64 = {
-		const SLOT_FILL_RATE: f64 = MILLISECS_PER_BLOCK as f64 / SLOT_DURATION as f64;
-
-		(EPOCH_DURATION_IN_BLOCKS as f64 * SLOT_FILL_RATE) as u64
-	};
+	pub fn deposit(items: u32, bytes: u32) -> Balance {
+		items as Balance * 2 * dollar(EAVE) + (bytes as Balance) * 10 * millicent(EAVE)
+	}
 }
 
 /// Fee-related
 pub mod fee {
-	pub use super::currency::CENTS;
 	use frame_support::weights::{
 		constants::ExtrinsicBaseWeight, WeightToFeeCoefficient, WeightToFeeCoefficients, WeightToFeePolynomial,
 	};
 	use acala_primitives::Balance;
+	use runtime_common::{cent, EAVE};
 	use smallvec::smallvec;
 	use sp_runtime::Perbill;
 
@@ -71,13 +72,13 @@ pub mod fee {
 		fn polynomial() -> WeightToFeeCoefficients<Self::Balance> {
 			// in Eave, extrinsic base weight (smallest non-zero weight) is mapped to 1/10
 			// CENT:
-			let p = CENTS / 10; // 1_000_000_000_000_000
+			let p = cent(EAVE) / 10; // 10_000_000_000;
 			let q = Balance::from(ExtrinsicBaseWeight::get()); // 125_000_000
 			smallvec![WeightToFeeCoefficient {
 				degree: 1,
 				negative: false,
-				coeff_frac: Perbill::from_rational_approximation(p % q, q), // zero
-				coeff_integer: p / q,                                       // 8_000_000
+				coeff_frac: Perbill::from_rational(p % q, q), // zero
+				coeff_integer: p / q,                         // 80
 			}]
 		}
 	}

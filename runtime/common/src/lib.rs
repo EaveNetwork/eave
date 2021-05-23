@@ -17,6 +17,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 //! Common runtime code for Eave and Steam.
 
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -153,11 +154,6 @@ pub fn millicent(currency_id: CurrencyId) -> Balance {
 
 pub fn microcent(currency_id: CurrencyId) -> Balance {
 	millicent(currency_id) / 1000
-}
-
-pub fn deposit(items: u32, bytes: u32, currency_id: CurrencyId) -> Balance {
-	// TODO: come out some value for this
-	items as Balance * 15 * cent(currency_id) + (bytes as Balance) * 6 * cent(currency_id)
 }
 
 #[cfg(test)]

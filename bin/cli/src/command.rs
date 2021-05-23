@@ -17,7 +17,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// Diisable the following lints
+
+// Disable the following lints
 #![allow(clippy::borrowed_box)]
 
 use crate::cli::{Cli, RelayChainCli, Subcommand};
@@ -25,8 +26,6 @@ use codec::Encode;
 use cumulus_client_service::genesis::generate_genesis_block;
 use cumulus_primitives_core::ParaId;
 use service::{chain_spec, IdentifyVariant};
-
-pub use service::steam_runtime::Block;
 
 use log::info;
 use polkadot_parachain::primitives::AccountIdConversion;
@@ -39,14 +38,13 @@ use sp_core::hexdisplay::HexDisplay;
 use sp_runtime::traits::Block as BlockT;
 use std::{io::Write, net::SocketAddr};
 
-#[cfg(feature = "with-eave-runtime")]
-const CHAIN_NAME: &str = "EAVE";
-#[cfg(feature = "with-steam-runtime")]
-const CHAIN_NAME: &str = "Steam";
+fn chain_name() -> String {
+	"EAVE".into()
+}
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
-		format!("{} Node", CHAIN_NAME)
+		format!("{} Node", chain_name())
 	}
 
 	fn impl_version() -> String {
@@ -62,7 +60,7 @@ impl SubstrateCli for Cli {
 	}
 
 	fn support_url() -> String {
-		"https://github.com/eaveprotocol/eave/issues".into()
+		"https://github.com/eavenetwork/eave/issues".into()
 	}
 
 	fn copyright_start_year() -> i32 {
@@ -70,37 +68,28 @@ impl SubstrateCli for Cli {
 	}
 
 	fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
-		let id = if id.is_empty() {
-			// The binary prefix is always eave.
-			// Make Steam the default chain spec.
-			"steam"
-		} else {
-			id
-		};
+		if id.is_empty() {
+			return Err("Not specific which chain to run.".into());
+		}
 
 		Ok(match id {
-			//Beast (standalone instant seal) is in eave-dev
+			#[cfg(feature = "with-steam-runtime")]
+			"dev" => Box::new(chain_spec::steam::development_testnet_config()?)
 			//Steam Local 
 			#[cfg(feature = "with-steam-runtime")]
 			"steam-local" => Box::new(chain_spec::steam::steam_local_config()?),
+			#[cfg(feature = "with-steam-runtime")]
+			"steam" => Box::new(chain_spec::steam::steam_config()?),
 			//Steam Rococo Latest 
 			#[cfg(feature = "with-steam-runtime")]
 			"steam-latest" => Box::new(chain_spec::steam::steam_latest_config()?),
-			//Steam Stable uses imported chain_spec from resources folder (Default when no chain is passed)
-			#[cfg(feature = "with-steam-runtime")]
-			"steam" => Box::new(chain_spec::steam::steam_config()?),
-			//Aqua Local
-			//Noria for Aqua
-			//Windmill Local - One node Testnet
-			//Windmill Dev - Two node Testnet
-			#[cfg(feature = "with-steam-runtime")]
-			"dev" => Box::new(chain_spec::steam::development_testnet_config()?),
-			#[cfg(feature = "with-steam-runtime")]
-			"local" => Box::new(chain_spec::steam::local_testnet_config()?),
-//			#[cfg(feature = "with-eave-runtime")]
-//			"eave" => Box::new(chain_spec::eave::eave_config()?),
-//			#[cfg(feature = "with-eave-runtime")]
-//			"eave-latest" => Box::new(chain_spec::eave::latest_eave_config()?),
+			#[cfg(feature = "with-eave-runtime")]
+			"eave" => Box::new(chain_spec::eave::eave_config()?),
+			#[cfg(feature = "with-eave-runtime")]
+			"eave-latest" => Box::new(chain_spec::eave::latest_eave_config()?),
+			//Aqua will be a relay chain
+			//Noria for Aqua will be a collator on Aqua
+			//ICE will be a parachain on Kusama
 			path => {
 				let path = std::path::PathBuf::from(path);
 
@@ -111,21 +100,21 @@ impl SubstrateCli for Cli {
 						.unwrap_or(false)
 				};
 
-				if starts_with("eave") {
-					#[cfg(feature = "with-eave-runtime")]
-					{
-						Box::new(chain_spec::eave::ChainSpec::from_json_file(path)?)
-					}
-
-					#[cfg(not(feature = "with-eave-runtime"))]
-					return Err("Eave runtime is not available. Please compile the node with `--features with-eave-runtime` to enable it.".into());
-				} else {
+				if starts_with("steam") {
 					#[cfg(feature = "with-steam-runtime")]
 					{
 						Box::new(chain_spec::steam::ChainSpec::from_json_file(path)?)
 					}
+
 					#[cfg(not(feature = "with-steam-runtime"))]
-					return Err("Steam runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.".into());
+					return Err(service::STEAM_RUNTIME_NOT_AVAILABLE.into());
+				} else {
+					#[cfg(feature = "with-eave-runtime")]
+					{
+						Box::new(chain_spec::eave::ChainSpec::from_json_file(path)?)
+					}
+					#[cfg(not(feature = "with-eave-runtime"))]
+					return Err(service::EAVE_RUNTIME_NOT_AVAILABLE.into());
 				}
 			}
 		})
@@ -136,19 +125,19 @@ impl SubstrateCli for Cli {
 			#[cfg(feature = "with-eave-runtime")]
 			return &service::eave_runtime::VERSION;
 			#[cfg(not(feature = "with-eave-runtime"))]
-			panic!("Eave runtime is not available. Please compile the node with `--features with-eave-runtime` to enable it.");
+			panic!("{}", service::EAVE_RUNTIME_NOT_AVAILABLE);
 		} else {
 			#[cfg(feature = "with-steam-runtime")]
 			return &service::steam_runtime::VERSION;
 			#[cfg(not(feature = "with-steam-runtime"))]
-			panic!("Steam runtime is not available. Please compile the node with `--features with-steam-runtime` to enable it.");
+			panic!("{}", service::STEAM_RUNTIME_NOT_AVAILABLE);
 		}
 	}
 }
 
 impl SubstrateCli for RelayChainCli {
 	fn impl_name() -> String {
-		format!("{} Parachain Collator", CHAIN_NAME)
+		format!("{} Parachain Collator", chain_name())
 	}
 
 	fn impl_version() -> String {
@@ -161,7 +150,7 @@ impl SubstrateCli for RelayChainCli {
 		passed to the parachain node, while the arguments provided after -- will be passed \
 		to the relaychain node.\n\n\
 		rococo-collator [parachain-args] -- [relaychain-args]",
-			CHAIN_NAME
+			chain_name()
 		)
 	}
 
@@ -170,7 +159,7 @@ impl SubstrateCli for RelayChainCli {
 	}
 
 	fn support_url() -> String {
-		"https://github.com/eaveprotocol/eave/issues".into()
+		"https://github.com/eavenetwork/eave/issues".into()
 	}
 
 	fn copyright_start_year() -> i32 {
@@ -210,6 +199,30 @@ fn extract_genesis_wasm(chain_spec: &Box<dyn service::ChainSpec>) -> Result<Vec<
 		.ok_or_else(|| "Could not find wasm file in genesis state!".into())
 }
 
+macro_rules! with_runtime_or_err {
+	($chain_spec:expr, { $( $code:tt )* }) => {
+		if $chain_spec.is_eave() {
+			#[cfg(feature = "with-eave-runtime")]
+			#[allow(unused_imports)]
+			use service::{eave_runtime::{Block, RuntimeApi}, EaveExecutor as Executor};
+			#[cfg(feature = "with-eave-runtime")]
+			$( $code )*
+
+			#[cfg(not(feature = "with-eave-runtime"))]
+			return Err(service::EAVE_RUNTIME_NOT_AVAILABLE.into());
+		} else {
+			#[cfg(feature = "with-steam-runtime")]
+			#[allow(unused_imports)]
+			use service::{steam_runtime::{Block, RuntimeApi}, SteamExecutor as Executor};
+			#[cfg(feature = "with-steam-runtime")]
+			$( $code )*
+
+			#[cfg(not(feature = "with-steam-runtime"))]
+			return Err(service::STEAM_RUNTIME_NOT_AVAILABLE.into());
+		}
+	}
+}
+
 /// Parses eave specific CLI arguments and run the service.
 pub fn run() -> sc_cli::Result<()> {
 	let cli = Cli::from_args();
@@ -233,12 +246,11 @@ pub fn run() -> sc_cli::Result<()> {
 
 			set_default_ss58_version(chain_spec);
 
-			#[cfg(feature = "with-eave-runtime")]
 			return runner.sync_run(|config| cmd.run::<service::eave_runtime::Block, service::EaveExecutor>(config));
 
-			#[cfg(feature = "with-steam-runtime")]
-			return runner
-				.sync_run(|config| cmd.run::<service::steam_runtime::Block, service::SteamExecutor>(config));
+			with_runtime_or_err!(chain_spec, {
+				return runner.sync_run(|config| cmd.run::<Block, Executor>(config));
+			})
 		}
 
 		Some(Subcommand::Key(cmd)) => cmd.run(&cli),
@@ -301,7 +313,20 @@ pub fn run() -> sc_cli::Result<()> {
 
 		Some(Subcommand::PurgeChain(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.sync_run(|config| cmd.run(config.database))
+			runner.sync_run(|config| {
+				let polkadot_cli = RelayChainCli::new(
+					&config,
+					[RelayChainCli::executable_name()]
+						.iter()
+						.chain(cli.relaychain_args.iter()),
+				);
+
+				let polkadot_config =
+					SubstrateCli::create_configuration(&polkadot_cli, &polkadot_cli, config.task_executor.clone())
+						.map_err(|err| format!("Relay chain argument error: {}", err))?;
+
+				cmd.run(config, polkadot_config)
+			})
 		}
 
 		Some(Subcommand::Revert(cmd)) => {
@@ -321,13 +346,19 @@ pub fn run() -> sc_cli::Result<()> {
 			builder.with_profiling(sc_tracing::TracingReceiver::Log, "");
 			let _ = builder.init();
 
-			let block: Block = generate_genesis_block(&cli.load_spec(&params.chain.clone().unwrap_or_default())?)?;
-			let raw_header = block.header().encode();
-			let output_buf = if params.raw {
-				raw_header
-			} else {
-				format!("0x{:?}", HexDisplay::from(&block.header().encode())).into_bytes()
-			};
+			let chain_spec = cli.load_spec(&params.chain.clone().unwrap_or_default())?;
+			let output_buf = with_runtime_or_err!(chain_spec, {
+				{
+					let block: Block = generate_genesis_block(&chain_spec).map_err(|e| format!("{:?}", e))?;
+					let raw_header = block.header().encode();
+					let output_buf = if params.raw {
+						raw_header
+					} else {
+						format!("0x{:?}", HexDisplay::from(&block.header().encode())).into_bytes()
+					};
+					output_buf
+				}
+			});
 
 			if let Some(output) = &params.output {
 				std::fs::write(output, output_buf)?;
@@ -359,10 +390,27 @@ pub fn run() -> sc_cli::Result<()> {
 			Ok(())
 		}
 
-		None => {
-			let runner = cli.create_runner(&*cli.run)?;
-
+		#[cfg(feature = "try-runtime")]
+		Some(Subcommand::TryRuntime(cmd)) => {
+			let runner = cli.create_runner(cmd)?;
 			let chain_spec = &runner.config().chain_spec;
+
+			set_default_ss58_version(chain_spec);
+
+			with_runtime_or_err!(chain_spec, {
+				return runner.async_run(|config| {
+					let registry = config.prometheus_config.as_ref().map(|cfg| &cfg.registry);
+					let task_manager = sc_service::TaskManager::new(config.task_executor.clone(), registry)
+						.map_err(|e| sc_cli::Error::Service(sc_service::Error::Prometheus(e)))?;
+					Ok((cmd.run::<Block, Executor>(config), task_manager))
+				});
+			})
+		}
+
+		None => {
+			let runner = cli.create_runner(&cli.run.normalize())?;
+			let chain_spec = &runner.config().chain_spec;
+			let is_steam_dev = chain_spec.is_steam_dev();
 
 			set_default_ss58_version(chain_spec);
 
@@ -370,50 +418,61 @@ pub fn run() -> sc_cli::Result<()> {
 				// TODO
 				let key = sp_core::Pair::generate().0;
 
-				let extension = chain_spec::Extensions::try_get(&*config.chain_spec);
-				let relay_chain_id = extension.map(|e| e.relay_chain.clone());
-				let para_id = extension.map(|e| e.para_id);
+				let para_id = chain_spec::Extensions::try_get(&*config.chain_spec).map(|e| e.para_id);
+
+				if is_steam_dev {
+					#[cfg(feature = "with-steam-runtime")]
+					return service::steam_dev(config, cli.instant_sealing).map_err(Into::into);
+					#[cfg(not(feature = "with-steam-runtime"))]
+					return Err(service::STEAM_RUNTIME_NOT_AVAILABLE.into());
+				} else if cli.instant_sealing {
+					return Err("Instant sealing can be turned on only in `--dev` mode".into());
+				}
 
 				let polkadot_cli = RelayChainCli::new(
-					config.base_path.as_ref().map(|x| x.path().join("polkadot")),
-					relay_chain_id,
+					&config,
 					[RelayChainCli::executable_name()]
 						.iter()
 						.chain(cli.relaychain_args.iter()),
 				);
 
-				let id = ParaId::from(cli.run.parachain_id.or(para_id).unwrap_or(7777));
+				let id = ParaId::from(cli.run.parachain_id.or(para_id).unwrap_or(2000));
 
 				let parachain_account = AccountIdConversion::<polkadot_primitives::v0::AccountId>::into_account(&id);
 
-				let block: Block = generate_genesis_block(&config.chain_spec).map_err(|e| format!("{:?}", e))?;
-				let genesis_state = format!("0x{:?}", HexDisplay::from(&block.header().encode()));
+				let genesis_state = with_runtime_or_err!(config.chain_spec, {
+					{
+						let block: Block =
+							generate_genesis_block(&config.chain_spec).map_err(|e| format!("{:?}", e))?;
+						format!("0x{:?}", HexDisplay::from(&block.header().encode()))
+					}
+				});
 
 				let polkadot_config =
-				SubstrateCli::create_configuration(&polkadot_cli, &polkadot_cli, config.task_executor.clone())
-					.map_err(|err| format!("Relay chain argument error: {}", err))?;
-				let collator = cli.run.base.validator || cli.collator;
+					SubstrateCli::create_configuration(&polkadot_cli, &polkadot_cli, config.task_executor.clone())
+						.map_err(|err| format!("Relay chain argument error: {}", err))?;
 
 				info!("Parachain id: {:?}", id);
 				info!("Parachain Account: {}", parachain_account);
 				info!("Parachain genesis state: {}", genesis_state);
-				info!("Is collating: {}", if collator { "yes" } else { "no" });
+				info!(
+					"Is collating: {}",
+					if config.role.is_authority() { "yes" } else { "no" }
+				);
 
-				// TODO: support Kusama and Eave
-				service::start_node::<service::steam_runtime::RuntimeApi, service::SteamExecutor>(
-					config,
-					key,
-					polkadot_config,
-					id,
-					collator,
-				)
-				.await
-				.map(|r| r.0)
-				.map_err(Into::into)
+				with_runtime_or_err!(config.chain_spec, {
+					{
+						service::start_node::<RuntimeApi, Executor>(config, key, polkadot_config, id)
+							.await
+							.map(|r| r.0)
+							.map_err(Into::into)
+					}
+				})
 			})
 		}
 	}
 }
+
 
 impl DefaultConfigurationValues for RelayChainCli {
 	fn p2p_listen_port() -> u16 {
