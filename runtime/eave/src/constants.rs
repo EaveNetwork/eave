@@ -23,8 +23,8 @@
 
 /// Time and blocks.
 pub mod time {
-	use acala_primitives::{BlockNumber, Moment};
-	use runtime_common::{dollar, millicent, EAVE};
+	use acala_primitives::{Balance, BlockNumber, Moment};
+	use eave_runtime_common::{dollar, millicent, EAVE};
 
 	pub const SECS_PER_BLOCK: Moment = 6;
 	pub const MILLISECS_PER_BLOCK: Moment = SECS_PER_BLOCK * 1000;
@@ -37,7 +37,7 @@ pub mod time {
 	pub const SLOT_DURATION: Moment = MILLISECS_PER_BLOCK;
 
 	pub fn deposit(items: u32, bytes: u32) -> Balance {
-		items as Balance * 2 * dollar(ACA) + (bytes as Balance) * 10 * millicent(ACA)
+		items as Balance * 2 * dollar(EAVE) + (bytes as Balance) * 10 * millicent(EAVE)
 	}
 }
 
@@ -47,7 +47,7 @@ pub mod fee {
 		constants::ExtrinsicBaseWeight, WeightToFeeCoefficient, WeightToFeeCoefficients, WeightToFeePolynomial,
 	};
 	use acala_primitives::Balance;
-	use runtime_common::{cent, EAVE};
+	use eave_runtime_common::{cent, EAVE};
 	use smallvec::smallvec;
 	use sp_runtime::Perbill;
 

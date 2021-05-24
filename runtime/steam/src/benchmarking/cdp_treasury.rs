@@ -16,46 +16,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{dollar, AccountId, EvmAccounts, Runtime, ACA};
+use crate::{dollar, CdpTreasury, Currencies, CurrencyId, Runtime, AUSD, DOT};
 
-use super::utils::set_aca_balance;
-use codec::Encode;
-use frame_benchmarking::{account, whitelisted_caller};
 use frame_system::RawOrigin;
+use module_support::CDPTreasury;
 use orml_benchmarking::runtime_benchmarks;
-use sp_io::hashing::keccak_256;
+use orml_traits::MultiCurrency;
 use sp_std::prelude::*;
 
-const SEED: u32 = 0;
-
-fn alice() -> secp256k1::SecretKey {
-	secp256k1::SecretKey::parse(&keccak_256(b"Alice")).unwrap()
-}
-
-fn bob() -> secp256k1::SecretKey {
-	secp256k1::SecretKey::parse(&keccak_256(b"Bob")).unwrap()
-}
-
-pub fn bob_account_id() -> AccountId {
-	let address = EvmAccounts::eth_address(&bob());
-	let mut data = [0u8; 32];
-	data[0..4].copy_from_slice(b"evm:");
-	data[4..24].copy_from_slice(&address[..]);
-	AccountId::from(Into::<[u8; 32]>::into(data))
-}
-
 runtime_benchmarks! {
-	{ Runtime, module_evm_accounts }
+	{ Runtime, module_cdp_treasury }
 
-	claim_account {
-		let caller: AccountId = whitelisted_caller();
-		let eth: AccountId = account("eth", 0, SEED);
-		set_aca_balance(&bob_account_id(), 1_000 * dollar(ACA));
-	}: _(RawOrigin::Signed(caller), EvmAccounts::eth_address(&alice()), EvmAccounts::eth_sign(&alice(), &caller.encode(), &[][..]))
+	auction_collateral {
+		let currency_id: CurrencyId = DOT;
+		Currencies::deposit(currency_id, &CdpTreasury::account_id(), 10_000 * dollar(currency_id))?;
+	}: _(RawOrigin::Root, currency_id, 1_000 * dollar(currency_id), 1_000 * dollar(AUSD), true)
 
-	claim_default_account {
-		let caller = whitelisted_caller();
-  }: _(RawOrigin::Signed(caller))
+	set_expected_collateral_auction_size {
+		let currency_id: CurrencyId = DOT;
+	}: _(RawOrigin::Root, currency_id, 200 * dollar(currency_id))
+
+	extract_surplus_to_treasury {
+		CdpTreasury::on_system_surplus(1_000 * dollar(AUSD))?;
+	}: _(RawOrigin::Root, 200 * dollar(AUSD))
 }
 
 #[cfg(test)]

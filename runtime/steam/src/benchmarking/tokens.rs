@@ -16,46 +16,47 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{dollar, AccountId, EvmAccounts, Runtime, ACA};
+use super::utils::{lookup_of_account, set_ausd_balance};
+use crate::{dollar, AccountId, Balance, Runtime, Tokens, AUSD};
 
-use super::utils::set_aca_balance;
-use codec::Encode;
+use sp_std::prelude::*;
+
 use frame_benchmarking::{account, whitelisted_caller};
 use frame_system::RawOrigin;
+
 use orml_benchmarking::runtime_benchmarks;
-use sp_io::hashing::keccak_256;
-use sp_std::prelude::*;
+use orml_traits::MultiCurrency;
 
 const SEED: u32 = 0;
 
-fn alice() -> secp256k1::SecretKey {
-	secp256k1::SecretKey::parse(&keccak_256(b"Alice")).unwrap()
-}
-
-fn bob() -> secp256k1::SecretKey {
-	secp256k1::SecretKey::parse(&keccak_256(b"Bob")).unwrap()
-}
-
-pub fn bob_account_id() -> AccountId {
-	let address = EvmAccounts::eth_address(&bob());
-	let mut data = [0u8; 32];
-	data[0..4].copy_from_slice(b"evm:");
-	data[4..24].copy_from_slice(&address[..]);
-	AccountId::from(Into::<[u8; 32]>::into(data))
-}
-
 runtime_benchmarks! {
-	{ Runtime, module_evm_accounts }
+	{ Runtime, orml_tokens }
 
-	claim_account {
-		let caller: AccountId = whitelisted_caller();
-		let eth: AccountId = account("eth", 0, SEED);
-		set_aca_balance(&bob_account_id(), 1_000 * dollar(ACA));
-	}: _(RawOrigin::Signed(caller), EvmAccounts::eth_address(&alice()), EvmAccounts::eth_sign(&alice(), &caller.encode(), &[][..]))
+	transfer {
+		let amount: Balance = dollar(AUSD);
 
-	claim_default_account {
-		let caller = whitelisted_caller();
-  }: _(RawOrigin::Signed(caller))
+		let from: AccountId = whitelisted_caller();
+		set_ausd_balance(&from, amount);
+
+		let to: AccountId = account("to", 0, SEED);
+		let to_lookup = lookup_of_account(to.clone());
+	}: _(RawOrigin::Signed(from), to_lookup, AUSD, amount)
+	verify {
+		assert_eq!(<Tokens as MultiCurrency<_>>::total_balance(AUSD, &to), amount);
+	}
+
+	transfer_all {
+		let amount: Balance = dollar(AUSD);
+
+		let from: AccountId = whitelisted_caller();
+		set_ausd_balance(&from, amount);
+
+		let to: AccountId = account("to", 0, SEED);
+		let to_lookup = lookup_of_account(to);
+	}: _(RawOrigin::Signed(from.clone()), to_lookup, AUSD)
+	verify {
+		assert_eq!(<Tokens as MultiCurrency<_>>::total_balance(AUSD, &from), 0);
+	}
 }
 
 #[cfg(test)]

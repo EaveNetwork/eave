@@ -39,7 +39,7 @@ pub use steam_runtime;
 #[cfg(feature = "with-steam-runtime")]
 use sc_consensus_aura::StartAuraParams;
 
-use eave_primitives::{Block, Hash};
+use acala_primitives::{Block, Hash};
 use mock_inherent_data_provider::MockParachainInherentDataProvider;
 use polkadot_primitives::v0::CollatorPair;
 use sc_client_api::ExecutorProvider;

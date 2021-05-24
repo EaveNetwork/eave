@@ -16,27 +16,38 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AccountId, CurrencyId, Runtime, System, TokenSymbol, TransactionPayment};
-use frame_benchmarking::whitelisted_caller;
+use crate::{AcalaDataProvider, AcalaOracle, CollateralCurrencyIds, Origin, Price, Runtime, System};
+
 use frame_support::traits::OnFinalize;
-use frame_system::RawOrigin;
-use orml_benchmarking::runtime_benchmarks;
+use orml_benchmarking::runtime_benchmarks_instance;
+use sp_runtime::traits::One;
 use sp_std::prelude::*;
 
-runtime_benchmarks! {
-	{ Runtime, module_transaction_payment }
+runtime_benchmarks_instance! {
+	{ Runtime, orml_oracle, AcalaDataProvider }
 
-	set_default_fee_token {
-		let caller: AccountId = whitelisted_caller();
-		let currency_id = CurrencyId::Token(TokenSymbol::AUSD);
-	}: _(RawOrigin::Signed(caller.clone()), Some(currency_id))
-	verify {
-		assert_eq!(TransactionPayment::default_fee_currency_id(&caller), Some(currency_id));
-	}
+	// feed values
+	feed_values {
+		let c in 0 .. CollateralCurrencyIds::get().len().saturating_sub(1) as u32;
+		let currency_ids = CollateralCurrencyIds::get();
+		let mut values = vec![];
+
+		for i in 0 .. c {
+			values.push((currency_ids[i as usize], Price::one()));
+		}
+	}: _(Origin::root(), values)
 
 	on_finalize {
+		let currency_ids = CollateralCurrencyIds::get();
+		let mut values = vec![];
+
+		for currency_id in currency_ids {
+			values.push((currency_id, Price::one()));
+		}
+		System::set_block_number(1);
+		AcalaOracle::feed_values(Origin::root(), values)?;
 	}: {
-		TransactionPayment::on_finalize(System::block_number());
+		AcalaOracle::on_finalize(System::block_number());
 	}
 }
 

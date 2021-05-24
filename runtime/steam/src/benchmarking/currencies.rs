@@ -1,11 +1,27 @@
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
+// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 use super::utils::{lookup_of_account, set_balance};
-use crate::{
-	AccountId, Amount, Balance, Currencies, CurrencyId, NativeTokenExistentialDeposit, Runtime, TokenSymbol, DOLLARS,
-};
+use crate::{dollar, AccountId, Amount, Balance, Currencies, NativeTokenExistentialDeposit, Runtime, ACA, DOT};
 
 use sp_std::prelude::*;
 
-use frame_benchmarking::account;
+use frame_benchmarking::{account, whitelisted_caller};
 use frame_system::RawOrigin;
 use sp_runtime::traits::UniqueSaturatedInto;
 
@@ -17,13 +33,11 @@ const SEED: u32 = 0;
 runtime_benchmarks! {
 	{ Runtime, module_currencies }
 
-	_ {}
-
 	// `transfer` non-native currency
 	transfer_non_native_currency {
-		let amount: Balance = DOLLARS.saturating_mul(1000);
-		let currency_id = CurrencyId::Token(TokenSymbol::DOT);
-		let from = account("from", 0, SEED);
+		let currency_id = DOT;
+		let amount: Balance = 1_000 * dollar(currency_id);
+		let from: AccountId = whitelisted_caller();
 		set_balance(currency_id, &from, amount);
 
 		let to: AccountId = account("to", 0, SEED);
@@ -38,8 +52,8 @@ runtime_benchmarks! {
 	transfer_native_currency_worst_case {
 		let existential_deposit = NativeTokenExistentialDeposit::get();
 		let amount: Balance = existential_deposit.saturating_mul(1000);
-		let native_currency_id = CurrencyId::Token(TokenSymbol::EAVE);
-		let from = account("from", 0, SEED);
+		let native_currency_id = ACA;
+		let from: AccountId = whitelisted_caller();
 		set_balance(native_currency_id, &from, amount);
 
 		let to: AccountId = account("to", 0, SEED);
@@ -55,8 +69,8 @@ runtime_benchmarks! {
 	transfer_native_currency {
 		let existential_deposit = NativeTokenExistentialDeposit::get();
 		let amount: Balance = existential_deposit.saturating_mul(1000);
-		let native_currency_id = CurrencyId::Token(TokenSymbol::EAVE);
-		let from = account("from", 0, SEED);
+		let native_currency_id = ACA;
+		let from: AccountId = whitelisted_caller();
 		set_balance(native_currency_id, &from, amount);
 
 		let to: AccountId = account("to", 0, SEED);
@@ -68,9 +82,9 @@ runtime_benchmarks! {
 
 	// `update_balance` for non-native currency
 	update_balance_non_native_currency {
-		let balance: Balance = DOLLARS.saturating_mul(2);
+		let currency_id = DOT;
+		let balance: Balance = 2 * dollar(currency_id);
 		let amount: Amount = balance.unique_saturated_into();
-		let currency_id = CurrencyId::Token(TokenSymbol::DOT);
 		let who: AccountId = account("who", 0, SEED);
 		let who_lookup = lookup_of_account(who.clone());
 	}: update_balance(RawOrigin::Root, who_lookup, currency_id, amount)
@@ -84,7 +98,7 @@ runtime_benchmarks! {
 		let existential_deposit = NativeTokenExistentialDeposit::get();
 		let balance: Balance = existential_deposit.saturating_mul(1000);
 		let amount: Amount = balance.unique_saturated_into();
-		let native_currency_id = CurrencyId::Token(TokenSymbol::EAVE);
+		let native_currency_id = ACA;
 		let who: AccountId = account("who", 0, SEED);
 		let who_lookup = lookup_of_account(who.clone());
 	}: update_balance(RawOrigin::Root, who_lookup, native_currency_id, amount)
@@ -98,7 +112,7 @@ runtime_benchmarks! {
 		let existential_deposit = NativeTokenExistentialDeposit::get();
 		let balance: Balance = existential_deposit.saturating_mul(1000);
 		let amount: Amount = balance.unique_saturated_into();
-		let native_currency_id = CurrencyId::Token(TokenSymbol::EAVE);
+		let native_currency_id = ACA;
 		let who: AccountId = account("who", 0, SEED);
 		let who_lookup = lookup_of_account(who.clone());
 		set_balance(native_currency_id, &who, balance);
@@ -111,47 +125,8 @@ runtime_benchmarks! {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use frame_support::assert_ok;
+	use crate::benchmarking::utils::tests::new_test_ext;
+	use orml_benchmarking::impl_benchmark_test_suite;
 
-	fn new_test_ext() -> sp_io::TestExternalities {
-		frame_system::GenesisConfig::default()
-			.build_storage::<Runtime>()
-			.unwrap()
-			.into()
-	}
-
-	#[test]
-	fn transfer_non_native_currency() {
-		new_test_ext().execute_with(|| {
-			assert_ok!(test_benchmark_transfer_non_native_currency());
-		});
-	}
-
-	#[test]
-	fn transfer_native_currency_worst_case() {
-		new_test_ext().execute_with(|| {
-			assert_ok!(test_benchmark_transfer_native_currency_worst_case());
-		});
-	}
-
-	#[test]
-	fn update_balance_non_native_currency() {
-		new_test_ext().execute_with(|| {
-			assert_ok!(test_benchmark_update_balance_non_native_currency());
-		});
-	}
-
-	#[test]
-	fn update_balance_native_currency_creating() {
-		new_test_ext().execute_with(|| {
-			assert_ok!(test_benchmark_update_balance_native_currency_creating());
-		});
-	}
-
-	#[test]
-	fn update_balance_native_currency_killing() {
-		new_test_ext().execute_with(|| {
-			assert_ok!(test_benchmark_update_balance_native_currency_killing());
-		});
-	}
+	impl_benchmark_test_suite!(new_test_ext(),);
 }

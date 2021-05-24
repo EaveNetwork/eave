@@ -1,9 +1,36 @@
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
+// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+// Modifications Copyright (c) 2021 John Whitton
+// 2021-03 : Customize for EAVE Protocol
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+/// Local relay chain config (multivalidator Alice + Bob)
+// TODO currently steam-local connects to Rococo and this is just for a local parachain
+// TODO need to work out whether we need a two validator local test chain
+// TODO if so then are steam and noria the same all generated here or do we create
+// TODO a new chainspec specifically for noria
+// TODO we will also need to create a chainspec for ICE.
+
 use acala_primitives::AccountId;
 use hex_literal::hex;
 use sc_chain_spec::ChainType;
 use sc_telemetry::TelemetryEndpoints;
 use serde_json::map::Map;
-use sp_consensus_babe::AuthorityId as BabeId;
+use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_core::{crypto::UncheckedInto, sr25519};
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 use sp_runtime::{traits::Zero, FixedPointNumber, FixedU128};
@@ -12,13 +39,24 @@ use crate::chain_spec::{
 	evm_genesis, get_account_id_from_seed, get_authority_keys_from_seed, Extensions, TELEMETRY_URL,
 };
 
+use eave_runtime_common::TokenInfo;
+
 pub type ChainSpec = sc_service::GenericChainSpec<steam_runtime::GenesisConfig, Extensions>;
 
+pub const PARA_ID: u32 = 7777;
+
 /// Used for Steam Local
+// TODO remove or replace with testnet config
 pub fn steam_local_config() -> Result<ChainSpec, String> {
 	let mut properties = Map::new();
-	properties.insert("tokenSymbol".into(), "EAVE".into());
-	properties.insert("tokenDecimals".into(), 12.into());
+	let mut token_symbol: Vec<String> = vec![];
+	let mut token_decimals: Vec<u32> = vec![];
+	TokenSymbol::get_info().iter().for_each(|(symbol_name, decimals)| {
+		token_symbol.push(symbol_name.to_string());
+		token_decimals.push(*decimals);
+	});
+	properties.insert("tokenSymbol".into(), token_symbol.into());
+	properties.insert("tokenDecimals".into(), token_decimals.into());
 
 	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Steam runtime wasm binary not available")?;
 
@@ -81,10 +119,17 @@ pub fn steam_local_config() -> Result<ChainSpec, String> {
 }
 
 /// Used for Steam Rococo (build stable from here)
+// This is similar to  mandala.rs latest_mandala_testnet_config
 pub fn steam_latest_config() -> Result<ChainSpec, String> {
 	let mut properties = Map::new();
-	properties.insert("tokenSymbol".into(), "EAVE".into());
-	properties.insert("tokenDecimals".into(), 12.into());
+	let mut token_symbol: Vec<String> = vec![];
+	let mut token_decimals: Vec<u32> = vec![];
+	TokenSymbol::get_info().iter().for_each(|(symbol_name, decimals)| {
+		token_symbol.push(symbol_name.to_string());
+		token_decimals.push(*decimals);
+	});
+	properties.insert("tokenSymbol".into(), token_symbol.into());
+	properties.insert("tokenDecimals".into(), token_decimals.into());
 
 	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Steam runtime wasm binary not available")?;
 
@@ -141,7 +186,7 @@ pub fn steam_latest_config() -> Result<ChainSpec, String> {
 		Some(properties),
 		Extensions {
 			relay_chain: "rococo".into(),
-			para_id: 7777_u32,
+			para_id: PARA_ID,
 		},
 	))
 }
@@ -154,8 +199,14 @@ pub fn steam_config() -> Result<ChainSpec, String> {
 /// Development testnet config (single validator Alice)
 pub fn development_testnet_config() -> Result<ChainSpec, String> {
 	let mut properties = Map::new();
-	properties.insert("tokenSymbol".into(), "EAVE".into());
-	properties.insert("tokenDecimals".into(), 13.into());
+	let mut token_symbol: Vec<String> = vec![];
+	let mut token_decimals: Vec<u32> = vec![];
+	TokenSymbol::get_info().iter().for_each(|(symbol_name, decimals)| {
+		token_symbol.push(symbol_name.to_string());
+		token_decimals.push(*decimals);
+	});
+	properties.insert("tokenSymbol".into(), token_symbol.into());
+	properties.insert("tokenDecimals".into(), token_decimals.into());
 
 	let wasm_binary = steam_runtime::WASM_BINARY.unwrap_or_default();
 
@@ -185,16 +236,27 @@ pub fn development_testnet_config() -> Result<ChainSpec, String> {
 		Some(properties),
 		Extensions {
 			relay_chain: "rococo".into(),
-			para_id: 7777_u32,
+			para_id: PARA_ID,
 		},
 	))
 }
 
-/// Local testnet config (multivalidator Alice + Bob)
+/// Local relay chain config (multivalidator Alice + Bob)
+// TODO currently steam-local connects to Rococo and this is just for a local parachain
+// TODO need to work out whether we need a two validator local test chain
+// TODO if so then are steam and noria the same all generated here or do we create
+// TODO a new chainspec specifically for noria
+// TODO we will also need to create a chainspec for ICE.
 pub fn local_testnet_config() -> Result<ChainSpec, String> {
 	let mut properties = Map::new();
-	properties.insert("tokenSymbol".into(), "EAVE".into());
-	properties.insert("tokenDecimals".into(), 13.into());
+	let mut token_symbol: Vec<String> = vec![];
+	let mut token_decimals: Vec<u32> = vec![];
+	TokenSymbol::get_info().iter().for_each(|(symbol_name, decimals)| {
+		token_symbol.push(symbol_name.to_string());
+		token_decimals.push(*decimals);
+	});
+	properties.insert("tokenSymbol".into(), token_symbol.into());
+	properties.insert("tokenDecimals".into(), token_decimals.into());
 
 	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Dev runtime wasm binary not available")?;
 
@@ -232,7 +294,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		Some(properties),
 		Extensions {
 			relay_chain: "rococo".into(),
-			para_id: 7777_u32,
+			para_id: PARA_ID,
 		},
 	))
 }
@@ -244,17 +306,17 @@ pub fn steam_testnet_config() -> Result<ChainSpec, String> {
 
 fn testnet_genesis(
 	wasm_binary: &[u8],
-	initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
+	initial_authorities: Vec<(AccountId, AccountId, GrandpaId, AuraId)>,
 	root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
 ) -> steam_runtime::GenesisConfig {
 	use steam_runtime::{
-		dollar, get_all_module_accounts, EaveOracleConfig, AirDropConfig, Balance, BalancesConfig, BandOracleConfig,
-		CdpEngineConfig, CdpTreasuryConfig, DexConfig, EVMConfig, EnabledTradingPairs, GeneralCouncilMembershipConfig,
+		dollar, get_all_module_accounts, AirDropConfig, Balance, BalancesConfig, CdpEngineConfig, CdpTreasuryConfig,
+		CollatorSelectionConfig, DexConfig, EVMConfig, EnabledTradingPairs, GeneralCouncilMembershipConfig,
 		HomaCouncilMembershipConfig, HonzonCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit,
 		OperatorMembershipEaveConfig, OperatorMembershipBandConfig, OrmlNFTConfig, ParachainInfoConfig,
-		RenVmBridgeConfig, StakingPoolConfig, SudoConfig, SystemConfig, TechnicalCommitteeMembershipConfig,
-		TokensConfig, VestingConfig, EAVE, EUSD, DOT, LDOT, RENBTC, 
+		RenVmBridgeConfig, SessionConfig, SessionKeys, StakingPoolConfig, SudoConfig, SystemConfig,
+		TechnicalCommitteeMembershipConfig, TokensConfig, TradingPair, VestingConfig, EAVE, EUSD, DOT, LDOT, RENBTC, 
 	};
 	#[cfg(feature = "std")]
 	use sp_std::collections::btree_map::BTreeMap;
@@ -377,14 +439,6 @@ fn testnet_genesis(
 		module_airdrop: AirDropConfig {
 			airdrop_accounts: vec![],
 		},
-		orml_oracle_Instance1: EaveOracleConfig {
-			members: Default::default(), // initialized by OperatorMembership
-			phantom: Default::default(),
-		},
-		orml_oracle_Instance2: BandOracleConfig {
-			members: Default::default(), // initialized by OperatorMembership
-			phantom: Default::default(),
-		},
 		module_evm: EVMConfig {
 			accounts: evm_genesis_accounts,
 			treasury: root_key,
@@ -401,32 +455,63 @@ fn testnet_genesis(
 		module_dex: DexConfig {
 			initial_listing_trading_pairs: vec![],
 			initial_enabled_trading_pairs: EnabledTradingPairs::get(),
-			initial_added_liquidity_pools: vec![],
+			initial_added_liquidity_pools: vec![(
+				get_account_id_from_seed::<sr25519::Public>("Alice"),
+				vec![
+					(TradingPair::new(AUSD, DOT), (1_000_000u128, 2_000_000u128)),
+					(TradingPair::new(AUSD, ACA), (1_000_000u128, 2_000_000u128)),
+				],
+			)],
 		},
 		parachain_info: ParachainInfoConfig {
-			parachain_id: 7777.into(),
+			parachain_id: PARA_ID.into(),
+		},
+		module_evm: EVMConfig {
+			accounts: evm_genesis_accounts,
+			treasury: root_key,
 		},
 		ecosystem_renvm_bridge: RenVmBridgeConfig {
 			ren_vm_public_key: hex!["4b939fc8ade87cb50b78987b1dda927460dc456a"],
 		},
 		orml_nft: OrmlNFTConfig { tokens: vec![] },
+		module_collator_selection: CollatorSelectionConfig {
+			invulnerables: initial_authorities.iter().cloned().map(|(acc, _, _, _)| acc).collect(),
+			candidacy_bond: initial_staking,
+			..Default::default()
+		},
+		pallet_session: SessionConfig {
+			keys: initial_authorities
+				.iter()
+				.cloned()
+				.map(|(acc, _, _, aura)| {
+					(
+						acc.clone(),          // account id
+						acc,                  // validator id
+						SessionKeys { aura }, // session keys
+					)
+				})
+				.collect(),
+		},
+		// no need to pass anything to aura, in fact it will panic if we do. Session will take care
+		// of this.
+		pallet_aura: Default::default(),
 	}
 }
 
 fn steam_genesis(
 	wasm_binary: &[u8],
-	initial_authorities: Vec<(AccountId, AccountId, GrandpaId, BabeId)>,
+	initial_authorities: Vec<(AccountId, AccountId, GrandpaId, AuraId)>,
 	root_key: AccountId,
 	endowed_accounts: Vec<AccountId>,
 ) -> steam_runtime::GenesisConfig {
 	use steam_runtime::{
-		cent, dollar, get_all_module_accounts, EaveOracleConfig, AirDropConfig, Balance,
-		BalancesConfig, BandOracleConfig, CdpEngineConfig, CdpTreasuryConfig, DexConfig, EVMConfig,
-		EnabledTradingPairs, GeneralCouncilMembershipConfig, HomaCouncilMembershipConfig,
-		HonzonCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit, OperatorMembershipEaveConfig,
-		OperatorMembershipBandConfig, OrmlNFTConfig, ParachainInfoConfig, RenVmBridgeConfig, StakingPoolConfig,
-		SudoConfig, SystemConfig, TechnicalCommitteeMembershipConfig, TokensConfig, VestingConfig, EAVE, EUSD, DOT,
-		LDOT, RENBTC, 
+		cent, dollar, get_all_module_accounts, AirDropConfig, Balance, BalancesConfig, 
+		CdpEngineConfig, CdpTreasuryConfig, DexConfig, EVMConfig, EnabledTradingPairs, 
+		GeneralCouncilMembershipConfig, HomaCouncilMembershipConfig, HonzonCouncilMembershipConfig, IndicesConfig,
+		NativeTokenExistentialDeposit, OperatorMembershipEaveConfig, OperatorMembershipBandConfig, OrmlNFTConfig,
+		ParachainInfoConfig, RenVmBridgeConfig, SessionConfig, SessionKeys, StakingPoolConfig, SudoConfig, 
+		SystemConfig, TechnicalCommitteeMembershipConfig, TokensConfig, UnreleasedNativeVaultAccountId, VestingConfig,
+		EAVE, EUSD, DOT, LDOT, RENBTC, 
 	};
 	#[cfg(feature = "std")]
 	use sp_std::collections::btree_map::BTreeMap;
@@ -438,6 +523,7 @@ fn steam_genesis(
 
 	let evm_genesis_accounts = evm_genesis();
 
+	let mut unreleased_native = 1_000_000_000 * dollar(EAVE); // 1 billion
 	let balances = initial_authorities
 		.iter()
 		.map(|x| (x.0.clone(), initial_staking + dollar(EAVE))) // bit more for fee
@@ -461,6 +547,7 @@ fn steam_genesis(
 			},
 		)
 		.into_iter()
+		.chain(vec![(UnreleasedNativeVaultAccountId::get(), unreleased_native)])
 		.collect::<Vec<(AccountId, Balance)>>();
 
 	steam_runtime::GenesisConfig {
@@ -546,15 +633,24 @@ fn steam_genesis(
 			), /* 5% APR */
 		},
 		module_airdrop: AirDropConfig {
-			airdrop_accounts: vec![],
-		},
-		orml_oracle_Instance1: EaveOracleConfig {
-			members: Default::default(), // initialized by OperatorMembership
-			phantom: Default::default(),
-		},
-		orml_oracle_Instance2: BandOracleConfig {
-			members: Default::default(), // initialized by OperatorMembership
-			phantom: Default::default(),
+			airdrop_accounts: {
+				let eave_airdrop_accounts_json = &include_bytes!("../../../../resources/steam-airdrop-EAVE.json")[..];
+				let eave_airdrop_accounts: Vec<(AccountId, Balance)> =
+					serde_json::from_slice(eave_airdrop_accounts_json).unwrap();
+				let ice_airdrop_accounts_json = &include_bytes!("../../../../resources/steam-airdrop-ICE.json")[..];
+				let ice_airdrop_accounts: Vec<(AccountId, Balance)> =
+					serde_json::from_slice(ice_airdrop_accounts_json).unwrap();
+
+				eave_airdrop_accounts
+					.iter()
+					.map(|(account_id, eave_amount)| (account_id.clone(), AirDropCurrencyId::EAVE, *eave_amount))
+					.chain(
+						ice_airdrop_accounts
+							.iter()
+							.map(|(account_id, ice_amount)| (account_id.clone(), AirDropCurrencyId::ICE, *ice_amount)),
+					)
+					.collect::<Vec<_>>()
+			},
 		},
 		module_evm: EVMConfig {
 			accounts: evm_genesis_accounts,
@@ -575,11 +671,61 @@ fn steam_genesis(
 			initial_added_liquidity_pools: vec![],
 		},
 		parachain_info: ParachainInfoConfig {
-			parachain_id: 7777.into(),
+			parachain_id: PARA_ID.into(),
 		},
 		ecosystem_renvm_bridge: RenVmBridgeConfig {
 			ren_vm_public_key: hex!["4b939fc8ade87cb50b78987b1dda927460dc456a"],
 		},
-		orml_nft: OrmlNFTConfig {  tokens: vec![]},
+		orml_nft: OrmlNFTConfig {
+			tokens: {
+				let nft_airdrop_json = &include_bytes!("../../../../resources/steam-airdrop-NFT.json")[..];
+				let nft_airdrop: Vec<(
+					AccountId,
+					Vec<u8>,
+					module_nft::ClassData<Balance>,
+					Vec<(Vec<u8>, module_nft::TokenData<Balance>, Vec<AccountId>)>,
+				)> = serde_json::from_slice(nft_airdrop_json).unwrap();
+
+				let mut tokens = vec![];
+				for (class_owner, class_meta, class_data, nfts) in nft_airdrop {
+					let mut tokens_of_class = vec![];
+					for (token_meta, token_data, token_owners) in nfts {
+						token_owners.iter().for_each(|account_id| {
+							tokens_of_class.push((account_id.clone(), token_meta.clone(), token_data.clone()));
+						});
+					}
+
+					tokens.push((
+						class_owner.clone(),
+						class_meta.clone(),
+						class_data.clone(),
+						tokens_of_class,
+					));
+				}
+
+				tokens
+			},
+		},
+		module_collator_selection: CollatorSelectionConfig {
+			invulnerables: initial_authorities.iter().cloned().map(|(acc, _, _, _)| acc).collect(),
+			candidacy_bond: initial_staking,
+			..Default::default()
+		},
+		pallet_session: SessionConfig {
+			keys: initial_authorities
+				.iter()
+				.cloned()
+				.map(|(acc, _, _, aura)| {
+					(
+						acc.clone(),          // account id
+						acc,                  // validator id
+						SessionKeys { aura }, // session keys
+					)
+				})
+				.collect(),
+		},
+		// no need to pass anything to aura, in fact it will panic if we do. Session will take care
+		// of this.
+		pallet_aura: Default::default(),
 	}
 }

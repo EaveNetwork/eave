@@ -46,7 +46,7 @@ use sp_core::{
 };
 use sp_runtime::{
 	create_runtime_str, generic, impl_opaque_keys,
-	traits::{AccountIdConversion, BadOrigin, BlakeTwo256, Block as BlockT, Convert, SaturatedConversion, StaticLookup, Zero},
+	traits::{AccountIdConversion, BadOrigin, BlakeTwo256, Block as BlockT, SaturatedConversion, StaticLookup, Zero},
 	transaction_validity::{TransactionSource, TransactionValidity},
 	ApplyExtrinsicResult, DispatchResult, FixedPointNumber,
 };
@@ -106,9 +106,9 @@ pub use acala_primitives::{
 };
 
 pub use eave_runtime_common::{
-	cent, deposit, dollar, microcent, millicent, CurveFeeModel, ExchangeRate, GasToWeight, OffchainSolutionWeightLimit, 
-	Price, Rate, Ratio, RuntimeBlockLength, RuntimeBlockWeights, SystemContractsFilter, TimeStampedPrice, EAVE, EUSD, 
-	DOT, LDOT, RENBTC,
+	cent, dollar, microcent, millicent, CurveFeeModel, ExchangeRate, GasToWeight, OffchainSolutionWeightLimit, Price,
+	Rate, Ratio, RuntimeBlockLength, RuntimeBlockWeights, SystemContractsFilter, TimeStampedPrice, EAVE, EUSD, DOT,
+	LDOT, RENBTC,
 };
 
 mod authority;
@@ -515,8 +515,8 @@ impl pallet_membership::Config<OperatorMembershipInstanceBand> for Runtime {
 	type SwapOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type ResetOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type PrimeOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
-	type MembershipInitialized = BandOracle;
-	type MembershipChanged = ();
+	type MembershipInitialized = ();
+	type MembershipChanged = BandOracle;
 	type MaxMembers = OracleMaxMembers;
 	type WeightInfo = ();
 }

@@ -16,28 +16,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AccountId, CurrencyId, Runtime, System, TokenSymbol, TransactionPayment};
-use frame_benchmarking::whitelisted_caller;
-use frame_support::traits::OnFinalize;
+use crate::{AcalaOracle, CollateralCurrencyIds, CurrencyId, Origin, Price, Prices, Runtime, DOT};
+
 use frame_system::RawOrigin;
 use orml_benchmarking::runtime_benchmarks;
+use sp_runtime::traits::One;
 use sp_std::prelude::*;
 
 runtime_benchmarks! {
-	{ Runtime, module_transaction_payment }
+	{ Runtime, module_prices }
 
-	set_default_fee_token {
-		let caller: AccountId = whitelisted_caller();
-		let currency_id = CurrencyId::Token(TokenSymbol::AUSD);
-	}: _(RawOrigin::Signed(caller.clone()), Some(currency_id))
-	verify {
-		assert_eq!(TransactionPayment::default_fee_currency_id(&caller), Some(currency_id));
-	}
+	lock_price {
+		let currency_id: CurrencyId = CollateralCurrencyIds::get()[0];
 
-	on_finalize {
-	}: {
-		TransactionPayment::on_finalize(System::block_number());
-	}
+		// feed price
+		AcalaOracle::feed_values(RawOrigin::Root.into(), vec![(currency_id, Price::one())])?;
+	}: _(RawOrigin::Root, DOT)
+
+	unlock_price {
+		let currency_id: CurrencyId = CollateralCurrencyIds::get()[0];
+
+		// feed price
+		AcalaOracle::feed_values(RawOrigin::Root.into(), vec![(currency_id, Price::one())])?;
+		Prices::lock_price(Origin::root(), DOT)?;
+	}: _(RawOrigin::Root, DOT)
 }
 
 #[cfg(test)]

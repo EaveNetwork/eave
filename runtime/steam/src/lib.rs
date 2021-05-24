@@ -39,7 +39,7 @@ use codec::{Decode, Encode};
 pub use frame_support::{
 	construct_runtime, log, parameter_types,
 	traits::{
-		Contains, ContainsLengthBound, EnsureOrigin, Filter, Get, IsType, KeyOwnerProofSystem, LockIdentifier, Randomness, 
+		ContainsLengthBound, EnsureOrigin, Filter, Get, IsType, KeyOwnerProofSystem, LockIdentifier, Randomness, 
 		SortedMembers, U128CurrencyToVote, WithdrawReasons,
 	},
 	weights::{
@@ -112,7 +112,6 @@ pub use acala_primitives::{
 	Balance, BlockNumber, CurrencyId, DataProviderId, EraIndex, Hash, Moment, Nonce, Share, Signature, TokenSymbol,
 	TradingPair,
 };
-
 pub use eave_runtime_common::{
 	cent, dollar, microcent, millicent, CurveFeeModel, ExchangeRate, GasToWeight, OffchainSolutionWeightLimit, Price,
 	Rate, Ratio, RuntimeBlockLength, RuntimeBlockWeights, SystemContractsFilter, TimeStampedPrice, EAVE, EUSD, DOT,
@@ -552,8 +551,8 @@ impl pallet_multisig::Config for Runtime {
 
 pub struct GeneralCouncilProvider;
 impl SortedMembers<AccountId> for GeneralCouncilProvider {
-	fn sorted_members(who: &AccountId) -> bool {
-		GeneralCouncil::members();
+	fn sorted_members() -> Vec<AccountId> {
+		GeneralCouncil::members()
 	}
 
 	#[cfg(feature = "runtime-benchmarks")]
@@ -678,8 +677,8 @@ parameter_types! {
 }
 
 impl pallet_elections_phragmen::Config for Runtime {
-	type Event = Event;
 	type PalletId = ElectionsPhragmenPalletId;
+	type Event = Event;
 	type Currency = CurrencyAdapter<Runtime, GetLiquidCurrencyId>;
 	type CurrencyToVote = U128CurrencyToVote;
 	type ChangeMembers = HomaCouncil;
@@ -748,7 +747,7 @@ parameter_type_with_key! {
 }
 
 parameter_types! {
-	pub EAVETreasuryAccount: AccountId = EaveTreasuryPalletId::get().into_account();
+	pub EaveTreasuryAccount: AccountId = EaveTreasuryPalletId::get().into_account();
 }
 
 impl orml_tokens::Config for Runtime {
@@ -758,7 +757,8 @@ impl orml_tokens::Config for Runtime {
 	type CurrencyId = CurrencyId;
 	type WeightInfo = weights::orml_tokens::WeightInfo<Runtime>;
 	type ExistentialDeposits = ExistentialDeposits;
-	type OnDust = orml_tokens::TransferDust<Runtime, EAVETreasuryAccount>;
+	type OnDust = orml_tokens::TransferDust<Runtime, EaveTreasuryAccount>;
+	type MaxLocks = MaxLocks;
 }
 
 parameter_types! {
@@ -1049,7 +1049,7 @@ impl module_cdp_treasury::Config for Runtime {
 	type DEX = Dex;
 	type MaxAuctionsCount = MaxAuctionsCount;
 	type PalletId = CDPTreasuryPalletId;
-	type TreasuryAccount = EAVETreasuryAccount;
+	type TreasuryAccount = EaveTreasuryAccount;
 	type WeightInfo = weights::module_cdp_treasury::WeightInfo<Runtime>;
 }
 
@@ -1123,7 +1123,7 @@ impl module_incentives::Config for Runtime {
 	type StableCurrencyId = GetStableCurrencyId;
 	type LiquidCurrencyId = GetLiquidCurrencyId;
 	type AccumulatePeriod = AccumulatePeriod;
-	type UpdateOrigin = EnsureRootOrHalfHonzonCouncil;
+	type UpdateOrigin = EnsureRootOrThreeFourthsGeneralCouncil;
 	type CDPTreasury = CdpTreasury;
 	type Currency = Currencies;
 	type DEX = Dex;
@@ -1243,7 +1243,7 @@ impl orml_nft::Config for Runtime {
 
 parameter_types! {
 	// One storage item; key size 32, value size 8; .
-	pub ProxyDepositBase: Balance = deposit(1, 8;
+	pub ProxyDepositBase: Balance = deposit(1, 8);
 	// Additional storage item size of 33 bytes.
 	pub ProxyDepositFactor: Balance = deposit(0, 33);
 	pub const MaxProxies: u16 = 32;
@@ -1282,7 +1282,7 @@ impl ecosystem_renvm_bridge::Config for Runtime {
 }
 
 parameter_types! {
-	pub const ChainId: u64 = 77;
+	pub const ChainId: u64 = 7777;
 	pub NetworkContractSource: H160 = H160::from_low_u64_be(0);
 }
 
@@ -1313,11 +1313,11 @@ pub type MultiCurrencyPrecompile = eave_runtime_common::MultiCurrencyPrecompile<
 	Currencies
 >;
 
-pub type NFTPrecompile = 
+pub type NFTPrecompile =
 	eave_runtime_common::NFTPrecompile<AccountId, EvmAddressMapping<Runtime>,  EvmCurrencyIdMapping<Runtime>, NFT>;
-pub type StateRentPrecompile = 
+pub type StateRentPrecompile =
 	eave_runtime_common::StateRentPrecompile<AccountId, EvmAddressMapping<Runtime>, EvmCurrencyIdMapping<Runtime>, EVM>;
-pub type OraclePrecompile = 
+pub type OraclePrecompile =
 	eave_runtime_common::OraclePrecompile<AccountId, EvmAddressMapping<Runtime>, EvmCurrencyIdMapping<Runtime>, Prices>;
 pub type ScheduleCallPrecompile = eave_runtime_common::ScheduleCallPrecompile<
 	AccountId,
@@ -1361,7 +1361,7 @@ impl module_evm::Config for Runtime {
 	type NetworkContractSource = NetworkContractSource;
 	type DeveloperDeposit = DeveloperDeposit;
 	type DeploymentFee = DeploymentFee;
-	type TreasuryAccount = EAVETreasuryAccount;
+	type TreasuryAccount = EaveTreasuryAccount;
 	type FreeDeploymentOrigin = EnsureRootOrHalfGeneralCouncil;
 	type WeightInfo = weights::module_evm::WeightInfo<Runtime>;
 
@@ -1374,6 +1374,47 @@ impl module_evm::Config for Runtime {
 impl module_evm_bridge::Config for Runtime {
 	type EVM = EVM;
 }
+
+/*
+parameter_types! {
+	pub const LocalChainId: chainbridge::ChainId = 2;
+	pub const ProposalLifetime: BlockNumber = 15 * MINUTES;
+}
+
+impl chainbridge::Config for Runtime {
+	type Event = Event;
+	type AdminOrigin = EnsureRoot<AccountId>;
+	type Proposal = Call;
+	type ChainId = LocalChainId;
+	type ProposalLifetime = ProposalLifetime;
+}
+
+impl ecosystem_chainsafe::Config for Runtime {
+	type Event = Event;
+	type Currency = Currencies;
+	type NativeCurrencyId = GetNativeCurrencyId;
+	type RegistorOrigin = EnsureRootOrHalfGeneralCouncil;
+	type BridgeOrigin = chainbridge::EnsureBridge<Runtime>;
+}
+*/
+
+parameter_types! {
+	pub ReservedDmpWeight: Weight = RuntimeBlockWeights::get().max_block / 4;
+}
+
+impl cumulus_pallet_parachain_system::Config for Runtime {
+	type Event = Event;
+	type OnValidationData = ();
+	type SelfParaId = ParachainInfo;
+	type DmpMessageHandler = ();
+	type ReservedDmpWeight = ReservedDmpWeight;
+	type OutboundXcmpMessageSource = ();
+	type XcmpMessageHandler = ();
+	type ReservedXcmpWeight = ();
+}
+
+impl parachain_info::Config for Runtime {}
+
 
 // parameter_types! {
 // 	pub const PolkadotNetworkId: NetworkId = NetworkId::Polkadot;
@@ -1549,7 +1590,6 @@ pub type CheckedExtrinsic = generic::CheckedExtrinsic<AccountId, Call, SignedExt
 pub type Executive =
 	frame_executive::Executive<Runtime, Block, frame_system::ChainContext<Runtime>, Runtime, AllPallets, ()>;
 
-
 #[allow(clippy::large_enum_variant)]
 construct_runtime! {
 	pub enum Runtime where
@@ -1566,7 +1606,7 @@ construct_runtime! {
 		Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>} = 10,
 		Tokens: orml_tokens::{Pallet, Storage, Event<T>, Config<T>} = 11,
 		Currencies: module_currencies::{Pallet, Call, Event<T>} = 12,
-		Vesting: orml_vesting::{Pallet, Storage, Call, Event<T>, Config<T>} = 13
+		Vesting: orml_vesting::{Pallet, Storage, Call, Event<T>, Config<T>} = 13,
 		TransactionPayment: module_transaction_payment::{Pallet, Call, Storage} = 14,
 
 		//Treasury
@@ -1599,10 +1639,10 @@ construct_runtime! {
 		// Oracle
 		//
 		// NOTE: OperatorMembership must be placed after Oracle or else will have race condition on initialization
-		EaveOracle: orml_oracle::<Instance1>::{Pallet, Storage, Call, Config<T>, Event<T>} = 30,
-		OperatorMembershipEave: pallet_membership::<Instance5>::{Pallet, Call, Storage, Event<T>, Config<T>} = 31,
-		BandOracle: orml_oracle::<Instance2>::{Pallet, Storage, Call, Config<T>, Event<T>} = 32,
-		OperatorMembershipBand: pallet_membership::<Instance6>::{Pallet, Call, Storage, Event<T>, Config<T>} = 33,
+		EaveOracle: orml_oracle::<Instance1>::{Pallet, Storage, Call, Config<T>, Event<T>} = 80,
+		BandOracle: orml_oracle::<Instance2>::{Pallet, Storage, Call, Config<T>, Event<T>} = 82,
+		OperatorMembershipEave: pallet_membership::<Instance5>::{Pallet, Call, Storage, Event<T>, Config<T>} = 81,
+		OperatorMembershipBand: pallet_membership::<Instance6>::{Pallet, Call, Storage, Event<T>, Config<T>} = 83,
 
 		// ORML Core
 		Auction: orml_auction::{Pallet, Storage, Call, Event<T>} = 100,
@@ -1622,7 +1662,7 @@ construct_runtime! {
 		EmergencyShutdown: module_emergency_shutdown::{Pallet, Storage, Call, Event<T>} = 125,
 
 		// Homa
-		//Homa: module_homa::{Pallet, Call} = 130,
+		Homa: module_homa::{Pallet, Call} = 130,
 		NomineesElection: module_nominees_election::{Pallet, Call, Storage, Event<T>} = 131,
 		StakingPool: module_staking_pool::{Pallet, Call, Storage, Event<T>, Config} = 132,
 		PolkadotBridge: module_polkadot_bridge::{Pallet, Call, Storage} = 133,
@@ -1659,7 +1699,6 @@ construct_runtime! {
 
 		// Dev
 		Sudo: pallet_sudo::{Pallet, Call, Config<T>, Storage, Event<T>} = 255,
-
 	}
 }
 
@@ -1769,14 +1808,14 @@ impl_runtime_apis! {
 	> for Runtime {
 		fn get_value(provider_id: DataProviderId ,key: CurrencyId) -> Option<TimeStampedPrice> {
 			match provider_id {
-				DataProviderId::Acala => AcalaOracle::get_no_op(&key),
+				DataProviderId::Eave => EaveOracle::get_no_op(&key),
 				DataProviderId::Aggregated => <AggregatedDataProvider as DataProviderExtended<_, _>>::get_no_op(&key)
 			}
 		}
 
 		fn get_all_values(provider_id: DataProviderId) -> Vec<(CurrencyId, Option<TimeStampedPrice>)> {
 			match provider_id {
-				DataProviderId::Acala => AcalaOracle::get_all_values(),
+				DataProviderId::Eave => EaveOracle::get_all_values(),
 				DataProviderId::Aggregated => <AggregatedDataProvider as DataProviderExtended<_, _>>::get_all_values()
 			}
 		}

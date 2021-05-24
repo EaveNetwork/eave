@@ -246,8 +246,6 @@ pub fn run() -> sc_cli::Result<()> {
 
 			set_default_ss58_version(chain_spec);
 
-			return runner.sync_run(|config| cmd.run::<service::eave_runtime::Block, service::EaveExecutor>(config));
-
 			with_runtime_or_err!(chain_spec, {
 				return runner.sync_run(|config| cmd.run::<Block, Executor>(config));
 			})
