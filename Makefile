@@ -1,3 +1,5 @@
+//TODO Update makefile for default builds of steam
+
 # Initialize
 .PHONY: init
 init: submodule toolchain build-full

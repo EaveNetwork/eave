@@ -25,7 +25,7 @@
 // TODO a new chainspec specifically for noria
 // TODO we will also need to create a chainspec for ICE.
 
-use acala_primitives::AccountId;
+use acala_primitives::{AccountId, TokenSymbol};
 use hex_literal::hex;
 use sc_chain_spec::ChainType;
 use sc_telemetry::TelemetryEndpoints;
@@ -193,7 +193,7 @@ pub fn steam_latest_config() -> Result<ChainSpec, String> {
 
 /// Used for Steam - Sourced from steam-stable.json file for Rococo 
 pub fn steam_config() -> Result<ChainSpec, String> {
-	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-stable.json")[..])
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../resources/steam-stable.json")[..])
 }
 
 /// Development testnet config (single validator Alice)
@@ -301,7 +301,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 
 /// Sourced from json file for Rococo - will be used for Standalone Testnet Beast
 pub fn steam_testnet_config() -> Result<ChainSpec, String> {
-	ChainSpec::from_json_bytes(&include_bytes!("../../../../../resources/steam-stable.json")[..])
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../resources/steam-stable.json")[..])
 }
 
 fn testnet_genesis(
@@ -458,17 +458,13 @@ fn testnet_genesis(
 			initial_added_liquidity_pools: vec![(
 				get_account_id_from_seed::<sr25519::Public>("Alice"),
 				vec![
-					(TradingPair::new(AUSD, DOT), (1_000_000u128, 2_000_000u128)),
-					(TradingPair::new(AUSD, ACA), (1_000_000u128, 2_000_000u128)),
+					(TradingPair::new(EUSD, DOT), (1_000_000u128, 2_000_000u128)),
+					(TradingPair::new(EUSD, EAVE), (1_000_000u128, 2_000_000u128)),
 				],
 			)],
 		},
 		parachain_info: ParachainInfoConfig {
 			parachain_id: PARA_ID.into(),
-		},
-		module_evm: EVMConfig {
-			accounts: evm_genesis_accounts,
-			treasury: root_key,
 		},
 		ecosystem_renvm_bridge: RenVmBridgeConfig {
 			ren_vm_public_key: hex!["4b939fc8ade87cb50b78987b1dda927460dc456a"],
@@ -505,11 +501,11 @@ fn steam_genesis(
 	endowed_accounts: Vec<AccountId>,
 ) -> steam_runtime::GenesisConfig {
 	use steam_runtime::{
-		cent, dollar, get_all_module_accounts, AirDropConfig, Balance, BalancesConfig, 
-		CdpEngineConfig, CdpTreasuryConfig, DexConfig, EVMConfig, EnabledTradingPairs, 
+		cent, dollar, get_all_module_accounts, AirDropConfig, AirDropCurrencyId, Balance, BalancesConfig,
+		CdpEngineConfig, CdpTreasuryConfig, CollatorSelectionConfig, DexConfig, EVMConfig, EnabledTradingPairs,
 		GeneralCouncilMembershipConfig, HomaCouncilMembershipConfig, HonzonCouncilMembershipConfig, IndicesConfig,
 		NativeTokenExistentialDeposit, OperatorMembershipEaveConfig, OperatorMembershipBandConfig, OrmlNFTConfig,
-		ParachainInfoConfig, RenVmBridgeConfig, SessionConfig, SessionKeys, StakingPoolConfig, SudoConfig, 
+		ParachainInfoConfig, RenVmBridgeConfig, SessionConfig, SessionKeys, StakingPoolConfig, SudoConfig,
 		SystemConfig, TechnicalCommitteeMembershipConfig, TokensConfig, UnreleasedNativeVaultAccountId, VestingConfig,
 		EAVE, EUSD, DOT, LDOT, RENBTC, 
 	};
