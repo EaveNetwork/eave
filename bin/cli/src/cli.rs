@@ -21,8 +21,6 @@
 
 //! Eave CLI library.
 
-use std::path::PathBuf;
-
 use sc_cli::{KeySubcommand, SignCmd, VanityCmd, VerifyCmd};
 use std::path::PathBuf;
 use structopt::StructOpt;

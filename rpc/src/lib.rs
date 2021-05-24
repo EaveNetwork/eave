@@ -19,6 +19,8 @@
 
 //! Eave-specific RPCs implementation.
 
+//TODO fix Oracle rpc
+
 #![warn(missing_docs)]
 
 use eave_primitives::{AccountId, Balance, Block, CurrencyId, DataProviderId, Hash, Nonce};
@@ -74,7 +76,7 @@ where
 	P: TransactionPool + Sync + Send + 'static,
 {
 	use module_staking_pool_rpc::{StakingPool, StakingPoolApi};
-	use orml_oracle_rpc::{Oracle, OracleApi};
+//	use orml_oracle_rpc::{Oracle, OracleApi};
 	use pallet_transaction_payment_rpc::{TransactionPayment, TransactionPaymentApi};
 	use substrate_frame_rpc_system::{FullSystem, SystemApi};
 
