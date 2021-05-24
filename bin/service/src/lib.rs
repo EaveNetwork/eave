@@ -97,6 +97,9 @@ pub trait IdentifyVariant {
 
 	/// Returns if this is a configuration for the `Steam` network.
 	fn is_steam(&self) -> bool;
+
+	/// Returns `true` if this is a configuration for the `Steam` dev network.
+	fn is_steam_dev(&self) -> bool;
 }
 
 impl IdentifyVariant for Box<dyn ChainSpec> {
@@ -106,6 +109,10 @@ impl IdentifyVariant for Box<dyn ChainSpec> {
 
 	fn is_steam(&self) -> bool {
 		self.id().starts_with("steam") || self.id().starts_with("ste")
+	}
+
+	fn is_steam_dev(&self) -> bool {
+		self.id().starts_with("steam-dev")
 	}
 }
 
@@ -400,7 +407,6 @@ where
 			collator_key,
 			relay_chain_full_node,
 			spawner,
-			backend,
 			parachain_consensus,
 		};
 

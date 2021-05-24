@@ -1639,8 +1639,8 @@ construct_runtime! {
 		// Oracle
 		//
 		// NOTE: OperatorMembership must be placed after Oracle or else will have race condition on initialization
-		EaveOracle: orml_oracle::<Instance1>::{Pallet, Storage, Call, Config<T>, Event<T>} = 80,
-		BandOracle: orml_oracle::<Instance2>::{Pallet, Storage, Call, Config<T>, Event<T>} = 82,
+		EaveOracle: orml_oracle::<Instance1>::{Pallet, Storage, Call, Event<T>} = 80,
+		BandOracle: orml_oracle::<Instance2>::{Pallet, Storage, Call, Event<T>} = 82,
 		OperatorMembershipEave: pallet_membership::<Instance5>::{Pallet, Call, Storage, Event<T>, Config<T>} = 81,
 		OperatorMembershipBand: pallet_membership::<Instance6>::{Pallet, Call, Storage, Event<T>, Config<T>} = 83,
 
