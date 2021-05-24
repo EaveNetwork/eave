@@ -88,7 +88,8 @@ eave-runtime = { path = "../../runtime/eave", optional = true }
 
 [features]
 default = ["std"]
-std = []
+## TODO : Make default consistent - either with-steam-runtime or not
+std = ["with-steam-runtime"]
 runtime-benchmarks = [
 	"steam-runtime/runtime-benchmarks",
 	"eave-runtime/runtime-benchmarks",
