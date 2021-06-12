@@ -43,7 +43,7 @@ use eave_runtime_common::TokenInfo;
 
 pub type ChainSpec = sc_service::GenericChainSpec<steam_runtime::GenesisConfig, Extensions>;
 
-pub const PARA_ID: u32 = 7777;
+pub const PARA_ID: u32 = 2000;
 
 /// Used for Steam Local
 // TODO remove or replace with testnet config
@@ -64,18 +64,6 @@ pub fn steam_local_config() -> Result<ChainSpec, String> {
 		"Steam Local PC",
 		"steam-local-pc",
 		ChainType::Local,
-		// SECRET="..."
-		// ./target/debug/subkey inspect "$SECRET//eave//root"
-		// ./target/debug/subkey --sr25519 inspect "$SECRET//eave//oracle"
-		// ./target/debug/subkey --sr25519 inspect "$SECRET//eave//1//validator"
-		// ./target/debug/subkey --sr25519 inspect "$SECRET//eave//1//babe"
-		// ./target/debug/subkey --ed25519 inspect "$SECRET//eave//1//grandpa"
-		// ./target/debug/subkey --sr25519 inspect "$SECRET//eave//2//validator"
-		// ./target/debug/subkey --sr25519 inspect "$SECRET//eave//2//babe"
-		// ./target/debug/subkey --ed25519 inspect "$SECRET//eave//2//grandpa"
-		// ./target/debug/subkey --sr25519 inspect "$SECRET//eave//3//validator"
-		// ./target/debug/subkey --sr25519 inspect "$SECRET//eave//3//babe"
-		// ./target/debug/subkey --ed25519 inspect "$SECRET//eave//3//grandpa"
 		move || {
 			steam_genesis(
 				wasm_binary,
@@ -103,17 +91,13 @@ pub fn steam_local_config() -> Result<ChainSpec, String> {
 				],
 			)
 		},
-		vec![
-			"/ip4/54.254.37.221/tcp/30333/p2p/12D3KooWNUPp9ervpypz95DCMHfb3CAbQdfrmmBbYehUaJsFvRvT"
-				.parse()
-				.unwrap(),
-		],
-		TelemetryEndpoints::new(vec![(TELEMETRY_URL.into(), 0)]).ok(),
-		Some("steam-local"),
+		vec![],
+		None,
+		None,
 		Some(properties),
 		Extensions {
-			relay_chain: "rococo".into(),
-			para_id: 7777_u32,
+			relay_chain: "rococo-local".into(),
+			para_id: PARA_ID,
 		},
 	))
 }
