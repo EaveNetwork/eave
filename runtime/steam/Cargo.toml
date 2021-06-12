@@ -70,10 +70,10 @@ cumulus-pallet-parachain-system = { git = "https://github.com/paritytech/cumulus
 parachain-info = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.4", default-features = false }
 
 # Polkadot dependencies
-polkadot-parachain = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.2", default-features = false }
-# xcm = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.2", default-features = false }
-# xcm-executor = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.2", default-features = false }
-# xcm-builder = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.2", default-features = false }
+polkadot-parachain = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.4", default-features = false }
+# xcm = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.4", default-features = false }
+# xcm-executor = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.4", default-features = false }
+# xcm-builder = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.4", default-features = false }
 # cumulus-pallet-xcm-handler = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.4", default-features = false }
 
 #orml

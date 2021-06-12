@@ -63,8 +63,8 @@ cumulus-primitives-core = { git = "https://github.com/paritytech/cumulus", branc
 cumulus-primitives-parachain-inherent = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.4" }
 cumulus-test-relay-sproof-builder = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.4" }
 
-polkadot-primitives = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.2" }
-polkadot-service = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.2" }
+polkadot-primitives = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.4" }
+polkadot-service = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.4" }
 
 # local dependencies
 orml-oracle-rpc = { path = "../../ecosystem-pallets/orml/oracle/rpc" }
