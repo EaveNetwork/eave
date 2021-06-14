@@ -21,10 +21,11 @@
 #![cfg(test)]
 
 use crate::{AllPrecompiles, Ratio, RuntimeBlockWeights, SystemContractsFilter, Weight};
+use eave_service::chain_spec::evm_genesis;
 use codec::{Decode, Encode};
 use frame_support::{
 	assert_ok, ord_parameter_types, parameter_types,
-	traits::{GenesisBuild, InstanceFilter, OnFinalize, OnInitialize},
+	traits::{GenesisBuild, InstanceFilter, MaxEncodedLen, OnFinalize, OnInitialize, SortedMembers},
 	weights::IdentityFee,
 	PalletId, RuntimeDebug,
 };
@@ -33,13 +34,20 @@ use module_support::{
 	mocks::MockAddressMapping, AddressMapping as AddressMappingT, DEXIncentives, ExchangeRate, ExchangeRateProvider,
 };
 use orml_traits::{parameter_type_with_key, MultiReservableCurrency};
-pub use acala_primitives::{Amount, BlockNumber, CurrencyId, Header, Nonce, TokenSymbol, TradingPair};
-use sp_core::{bytes::from_hex, crypto::AccountId32, Bytes, H160, H256};
+pub use acala_primitives::{
+	evm::EvmAddress, Amount, BlockNumber, CurrencyId, DexShare, Header, Nonce, TokenSymbol, TradingPair,
+};
+use sha3::{Digest, Keccak256};
+use sp_core::{crypto::AccountId32, H160, H256};
 use sp_runtime::{
-	traits::{BlakeTwo256, Convert, IdentityLookup},
+	traits::{BlakeTwo256, Convert, IdentityLookup, One as OneT},
 	DispatchResult, FixedPointNumber, FixedU128, Perbill,
 };
-use sp_std::{collections::btree_map::BTreeMap, str::FromStr};
+use sp_std::{
+	collections::btree_map::BTreeMap,
+	convert::{TryFrom, TryInto},
+	str::FromStr,
+};
 
 pub type AccountId = AccountId32;
 type Key = CurrencyId;
@@ -55,7 +63,7 @@ impl frame_system::Config for Test {
 	type BlockLength = ();
 	type Origin = Origin;
 	type Call = Call;
-	type Index = u64;
+	type Index = u32;
 	type BlockNumber = BlockNumber;
 	type Hash = H256;
 	type Hashing = BlakeTwo256;
@@ -79,6 +87,15 @@ parameter_types! {
 	pub const MinimumCount: u32 = 1;
 	pub const ExpiresIn: u32 = 600;
 	pub const RootOperatorAccountId: AccountId = ALICE;
+	pub static OracleMembers: Vec<AccountId> = vec![ALICE, BOB, EVA];
+}
+
+pub struct Members;
+
+impl SortedMembers<AccountId> for Members {
+	fn sorted_members() -> Vec<AccountId> {
+		OracleMembers::get()
+	}
 }
 
 impl orml_oracle::Config for Test {
@@ -89,6 +106,7 @@ impl orml_oracle::Config for Test {
 	type OracleKey = Key;
 	type OracleValue = Price;
 	type RootOperatorAccountId = RootOperatorAccountId;
+	type Members = Members;
 	type WeightInfo = ();
 }
 
@@ -113,6 +131,7 @@ impl orml_tokens::Config for Test {
 	type WeightInfo = ();
 	type ExistentialDeposits = ExistentialDeposits;
 	type OnDust = ();
+	type MaxLocks = ();
 }
 
 parameter_types! {
@@ -129,14 +148,16 @@ impl pallet_balances::Config for Test {
 	type MaxLocks = ();
 }
 
-pub const ACA: CurrencyId = CurrencyId::Token(TokenSymbol::ACA);
-pub const XBTC: CurrencyId = CurrencyId::Token(TokenSymbol::XBTC);
+pub const EAVE: CurrencyId = CurrencyId::Token(TokenSymbol::EAVE);
+pub const RENBTC: CurrencyId = CurrencyId::Token(TokenSymbol::RENBTC);
 pub const EUSD: CurrencyId = CurrencyId::Token(TokenSymbol::EUSD);
 pub const DOT: CurrencyId = CurrencyId::Token(TokenSymbol::DOT);
 pub const LDOT: CurrencyId = CurrencyId::Token(TokenSymbol::LDOT);
+pub const LP_EAVE_EUSD: CurrencyId =
+	CurrencyId::DexShare(DexShare::Token(TokenSymbol::EAVE), DexShare::Token(TokenSymbol::EUSD));
 
 parameter_types! {
-	pub const GetNativeCurrencyId: CurrencyId = ACA;
+	pub const GetNativeCurrencyId: CurrencyId = EAVE;
 }
 
 impl module_currencies::Config for Test {
@@ -171,11 +192,18 @@ impl module_nft::Config for Test {
 	type WeightInfo = ();
 }
 
+parameter_types! {
+	pub MaxClassMetadata: u32 = 1024;
+	pub MaxTokenMetadata: u32 = 1024;
+}
+
 impl orml_nft::Config for Test {
 	type ClassId = u32;
 	type TokenId = u64;
 	type ClassData = module_nft::ClassData<Balance>;
 	type TokenData = module_nft::TokenData<Balance>;
+	type MaxClassMetadata = MaxClassMetadata;
+	type MaxTokenMetadata = MaxTokenMetadata;
 }
 
 parameter_types! {
@@ -210,7 +238,7 @@ parameter_types! {
 	pub const AnnouncementDepositFactor: u64 = 1;
 }
 
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Encode, Decode, RuntimeDebug)]
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Encode, Decode, RuntimeDebug, MaxEncodedLen)]
 pub enum ProxyType {
 	Any,
 	JustTransfer,
@@ -329,7 +357,7 @@ pub type ScheduleCallPrecompile = crate::ScheduleCallPrecompile<
 pub type DexPrecompile = crate::DexPrecompile<AccountId, MockAddressMapping, EvmCurrencyIdMapping, DexModule>;
 
 parameter_types! {
-	pub NetworkContractSource: H160 = alice();
+	pub NetworkContractSource: H160 = alice_evm_addr();
 }
 
 ord_parameter_types! {
@@ -354,7 +382,7 @@ impl Convert<u64, Weight> for GasToWeight {
 impl module_evm::Config for Test {
 	type AddressMapping = MockAddressMapping;
 	type Currency = Balances;
-	type MergeAccount = Currencies;
+	type TransferAll = Currencies;
 	type NewContractExtraBytes = NewContractExtraBytes;
 	type StorageDepositPerByte = StorageDepositPerByte;
 	type MaxCodeSize = MaxCodeSize;
@@ -416,38 +444,43 @@ pub const ALICE: AccountId = AccountId::new([1u8; 32]);
 pub const BOB: AccountId = AccountId::new([2u8; 32]);
 pub const EVA: AccountId = AccountId::new([5u8; 32]);
 
-pub fn alice() -> H160 {
-	H160([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
+pub fn alice() -> AccountId {
+	<Test as module_evm::Config>::AddressMapping::get_account_id(&alice_evm_addr())
 }
 
-pub fn bob() -> H160 {
-	H160([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2])
+pub fn alice_evm_addr() -> EvmAddress {
+	EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap()
 }
 
-pub fn evm_genesis() -> BTreeMap<H160, module_evm::GenesisAccount<Balance, u64>> {
-	let contracts_json = &include_bytes!("../../../../foundational-contracts/resources/bytecodes.json")[..];
-	let contracts: Vec<(String, String, String)> = serde_json::from_slice(contracts_json).unwrap();
-	let mut accounts = BTreeMap::new();
-	for (_, address, code_string) in contracts {
-		let account = module_evm::GenesisAccount {
-			nonce: 0,
-			balance: 0u128,
-			storage: Default::default(),
-			code: Bytes::from_str(&code_string).unwrap().0,
-		};
+pub fn bob() -> AccountId {
+	<Test as module_evm::Config>::AddressMapping::get_account_id(&bob_evm_addr())
+}
 
-		let addr = H160::from_slice(
-			from_hex(address.as_str())
-				.expect("foundational-contracts must specify address")
-				.as_slice(),
-		);
-		accounts.insert(addr, account);
-	}
-	accounts
+pub fn bob_evm_addr() -> EvmAddress {
+	EvmAddress::from_str("1000000000000000000000000000000000000002").unwrap()
+}
+
+pub fn eave_evm_address() -> EvmAddress {
+	EvmAddress::try_from(EAVE).unwrap()
+}
+
+pub fn eusd_evm_address() -> EvmAddress {
+	EvmAddress::try_from(EUSD).unwrap()
+}
+
+pub fn renbtc_evm_address() -> EvmAddress {
+	EvmAddress::try_from(RENBTC).unwrap()
+}
+
+pub fn lp_eave_eusd_evm_address() -> EvmAddress {
+	EvmAddress::try_from(LP_EAVE_EUSD).unwrap()
+}
+
+pub fn erc20_address_not_exists() -> EvmAddress {
+	EvmAddress::from_str("0000000000000000000000000000000200000001").unwrap()
 }
 
 pub const INITIAL_BALANCE: Balance = 1_000_000_000_000;
-pub const ACA_ERC20_ADDRESS: &str = "0x0000000000000000000000000000000001000000";
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 type Block = frame_system::mocking::MockBlock<Test>;
@@ -459,7 +492,7 @@ frame_support::construct_runtime!(
 		UncheckedExtrinsic = UncheckedExtrinsic,
 	{
 		System: frame_system::{Pallet, Call, Storage, Config, Event<T>},
-		Oracle: orml_oracle::{Pallet, Storage, Call, Config<T>, Event<T>},
+		Oracle: orml_oracle::{Pallet, Storage, Call, Event<T>},
 		Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent},
 		Tokens: orml_tokens::{Pallet, Storage, Event<T>, Config<T>},
 		Balances: pallet_balances::{Pallet, Call, Storage, Config<T>, Event<T>},
@@ -482,18 +515,12 @@ frame_support::construct_runtime!(
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	let mut storage = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
 
-	let _ = orml_oracle::GenesisConfig::<Test> {
-		members: vec![ALICE, BOB, EVA].into(),
-		phantom: Default::default(),
-	}
-	.assimilate_storage(&mut storage);
-
 	let mut accounts = BTreeMap::new();
 	let mut evm_genesis_accounts = evm_genesis();
 	accounts.append(&mut evm_genesis_accounts);
 
 	accounts.insert(
-		alice(),
+		alice_evm_addr(),
 		module_evm::GenesisAccount {
 			nonce: 1,
 			balance: INITIAL_BALANCE,
@@ -502,7 +529,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 		},
 	);
 	accounts.insert(
-		bob(),
+		bob_evm_addr(),
 		module_evm::GenesisAccount {
 			nonce: 1,
 			balance: INITIAL_BALANCE,
@@ -514,9 +541,12 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 	pallet_balances::GenesisConfig::<Test>::default()
 		.assimilate_storage(&mut storage)
 		.unwrap();
-	module_evm::GenesisConfig::<Test> { accounts }
-		.assimilate_storage(&mut storage)
-		.unwrap();
+	module_evm::GenesisConfig::<Test> {
+		accounts,
+		treasury: Default::default(),
+	}
+	.assimilate_storage(&mut storage)
+	.unwrap();
 
 	let mut ext = sp_io::TestExternalities::new(storage);
 	ext.execute_with(|| {
@@ -526,15 +556,15 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 		assert_ok!(Currencies::update_balance(
 			Origin::root(),
 			ALICE,
-			XBTC,
+			RENBTC,
 			1_000_000_000_000
 		));
 		assert_ok!(Currencies::update_balance(Origin::root(), ALICE, EUSD, 1_000_000_000));
 
 		assert_ok!(Currencies::update_balance(
 			Origin::root(),
-			MockAddressMapping::get_account_id(&alice()),
-			XBTC,
+			MockAddressMapping::get_account_id(&alice_evm_addr()),
+			RENBTC,
 			1_000
 		));
 	});
@@ -553,4 +583,14 @@ pub fn get_task_id(output: Vec<u8>) -> Vec<u8> {
 	num[..].copy_from_slice(&output[32 - 4..32]);
 	let task_id_len: u32 = u32::from_be_bytes(num);
 	return output[32..32 + task_id_len as usize].to_vec();
+}
+
+pub fn get_function_selector(s: &str) -> [u8; 4] {
+	// create a SHA3-256 object
+	let mut hasher = Keccak256::new();
+	// write input message
+	hasher.update(s);
+	// read hash digest
+	let result = hasher.finalize();
+	result[..4].try_into().unwrap()
 }

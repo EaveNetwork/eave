@@ -20,9 +20,10 @@
 
 use frame_support::{log, sp_runtime::FixedPointNumber};
 use module_evm::{Context, ExitError, ExitSucceed, Precompile};
+use num_enum::{IntoPrimitive, TryFromPrimitive};
 use acala_primitives::CurrencyId;
 use sp_core::U256;
-use sp_std::{convert::TryFrom, fmt::Debug, marker::PhantomData, prelude::*, result};
+use sp_std::{fmt::Debug, marker::PhantomData, prelude::*, result};
 
 use super::input::{Input, InputT};
 use module_support::{
@@ -40,19 +41,10 @@ pub struct OraclePrecompile<AccountId, AddressMapping, CurrencyIdMapping, PriceP
 	PhantomData<(AccountId, AddressMapping, CurrencyIdMapping, PriceProvider)>,
 );
 
-enum Action {
-	GetPrice,
-}
-
-impl TryFrom<u8> for Action {
-	type Error = ();
-
-	fn try_from(value: u8) -> Result<Self, Self::Error> {
-		match value {
-			0 => Ok(Action::GetPrice),
-			_ => Err(()),
-		}
-	}
+#[derive(Debug, Eq, PartialEq, TryFromPrimitive, IntoPrimitive)]
+#[repr(u32)]
+pub enum Action {
+	GetPrice = 0x41976e09,
 }
 
 impl<AccountId, AddressMapping, CurrencyIdMapping, PriceProvider> Precompile
@@ -70,7 +62,7 @@ where
 	) -> result::Result<(ExitSucceed, Vec<u8>, u64), ExitError> {
 		//TODO: evaluate cost
 
-		log::debug!(target: "evm", "input: {:?}", input);
+		log::debug!(target: "evm", "oracle: input: {:?}", input);
 
 		let input = Input::<Action, AccountId, AddressMapping, CurrencyIdMapping>::new(input);
 
@@ -78,17 +70,58 @@ where
 
 		match action {
 			Action::GetPrice => {
-				let key = input.currency_id_at(1)?;
-				let value = PriceProvider::get_price(key).unwrap_or_else(Default::default);
-				log::debug!(target: "evm", "oracle currency_id: {:?}, price: {:?}", key, value);
-				Ok((ExitSucceed::Returned, vec_u8_from_price(value), 0))
+				let currency_id = input.currency_id_at(1)?;
+				let mut price = PriceProvider::get_price(currency_id).unwrap_or_default();
+
+				let maybe_decimals = CurrencyIdMapping::decimals(currency_id);
+				let decimals = match maybe_decimals {
+					Some(decimals) => decimals,
+					None => {
+						// If the option is none, let price = 0 to return 0.
+						// Solidity should handle the situation of price 0.
+						price = Default::default();
+						Default::default()
+					}
+				};
+
+				let maybe_adjustment_multiplier = 10u128.checked_pow((18 - decimals).into());
+				let adjustment_multiplier = match maybe_adjustment_multiplier {
+					Some(adjustment_multiplier) => adjustment_multiplier,
+					None => {
+						// If the option is none, let price = 0 to return 0.
+						// Solidity should handle the situation of price 0.
+						price = Default::default();
+						Default::default()
+					}
+				};
+
+				log::debug!(target: "evm", "oracle: getPrice currency_id: {:?}, price: {:?}, adjustment_multiplier: {:?}", currency_id, price, adjustment_multiplier);
+				Ok((
+					ExitSucceed::Returned,
+					vec_u8_from_price(price, adjustment_multiplier),
+					0,
+				))
 			}
 		}
 	}
 }
 
-fn vec_u8_from_price(value: Price) -> Vec<u8> {
+fn vec_u8_from_price(price: Price, adjustment_multiplier: u128) -> Vec<u8> {
 	let mut be_bytes = [0u8; 32];
-	U256::from(value.into_inner()).to_big_endian(&mut be_bytes[..32]);
+	U256::from(price.into_inner().wrapping_div(adjustment_multiplier)).to_big_endian(&mut be_bytes[..32]);
 	be_bytes.to_vec()
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::precompile::mock::get_function_selector;
+
+	#[test]
+	fn function_selector_match() {
+		assert_eq!(
+			u32::from_be_bytes(get_function_selector("getPrice(address)")),
+			Into::<u32>::into(Action::GetPrice)
+		);
+	}
 }

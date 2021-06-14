@@ -32,6 +32,8 @@ use module_support::{AddressMapping as AddressMappingT, CurrencyIdMapping as Cur
 use acala_primitives::{Amount, Balance, CurrencyId};
 use sp_core::H160;
 
+pub const INPUT_BYTES_LENGTH: usize = 32;
+pub const FUNCTION_SELECTOR_LENGTH: usize = 4;
 pub const PER_PARAM_BYTES: usize = 32;
 pub const ACTION_INDEX: usize = 0;
 
@@ -45,7 +47,7 @@ pub trait InputT {
 	type Action;
 	type AccountId;
 
-	fn nth_param(&self, n: usize) -> Result<&[u8], Self::Error>;
+	fn nth_param(&self, n: usize, len: Option<usize>) -> Result<&[u8], Self::Error>;
 	fn action(&self) -> Result<Self::Action, Self::Error>;
 
 	fn account_id_at(&self, index: usize) -> Result<Self::AccountId, Self::Error>;
@@ -79,7 +81,7 @@ impl<'a, Action, AccountId, AddressMapping, CurrencyIdMapping>
 impl<Action, AccountId, AddressMapping, CurrencyIdMapping> InputT
 	for Input<'_, Action, AccountId, AddressMapping, CurrencyIdMapping>
 where
-	Action: TryFrom<u8>,
+	Action: TryFrom<u32>,
 	AddressMapping: AddressMappingT<AccountId>,
 	CurrencyIdMapping: CurrencyIdMappingT,
 {
@@ -87,9 +89,19 @@ where
 	type Action = Action;
 	type AccountId = AccountId;
 
-	fn nth_param(&self, n: usize) -> Result<&[u8], Self::Error> {
-		let start = PER_PARAM_BYTES * n;
-		let end = start + PER_PARAM_BYTES;
+	fn nth_param(&self, n: usize, len: Option<usize>) -> Result<&[u8], Self::Error> {
+		// Solidity dynamic bytes will add the size to the front of the input,
+		// pre-compile needs to deal with the INPUT_BYTES_LENGTH `size`.
+		let (start, end) = if n == 0 {
+			// ACTION_INDEX
+			let start = INPUT_BYTES_LENGTH;
+			let end = start + FUNCTION_SELECTOR_LENGTH;
+			(start, end)
+		} else {
+			let start = INPUT_BYTES_LENGTH + FUNCTION_SELECTOR_LENGTH + PER_PARAM_BYTES * (n - 1);
+			let end = start + len.unwrap_or(PER_PARAM_BYTES);
+			(start, end)
+		};
 
 		ensure!(end <= self.content.len(), ExitError::Other("invalid input".into()));
 
@@ -97,16 +109,18 @@ where
 	}
 
 	fn action(&self) -> Result<Self::Action, Self::Error> {
-		let param = self.nth_param(ACTION_INDEX)?;
-		let action_u8: &u8 = param.last().expect("Action bytes is 32 bytes");
+		let param = self.nth_param(ACTION_INDEX, None)?;
+		let action = u32::from_be_bytes(
+			param
+				.try_into()
+				.map_err(|_| ExitError::Other("invalid action".into()))?,
+		);
 
-		(*action_u8)
-			.try_into()
-			.map_err(|_| ExitError::Other("invalid action".into()))
+		action.try_into().map_err(|_| ExitError::Other("invalid action".into()))
 	}
 
 	fn account_id_at(&self, index: usize) -> Result<Self::AccountId, Self::Error> {
-		let param = self.nth_param(index)?;
+		let param = self.nth_param(index, None)?;
 
 		let mut address = [0u8; 20];
 		address.copy_from_slice(&param[12..]);
@@ -115,7 +129,7 @@ where
 	}
 
 	fn evm_address_at(&self, index: usize) -> Result<H160, Self::Error> {
-		let param = self.nth_param(index)?;
+		let param = self.nth_param(index, None)?;
 
 		let mut address = [0u8; 20];
 		address.copy_from_slice(&param[12..]);
@@ -130,7 +144,7 @@ where
 	}
 
 	fn balance_at(&self, index: usize) -> Result<Balance, Self::Error> {
-		let param = self.nth_param(index)?;
+		let param = self.nth_param(index, None)?;
 
 		let mut balance = [0u8; BALANCE_BYTES];
 		let start = PER_PARAM_BYTES - BALANCE_BYTES;
@@ -140,7 +154,7 @@ where
 	}
 
 	fn amount_at(&self, index: usize) -> Result<Amount, Self::Error> {
-		let param = self.nth_param(index)?;
+		let param = self.nth_param(index, None)?;
 
 		let mut amount = [0u8; AMOUNT_BYTES];
 		let start = PER_PARAM_BYTES - AMOUNT_BYTES;
@@ -150,7 +164,7 @@ where
 	}
 
 	fn u64_at(&self, index: usize) -> Result<u64, Self::Error> {
-		let param = self.nth_param(index)?;
+		let param = self.nth_param(index, None)?;
 
 		let mut num = [0u8; U64_BYTES];
 		let start = PER_PARAM_BYTES - U64_BYTES;
@@ -160,7 +174,7 @@ where
 	}
 
 	fn u32_at(&self, index: usize) -> Result<u32, Self::Error> {
-		let param = self.nth_param(index)?;
+		let param = self.nth_param(index, None)?;
 
 		let mut num = [0u8; U32_BYTES];
 		let start = PER_PARAM_BYTES - U32_BYTES;
@@ -169,15 +183,8 @@ where
 		Ok(u32::from_be_bytes(num))
 	}
 
-	fn bytes_at(&self, start: usize, len: usize) -> Result<Vec<u8>, Self::Error> {
-		let end = start + len;
-
-		ensure!(
-			end <= self.content.len(),
-			ExitError::Other("invalid bytes input".into())
-		);
-
-		let bytes = &self.content[start..end];
+	fn bytes_at(&self, index: usize, len: usize) -> Result<Vec<u8>, Self::Error> {
+		let bytes = self.nth_param(index, Some(len))?;
 
 		Ok(bytes.to_vec())
 	}
@@ -188,50 +195,48 @@ mod tests {
 	use super::*;
 
 	use frame_support::{assert_err, assert_ok};
+	use num_enum::TryFromPrimitive;
 	use sp_core::H160;
 
 	use module_support::mocks::{MockAddressMapping, MockCurrencyIdMapping};
-	use acala_primitives::{AccountId, CurrencyId, TokenSymbol};
+	use primitives::{AccountId, CurrencyId, TokenSymbol};
 
-	#[derive(Debug, PartialEq, Eq)]
+	#[derive(Debug, PartialEq, Eq, TryFromPrimitive)]
+	#[repr(u32)]
 	pub enum Action {
-		QueryBalance,
-		Transfer,
-		Unknown,
-	}
-	impl From<u8> for Action {
-		fn from(a: u8) -> Self {
-			match a {
-				0 => Action::QueryBalance,
-				1 => Action::Transfer,
-				_ => Action::Unknown,
-			}
-		}
+		QueryBalance = 0,
+		Transfer = 1,
+		Unknown = 2,
 	}
 
 	pub type TestInput<'a> = Input<'a, Action, AccountId, MockAddressMapping, MockCurrencyIdMapping>;
 
 	#[test]
 	fn nth_param_works() {
-		let input = TestInput::new(&[1u8; 64][..]);
-		assert_ok!(input.nth_param(1), &[1u8; 32][..]);
-		assert_err!(input.nth_param(2), ExitError::Other("invalid input".into()));
+		let input = TestInput::new(&[1u8; 68][..]);
+		assert_ok!(input.nth_param(1, None), &[1u8; 32][..]);
+		assert_err!(input.nth_param(2, None), ExitError::Other("invalid input".into()));
 	}
 
 	#[test]
 	fn action_works() {
-		let input = TestInput::new(&[0u8; 32][..]);
+		let input = TestInput::new(&[0u8; 68][..]);
 		assert_ok!(input.action(), Action::QueryBalance);
 
-		let mut raw_input = [0u8; 32];
-		raw_input[31] = 1;
+		let mut raw_input = [0u8; 68];
+		raw_input[35] = 1;
 		let input = TestInput::new(&raw_input[..]);
 		assert_ok!(input.action(), Action::Transfer);
 
-		let mut raw_input = [0u8; 32];
-		raw_input[31] = 2;
+		let mut raw_input = [0u8; 68];
+		raw_input[35] = 2;
 		let input = TestInput::new(&raw_input[..]);
 		assert_ok!(input.action(), Action::Unknown);
+
+		let mut raw_input = [0u8; 68];
+		raw_input[35] = 3;
+		let input = TestInput::new(&raw_input[..]);
+		assert_eq!(input.action(), Err(ExitError::Other("invalid action".into())));
 	}
 
 	#[test]
@@ -240,10 +245,10 @@ mod tests {
 		address[19] = 1;
 		let account_id = MockAddressMapping::get_account_id(&address.into());
 
-		let mut raw_input = [0u8; 32];
-		raw_input[31] = 1;
+		let mut raw_input = [0u8; 68];
+		raw_input[67] = 1;
 		let input = TestInput::new(&raw_input[..]);
-		assert_ok!(input.account_id_at(0), account_id);
+		assert_ok!(input.account_id_at(1), account_id);
 	}
 
 	#[test]
@@ -252,25 +257,25 @@ mod tests {
 		address[19] = 1;
 		let evm_address = H160::from_slice(&address);
 
-		let mut raw_input = [0u8; 32];
-		raw_input[31] = 1;
+		let mut raw_input = [0u8; 68];
+		raw_input[67] = 1;
 		let input = TestInput::new(&raw_input[..]);
-		assert_ok!(input.evm_address_at(0), evm_address);
+		assert_ok!(input.evm_address_at(1), evm_address);
 	}
 
 	#[test]
 	fn currency_id_works() {
-		let input = TestInput::new(&[0u8; 32][..]);
-		assert_err!(input.currency_id_at(0), ExitError::Other("invalid currency id".into()));
+		let input = TestInput::new(&[0u8; 100][..]);
+		assert_err!(input.currency_id_at(1), ExitError::Other("invalid currency id".into()));
 
-		let mut raw_input = [0u8; 32];
-		raw_input[28] = 1;
+		let mut raw_input = [0u8; 68];
+		raw_input[64] = 1;
 		let input = TestInput::new(&raw_input[..]);
-		assert_ok!(input.currency_id_at(0), CurrencyId::Token(TokenSymbol::EAVE));
+		assert_ok!(input.currency_id_at(1), CurrencyId::Token(TokenSymbol::ACA));
 
-		raw_input[31] = 1;
+		raw_input[67] = 1;
 		let input = TestInput::new(&raw_input[..]);
-		assert_ok!(input.currency_id_at(0), CurrencyId::Token(TokenSymbol::EUSD));
+		assert_ok!(input.currency_id_at(1), CurrencyId::Token(TokenSymbol::AUSD));
 	}
 
 	#[test]
@@ -278,10 +283,10 @@ mod tests {
 		let balance = 127u128;
 		let balance_bytes = balance.to_be_bytes();
 
-		let mut raw_input = [0u8; 32];
-		raw_input[16..].copy_from_slice(&balance_bytes);
+		let mut raw_input = [0u8; 68];
+		raw_input[52..].copy_from_slice(&balance_bytes);
 		let input = TestInput::new(&raw_input[..]);
-		assert_ok!(input.balance_at(0), balance);
+		assert_ok!(input.balance_at(1), balance);
 	}
 
 	#[test]
@@ -289,10 +294,10 @@ mod tests {
 		let amount = 127i128;
 		let amount_bytes = amount.to_be_bytes();
 
-		let mut raw_input = [0u8; 32];
-		raw_input[16..].copy_from_slice(&amount_bytes);
+		let mut raw_input = [0u8; 68];
+		raw_input[52..].copy_from_slice(&amount_bytes);
 		let input = TestInput::new(&raw_input[..]);
-		assert_ok!(input.amount_at(0), amount);
+		assert_ok!(input.amount_at(1), amount);
 	}
 
 	#[test]
@@ -300,9 +305,9 @@ mod tests {
 		let u64_num = 127u64;
 		let u64_bytes = u64_num.to_be_bytes();
 
-		let mut raw_input = [0u8; 32];
-		raw_input[24..].copy_from_slice(&u64_bytes);
+		let mut raw_input = [0u8; 68];
+		raw_input[60..].copy_from_slice(&u64_bytes);
 		let input = TestInput::new(&raw_input[..]);
-		assert_ok!(input.u64_at(0), u64_num);
+		assert_ok!(input.u64_at(1), u64_num);
 	}
 }
