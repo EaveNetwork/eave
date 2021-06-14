@@ -86,11 +86,11 @@ mod weights;
 pub use frame_support::{
 	construct_runtime, log, parameter_types,
 	traits::{
-		ContainsLengthBound, EnsureOrigin, Filter, Get, IsType, KeyOwnerProofSystem, LockIdentifier, Randomness,
-		SortedMembers, U128CurrencyToVote,
+		ContainsLengthBound, EnsureOrigin, Filter, Get, InstanceFilter, IsType, KeyOwnerProofSystem, LockIdentifier,
+		MaxEncodedLen, Randomness, SortedMembers, U128CurrencyToVote,
 	},
 	weights::{constants::RocksDbWeight, IdentityFee, Weight},
-	PalletId, StorageValue,
+	PalletId, RuntimeDebug, StorageValue,
 };
 
 pub use pallet_timestamp::Call as TimestampCall;
@@ -151,8 +151,8 @@ parameter_types! {
 	pub const HonzonTreasuryPalletId: PalletId = PalletId(*b"aca/hztr");
 	pub const HomaTreasuryPalletId: PalletId = PalletId(*b"aca/hmtr");
 	pub const IncentivesPalletId: PalletId = PalletId(*b"aca/inct");
-	// Decentralized Sovereign Wealth Fund
-	pub const DSWFPalletId: PalletId = PalletId(*b"aca/dswf");
+	// Treasury reserve
+	pub const TreasuryReservePalletId: PalletId = PalletId(*b"aca/reve");
 	pub const ElectionsPhragmenPalletId: LockIdentifier = *b"aca/phre";
 	pub const NftPalletId: PalletId = PalletId(*b"aca/aNFT");
 	pub UnreleasedNativeVaultAccountId: AccountId = PalletId(*b"aca/urls").into_account();
@@ -247,20 +247,18 @@ impl pallet_session::Config for Runtime {
 parameter_types! {
 	pub const PotId: PalletId = PalletId(*b"PotStake");
 	pub const MaxCandidates: u32 = 200;
-	pub const SessionLength: BlockNumber = DAYS;
 	pub const MaxInvulnerables: u32 = 50;
 }
 
 impl module_collator_selection::Config for Runtime {
 	type Event = Event;
 	type Currency = Balances;
+	type ValidatorSet = Session;
 	type UpdateOrigin = EnsureRootOrHalfGeneralCouncil;
 	type PotId = PotId;
 	type MaxCandidates = MaxCandidates;
 	type MaxInvulnerables = MaxInvulnerables;
-	// should be a multiple of session or things will get inconsistent
-	type KickThreshold = Period;
-	type WeightInfo = ();
+	type WeightInfo = weights::module_collator_selection::WeightInfo<Runtime>;
 }
 
 parameter_types! {
@@ -316,16 +314,22 @@ impl pallet_sudo::Config for Runtime {
 	type Call = Call;
 }
 
+type EnsureRootOrAllGeneralCouncil = EnsureOneOf<
+	AccountId,
+	EnsureRoot<AccountId>,
+	pallet_collective::EnsureProportionMoreThan<_1, _1, AccountId, GeneralCouncilInstance>,
+>;
+
 type EnsureRootOrHalfGeneralCouncil = EnsureOneOf<
 	AccountId,
 	EnsureRoot<AccountId>,
 	pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, GeneralCouncilInstance>,
 >;
 
-type EnsureRootOrHalfHonzonCouncil = EnsureOneOf<
+type EnsureRootOrHalfFinancialCouncil = EnsureOneOf<
 	AccountId,
 	EnsureRoot<AccountId>,
-	pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, HonzonCouncilInstance>,
+	pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, FinancialCouncilInstance>,
 >;
 
 type EnsureRootOrHalfHomaCouncil = EnsureOneOf<
@@ -345,6 +349,13 @@ type EnsureRootOrThreeFourthsGeneralCouncil = EnsureOneOf<
 	EnsureRoot<AccountId>,
 	pallet_collective::EnsureProportionMoreThan<_3, _4, AccountId, GeneralCouncilInstance>,
 >;
+
+type EnsureRootOrAllTechnicalCommittee = EnsureOneOf<
+	AccountId,
+	EnsureRoot<AccountId>,
+	pallet_collective::EnsureProportionMoreThan<_1, _1, AccountId, TechnicalCommitteeInstance>,
+>;
+
 
 type EnsureRootOrOneThirdsTechnicalCommittee = EnsureOneOf<
 	AccountId,
@@ -391,34 +402,34 @@ impl pallet_membership::Config<GeneralCouncilMembershipInstance> for Runtime {
 }
 
 parameter_types! {
-	pub const HonzonCouncilMotionDuration: BlockNumber = 7 * DAYS;
-	pub const HonzonCouncilMaxProposals: u32 = 100;
-	pub const HonzonCouncilMaxMembers: u32 = 100;
+	pub const FinancialCouncilMotionDuration: BlockNumber = 7 * DAYS;
+	pub const FinancialCouncilMaxProposals: u32 = 100;
+	pub const FinancialCouncilMaxMembers: u32 = 100;
 }
 
-type HonzonCouncilInstance = pallet_collective::Instance2;
-impl pallet_collective::Config<HonzonCouncilInstance> for Runtime {
+type FinancialCouncilInstance = pallet_collective::Instance2;
+impl pallet_collective::Config<FinancialCouncilInstance> for Runtime {
 	type Origin = Origin;
 	type Proposal = Call;
 	type Event = Event;
-	type MotionDuration = HonzonCouncilMotionDuration;
-	type MaxProposals = HonzonCouncilMaxProposals;
-	type MaxMembers = HonzonCouncilMaxMembers;
+	type MotionDuration = FinancialCouncilMotionDuration;
+	type MaxProposals = FinancialCouncilMaxProposals;
+	type MaxMembers = FinancialCouncilMaxMembers;
 	type DefaultVote = pallet_collective::PrimeDefaultVote;
 	type WeightInfo = ();
 }
 
-type HonzonCouncilMembershipInstance = pallet_membership::Instance2;
-impl pallet_membership::Config<HonzonCouncilMembershipInstance> for Runtime {
+type FinanicalCouncilMembershipInstance = pallet_membership::Instance2;
+impl pallet_membership::Config<FinancialCouncilMembershipInstance> for Runtime {
 	type Event = Event;
 	type AddOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type RemoveOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type SwapOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type ResetOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type PrimeOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
-	type MembershipInitialized = HonzonCouncil;
-	type MembershipChanged = HonzonCouncil;
-	type MaxMembers = HonzonCouncilMaxMembers;
+	type MembershipInitialized = FinancialCouncil;
+	type MembershipChanged = FinancialCouncil;
+	type MaxMembers = FinancialCouncilMaxMembers;
 	type WeightInfo = ();
 }
 
@@ -644,6 +655,61 @@ impl pallet_recovery::Config for Runtime {
 	type RecoveryDeposit = RecoveryDeposit;
 }
 
+parameter_types! {
+	pub const LaunchPeriod: BlockNumber = 28 * DAYS;
+	pub const VotingPeriod: BlockNumber = 28 * DAYS;
+	pub const FastTrackVotingPeriod: BlockNumber = 3 * HOURS;
+	pub MinimumDeposit: Balance = 100 * dollar(EAVE);
+	pub const EnactmentPeriod: BlockNumber = 28 * DAYS;
+	pub const CooloffPeriod: BlockNumber = 7 * DAYS;
+	pub PreimageByteDeposit: Balance = cent(EAVE);
+	pub const InstantAllowed: bool = true;
+	pub const MaxVotes: u32 = 100;
+	pub const MaxProposals: u32 = 100;
+}
+
+impl pallet_democracy::Config for Runtime {
+	type Proposal = Call;
+	type Event = Event;
+	type Currency = Balances;
+	type EnactmentPeriod = EnactmentPeriod;
+	type LaunchPeriod = LaunchPeriod;
+	type VotingPeriod = VotingPeriod;
+	type MinimumDeposit = MinimumDeposit;
+	/// A straight majority of the council can decide what their next motion is.
+	type ExternalOrigin = EnsureRootOrHalfGeneralCouncil;
+	/// A majority can have the next scheduled referendum be a straight majority-carries vote.
+	type ExternalMajorityOrigin = EnsureRootOrHalfGeneralCouncil;
+	/// A unanimous council can have the next scheduled referendum be a straight default-carries
+	/// (NTB) vote.
+	type ExternalDefaultOrigin = EnsureRootOrAllGeneralCouncil;
+	/// Two thirds of the technical committee can have an ExternalMajority/ExternalDefault vote
+	/// be tabled immediately and with a shorter voting/enactment period.
+	type FastTrackOrigin = EnsureRootOrTwoThirdsTechnicalCommittee;
+	type InstantOrigin = EnsureRootOrAllTechnicalCommittee;
+	type InstantAllowed = InstantAllowed;
+	type FastTrackVotingPeriod = FastTrackVotingPeriod;
+	// To cancel a proposal which has been passed, 2/3 of the council must agree to it.
+	type CancellationOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
+	type BlacklistOrigin = EnsureRoot<AccountId>;
+	// To cancel a proposal before it has been passed, the technical committee must be unanimous or
+	// Root must agree.
+	type CancelProposalOrigin = EnsureRootOrAllTechnicalCommittee;
+	// Any single technical committee member may veto a coming council proposal, however they can
+	// only do it once and it lasts only for the cooloff period.
+	type VetoOrigin = pallet_collective::EnsureMember<AccountId, TechnicalCommitteeInstance>;
+	type CooloffPeriod = CooloffPeriod;
+	type PreimageByteDeposit = PreimageByteDeposit;
+	type OperationalPreimageOrigin = pallet_collective::EnsureMember<AccountId, GeneralCouncilInstance>;
+	type Slash = EaveTreasury;
+	type Scheduler = Scheduler;
+	type PalletsOrigin = OriginCaller;
+	type MaxVotes = MaxVotes;
+	//TODO: might need to weight for Eave
+	type WeightInfo = pallet_democracy::weights::SubstrateWeight<Runtime>;
+	type MaxProposals = MaxProposals;
+}
+
 impl orml_auction::Config for Runtime {
 	type Event = Event;
 	type Balance = Balance;
@@ -838,7 +904,7 @@ impl orml_vesting::Config for Runtime {
 
 parameter_types! {
 	pub MaximumSchedulerWeight: Weight = Perbill::from_percent(10) *
-	RuntimeBlockWeights::get().max_block;
+		RuntimeBlockWeights::get().max_block;
 	pub const MaxScheduledPerBlock: u32 = 50;
 }
 
@@ -1042,7 +1108,7 @@ impl module_cdp_treasury::Config for Runtime {
 	type Currency = Currencies;
 	type GetStableCurrencyId = GetStableCurrencyId;
 	type AuctionManagerHandler = AuctionManager;
-	type UpdateOrigin = EnsureRootOrHalfHonzonCouncil;
+	type UpdateOrigin = EnsureRootOrHalfFinancialCouncil;
 	type DEX = Dex;
 	type MaxAuctionsCount = MaxAuctionsCount;
 	type PalletId = CDPTreasuryPalletId;
@@ -1116,6 +1182,7 @@ impl module_incentives::Config for Runtime {
 parameter_types! {
 	pub const PolkadotBondingDuration: EraIndex = 7;
 	pub const EraLength: BlockNumber = DAYS;
+	pub const MaxUnbonding: u32 = 1000;
 }
 
 impl module_polkadot_bridge::Config for Runtime {
@@ -1124,6 +1191,7 @@ impl module_polkadot_bridge::Config for Runtime {
 	type BondingDuration = PolkadotBondingDuration;
 	type EraLength = EraLength;
 	type PolkadotAccountId = AccountId;
+	type MaxUnbonding = MaxUnbonding;
 }
 
 parameter_types! {
@@ -1229,11 +1297,36 @@ parameter_types! {
 	pub const MaxPending: u16 = 32;
 }
 
+/// The type used to represent the kinds of proxying allowed.
+#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Encode, Decode, RuntimeDebug, MaxEncodedLen)]
+pub enum ProxyType {
+	Any,
+	// TODO: update
+	CancelProxy,
+}
+impl Default for ProxyType {
+	fn default() -> Self {
+		Self::Any
+	}
+}
+impl InstanceFilter<Call> for ProxyType {
+	fn filter(&self, c: &Call) -> bool {
+		match self {
+			ProxyType::Any => true,
+			// TODO: update
+			ProxyType::CancelProxy => matches!(c, Call::Proxy(pallet_proxy::Call::reject_announcement(..))),
+		}
+	}
+	fn is_superset(&self, o: &Self) -> bool {
+		matches!((self, o), (ProxyType::Any, _))
+	}
+}
+
 impl pallet_proxy::Config for Runtime {
 	type Event = Event;
 	type Call = Call;
 	type Currency = Balances;
-	type ProxyType = ();
+	type ProxyType = ProxyType;
 	type ProxyDepositBase = ProxyDepositBase;
 	type ProxyDepositFactor = ProxyDepositFactor;
 	type MaxProxies = MaxProxies;
@@ -1526,8 +1619,8 @@ construct_runtime!(
 		// Governance
 		GeneralCouncil: pallet_collective::<Instance1>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 50,
 		GeneralCouncilMembership: pallet_membership::<Instance1>::{Pallet, Call, Storage, Event<T>, Config<T>} = 51,
-		HonzonCouncil: pallet_collective::<Instance2>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 52,
-		HonzonCouncilMembership: pallet_membership::<Instance2>::{Pallet, Call, Storage, Event<T>, Config<T>} = 53,
+		FinancialCouncil: pallet_collective::<Instance2>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 52,
+		FinancialCouncilMembership: pallet_membership::<Instance2>::{Pallet, Call, Storage, Event<T>, Config<T>} = 53,
 		HomaCouncil: pallet_collective::<Instance3>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 54,
 		HomaCouncilMembership: pallet_membership::<Instance3>::{Pallet, Call, Storage, Event<T>, Config<T>} = 55,
 		TechnicalCommittee: pallet_collective::<Instance4>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 56,
@@ -1535,6 +1628,7 @@ construct_runtime!(
 
 		Authority: orml_authority::{Pallet, Call, Event<T>, Origin<T>} = 70,
 		ElectionsPhragmen: pallet_elections_phragmen::{Pallet, Call, Storage, Event<T>} = 71,
+		Democracy: pallet_democracy::{Pallet, Call, Storage, Config<T>, Event<T>} = 72,
 
 		// Oracle
 		//
@@ -1598,11 +1692,6 @@ construct_runtime!(
 
 		// Dev
 		Sudo: pallet_sudo::{Pallet, Call, Config<T>, Storage, Event<T>} = 255,
-
-		// Not used or redundant
-		//Spambot: cumulus_ping::{Pallet, Call, Storage, Event<T>} = 60,
-		//XTokens: orml_xtokens::{Pallet, Storage, Call, Event<T>} = 61,
-		//UnknownTokens: orml_unknown_tokens::{Pallet, Storage, Event} = 62,
 	}
 );
 
@@ -1911,6 +2000,7 @@ impl_runtime_apis! {
 			// orml_add_benchmark!(params, batches, dex, benchmarking::dex);
 			// orml_add_benchmark!(params, batches, auction_manager, benchmarking::auction_manager);
 			// orml_add_benchmark!(params, batches, cdp_engine, benchmarking::cdp_engine);
+			// orml_add_benchmark!(params, batches, collator_selection, benchmarking::collator_selection);
 			// orml_add_benchmark!(params, batches, emergency_shutdown, benchmarking::emergency_shutdown);
 			// orml_add_benchmark!(params, batches, honzon, benchmarking::honzon);
 			// orml_add_benchmark!(params, batches, cdp_treasury, benchmarking::cdp_treasury);
@@ -1949,5 +2039,16 @@ mod tests {
 		}
 
 		is_submit_signed_transaction::<Runtime>();
+	}
+
+	#[test]
+	fn ensure_can_create_contract() {
+		// Ensure that the `ExistentialDeposit` for creating the contract >= account `ExistentialDeposit`.
+		// Otherwise, the creation of the contract account will fail because it is less than
+		// ExistentialDeposit.
+		assert!(
+			Balance::from(NewContractExtraBytes::get()) * StorageDepositPerByte::get()
+				>= NativeTokenExistentialDeposit::get()
+		);
 	}
 }

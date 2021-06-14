@@ -26,10 +26,11 @@ frame-system-rpc-runtime-api = { git = "https://github.com/paritytech/substrate"
 frame-try-runtime = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false, optional = true }
 
 pallet-aura = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false}
-pallet-authorship = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
+pallet-authorship = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false}
 pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 pallet-bounties = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 pallet-collective = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
+pallet-democracy = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features =false }
 pallet-elections-phragmen = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 pallet-indices = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 pallet-membership = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
@@ -46,6 +47,7 @@ pallet-transaction-payment = { git = "https://github.com/paritytech/substrate", 
 pallet-transaction-payment-rpc-runtime-api = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 pallet-treasury = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 pallet-utility = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
+max-encoded-len = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 
 sp-api = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 sp-application-crypto = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
@@ -125,10 +127,11 @@ module-support = { path = '../../ecosystem-pallets/aca/modules/support', default
 module-transaction-payment = { path = '../../ecosystem-pallets/aca/modules/transaction-payment', default-features = false }
 # ecosystem dependencies
 ecosystem-renvm-bridge = { path = "../../ecosystem-pallets/ren/renvm-bridge", default-features = false }
-
+ecosystem-chainsafe = { path = "../../ecosystem-pallets/chainsafe", default-features = false }
+chainbridge = { git = "https://github.com/AcalaNetwork/chainbridge-substrate", branch = "main", default-features = false }
 
 [build-dependencies]
-substrate-wasm-builder = "3.0.0"
+substrate-wasm-builder = "4.0.0"
 
 [dev-dependencies]
 sp-io = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4" }
@@ -153,9 +156,11 @@ std = [
 	"frame-try-runtime/std",
 
 	"pallet-aura/std",
+	"pallet-authorship/std",
 	"pallet-balances/std",
 	"pallet-bounties/std",
 	"pallet-collective/std",
+	"pallet-democracy/std",
 	"pallet-elections-phragmen/std",
 	"pallet-indices/std",
 	"pallet-membership/std",
@@ -184,6 +189,8 @@ std = [
  	"sp-std/std",
 	"sp-transaction-pool/std",
 	"sp-version/std",
+	"pallet-bounties/std",
+	"pallet-tips/std",
 
 	"cumulus-pallet-parachain-system/std",
 	"cumulus-primitives-core/std",
@@ -241,6 +248,8 @@ std = [
 
  	"module-evm-rpc-runtime-api/std",
 	"ecosystem-renvm-bridge/std",
+	"ecosystem-chainsafe/std",
+	"chainbridge/std",
 
 ]
 
@@ -254,6 +263,7 @@ runtime-benchmarks = [
 	"pallet-collective/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 	"orml-authority/runtime-benchmarks",
+	"chainbridge/runtime-benchmarks",
 
 	"orml-vesting/runtime-benchmarks",
 	"orml-tokens/runtime-benchmarks",
@@ -285,6 +295,7 @@ try-runtime = [
 	"pallet-balances/try-runtime",
 	"pallet-bounties/try-runtime",
 	"pallet-collective/try-runtime",
+	"pallet-democracy/try-runtime",
 	"pallet-elections-phragmen/try-runtime",
 	"pallet-indices/try-runtime",
 	"pallet-membership/try-runtime",
@@ -333,5 +344,5 @@ try-runtime = [
 	"module-polkadot-bridge/try-runtime",
 
 	"ecosystem-renvm-bridge/try-runtime",
-##	"ecosystem-chainsafe/try-runtime",
+	"ecosystem-chainsafe/try-runtime",
 ]

@@ -10,6 +10,7 @@ num_enum = { version = "0.5.1", default-features = false }
 
 serde = { version = "1.0.124", optional = true, default-features = false }
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false }
+max-encoded-len = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 sp-std = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 sp-core = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
@@ -36,6 +37,7 @@ pallet-timestamp = { git = "https://github.com/paritytech/substrate", branch = "
 pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 pallet-proxy = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
 pallet-utility = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
+eave-service = {  path = "../../bin/service" }
 orml-tokens = { path = "../../ecosystem-pallets/orml/tokens" }
 orml-nft = { path = "../../ecosystem-pallets/orml/nft" }
 module-currencies = { path = "../../ecosystem-pallets/aca/modules/currencies" }
