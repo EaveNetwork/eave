@@ -1,3 +1,6 @@
+## TODO uodate this to build the correct paracahin files 
+## TODO the parachain ID is now reserved via the polkadot explorer before building these files.
+
 cargo build --release
 ./target/release/eave build-spec --disable-default-bootnode > ./resources/steam-local-plain.json
 ./target/release/eave build-spec --chain=./resources/steam-local-plain.json --raw --disable-default-bootnode > ./resources/steam-local.json
