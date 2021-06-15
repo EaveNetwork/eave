@@ -22,6 +22,10 @@ build: githooks
 build-full: githooks
 	cargo build --features with-steam-runtime
 
+.PHONY: build-steam
+build-full: githooks
+	cargo build --features with-steam-runtime --release
+
 .PHONY: build-all
 build-all:
 	cargo build --locked --features with-all-runtime
