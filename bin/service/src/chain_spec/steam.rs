@@ -297,7 +297,7 @@ fn testnet_genesis(
 	use steam_runtime::{
 		dollar, get_all_module_accounts, AirDropConfig, Balance, BalancesConfig, CdpEngineConfig, CdpTreasuryConfig,
 		CollatorSelectionConfig, DexConfig, EVMConfig, EnabledTradingPairs, GeneralCouncilMembershipConfig,
-		HomaCouncilMembershipConfig, HonzonCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit,
+		HomaCouncilMembershipConfig, FinancialCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit,
 		OperatorMembershipEaveConfig, OperatorMembershipBandConfig, OrmlNFTConfig, ParachainInfoConfig,
 		RenVmBridgeConfig, SessionConfig, SessionKeys, StakingPoolConfig, SudoConfig, SystemConfig,
 		TechnicalCommitteeMembershipConfig, TokensConfig, TradingPair, VestingConfig, EAVE, EUSD, DOT, LDOT, RENBTC, 
@@ -352,7 +352,7 @@ fn testnet_genesis(
 			phantom: Default::default(),
 		},
 		pallet_collective_Instance2: Default::default(),
-		pallet_membership_Instance2: HonzonCouncilMembershipConfig {
+		pallet_membership_Instance2: FinancialCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
@@ -374,9 +374,10 @@ fn testnet_genesis(
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
+		pallet_democracy: Default::default(),
 		pallet_treasury: Default::default(),
 		orml_tokens: TokensConfig {
-			endowed_accounts: endowed_accounts.clone()
+			balances: endowed_accounts
 				.iter()
 				.flat_map(|x| vec![(x.clone(), DOT, initial_balance), (x.clone(), EUSD, initial_balance)])
 				.collect(),
@@ -487,7 +488,7 @@ fn steam_genesis(
 	use steam_runtime::{
 		cent, dollar, get_all_module_accounts, AirDropConfig, AirDropCurrencyId, Balance, BalancesConfig,
 		CdpEngineConfig, CdpTreasuryConfig, CollatorSelectionConfig, DexConfig, EVMConfig, EnabledTradingPairs,
-		GeneralCouncilMembershipConfig, HomaCouncilMembershipConfig, HonzonCouncilMembershipConfig, IndicesConfig,
+		GeneralCouncilMembershipConfig, HomaCouncilMembershipConfig, FinancialCouncilMembershipConfig, IndicesConfig,
 		NativeTokenExistentialDeposit, OperatorMembershipEaveConfig, OperatorMembershipBandConfig, OrmlNFTConfig,
 		ParachainInfoConfig, RenVmBridgeConfig, SessionConfig, SessionKeys, StakingPoolConfig, SudoConfig,
 		SystemConfig, TechnicalCommitteeMembershipConfig, TokensConfig, UnreleasedNativeVaultAccountId, VestingConfig,
@@ -545,7 +546,7 @@ fn steam_genesis(
 			phantom: Default::default(),
 		},
 		pallet_collective_Instance2: Default::default(),
-		pallet_membership_Instance2: HonzonCouncilMembershipConfig {
+		pallet_membership_Instance2: FinancialCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
@@ -567,11 +568,10 @@ fn steam_genesis(
 			members: endowed_accounts.clone(),
 			phantom: Default::default(),
 		},
+		pallet_democracy: Default::default(),
 		pallet_treasury: Default::default(),
 		orml_tokens: TokensConfig {
-			endowed_accounts: vec![
-				(root_key.clone(), DOT, initial_balance),
-			],
+			balances: vec![(root_key.clone(), DOT, initial_balance)],
 		},
 		orml_vesting: VestingConfig { vesting: vec![] },
 	    module_cdp_treasury: CdpTreasuryConfig {

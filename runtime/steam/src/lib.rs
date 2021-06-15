@@ -40,7 +40,7 @@ pub use frame_support::{
 	construct_runtime, log, parameter_types,
 	traits::{
 		ContainsLengthBound, EnsureOrigin, Filter, Get, InstanceFilter, IsType, KeyOwnerProofSystem, LockIdentifier,
-		MaxEncodedLen, Randomness, SortedMembers, U128CurrencyToVote, WithdrawReasons,,
+		MaxEncodedLen, Randomness, SortedMembers, U128CurrencyToVote, WithdrawReasons,
 	},
 	weights::{
 		constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_PER_SECOND},
@@ -422,7 +422,7 @@ parameter_types! {
 }
 
 type FinancialCouncilInstance = pallet_collective::Instance2;
-impl pallet_collective::Config<HonzonCouncilInstance> for Runtime {
+impl pallet_collective::Config<FinancialCouncilInstance> for Runtime {
 	type Origin = Origin;
 	type Proposal = Call;
 	type Event = Event;
@@ -441,9 +441,9 @@ impl pallet_membership::Config<HonzonCouncilMembershipInstance> for Runtime {
 	type SwapOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type ResetOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
 	type PrimeOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
-	type MembershipInitialized = HonzonCouncil;
-	type MembershipChanged = HonzonCouncil;
-	type MaxMembers = HonzonCouncilMaxMembers;
+	type MembershipInitialized = FinancialCouncil;
+	type MembershipChanged = FinancialCouncil;
+	type MaxMembers = FinancialCouncilMaxMembers;
 	type WeightInfo = ();
 }
 
@@ -669,7 +669,7 @@ parameter_types! {
 	pub const LaunchPeriod: BlockNumber = 20 * MINUTES;
 	pub const VotingPeriod: BlockNumber = 10 * MINUTES;
 	pub const FastTrackVotingPeriod: BlockNumber = 10 * MINUTES;
-	pub MinimumDeposit: Balance = 100 * cent(ACA);
+	pub MinimumDeposit: Balance = 100 * cent(EAVE);
 	pub const EnactmentPeriod: BlockNumber = MINUTES;
 	pub const CooloffPeriod: BlockNumber = MINUTES;
 	pub PreimageByteDeposit: Balance = 10 * millicent(EAVE);

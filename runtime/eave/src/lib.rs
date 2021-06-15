@@ -168,7 +168,7 @@ pub fn get_all_module_accounts() -> Vec<AccountId> {
 		HonzonTreasuryPalletId::get().into_account(),
 		HomaTreasuryPalletId::get().into_account(),
 		IncentivesPalletId::get().into_account(),
-		DSWFPalletId::get().into_account(),
+		TreasuryReservePalletId::get().into_account(),
 		ZeroAccountId::get(),
 	]
 }
@@ -419,7 +419,7 @@ impl pallet_collective::Config<FinancialCouncilInstance> for Runtime {
 	type WeightInfo = ();
 }
 
-type FinanicalCouncilMembershipInstance = pallet_membership::Instance2;
+type FinancialCouncilMembershipInstance = pallet_membership::Instance2;
 impl pallet_membership::Config<FinancialCouncilMembershipInstance> for Runtime {
 	type Event = Event;
 	type AddOrigin = EnsureRootOrTwoThirdsGeneralCouncil;
@@ -1046,7 +1046,7 @@ impl module_cdp_engine::Config for Runtime {
 	type MinimumDebitValue = MinimumDebitValue;
 	type GetStableCurrencyId = GetStableCurrencyId;
 	type CDPTreasury = CdpTreasury;
-	type UpdateOrigin = EnsureRootOrHalfHonzonCouncil;
+	type UpdateOrigin = EnsureRootOrHalfFinancialCouncil;
 	type MaxSlippageSwapWithDEX = MaxSlippageSwapWithDEX;
 	type UnsignedPriority = eave_runtime_common::CdpEngineUnsignedPriority;
 	type EmergencyShutdown = EmergencyShutdown;

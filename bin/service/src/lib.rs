@@ -434,7 +434,6 @@ where
 {
 	start_node_impl(
 		parachain_config,
-		collator_key,
 		polkadot_config,
 		id,
 		|_| Default::default(),
