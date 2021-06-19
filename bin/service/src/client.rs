@@ -235,7 +235,16 @@ impl sc_client_api::BlockBackend<Block> for Client {
 			#[cfg(feature = "with-steam-runtime")]
 			Self::Steam(client) => client.has_indexed_transaction(hash),
 			#[cfg(feature = "with-eave-runtime")]
-			Self::Karura(client) => client.has_indexed_transaction(hash),
+			Self::Eave(client) => client.has_indexed_transaction(hash),
+		}
+	}
+
+	fn block_indexed_body(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<Vec<Vec<u8>>>> {
+		match self {
+			#[cfg(feature = "with-steam-runtime")]
+			Self::Steam(client) => client.block_indexed_body(id),
+			#[cfg(feature = "with-eave-runtime")]
+			Self::Eave(client) => client.block_indexed_body(id),
 		}
 	}
 }

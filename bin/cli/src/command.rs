@@ -73,15 +73,19 @@ impl SubstrateCli for Cli {
 
 		Ok(match id {
 			#[cfg(feature = "with-steam-runtime")]
-			"dev" => Box::new(chain_spec::steam::development_testnet_config()?),
+			"dev" => Box::new(chain_spec::steam::dev_testnet_config()?),
+			#[cfg(feature = "with-mandala-runtime")]
+			"pc-dev" => Box::new(chain_spec::mandala::parachain_dev_testnet_config()?),
 			//Steam Local 
 			#[cfg(feature = "with-steam-runtime")]
-			"steam-local" => Box::new(chain_spec::steam::steam_local_config()?),
+			"steam-local" => Box::new(chain_spec::steam::local_testnet_config()?),
+			//Steam Parachain on Rococo
 			#[cfg(feature = "with-steam-runtime")]
-			"steam" => Box::new(chain_spec::steam::steam_config()?),
+			"steam" => Box::new(chain_spec::steam::steam_testnet_config()?),
 			//Steam Rococo Latest 
 			#[cfg(feature = "with-steam-runtime")]
-			"steam-latest" => Box::new(chain_spec::steam::steam_latest_config()?),
+			"steam-latest" => Box::new(chain_spec::steam::latest_steam_testnet_config()?),
+			// Placeholders for EAVE builds
 			#[cfg(feature = "with-eave-runtime")]
 			"eave" => Box::new(chain_spec::eave::eave_config()?),
 			#[cfg(feature = "with-eave-runtime")]

@@ -112,7 +112,7 @@ pub enum AuthoritysOriginId {
 	EaveTreasury,
 	HonzonTreasury,
 	HomaTreasury,
-	DSWF,
+	TreasuryReserve,
 }
 
 #[derive(Encode, Decode, Eq, PartialEq, Copy, Clone, RuntimeDebug, PartialOrd, Ord)]

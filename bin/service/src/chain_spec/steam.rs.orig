@@ -43,17 +43,9 @@ pub type ChainSpec = sc_service::GenericChainSpec<steam_runtime::GenesisConfig, 
 
 pub const PARA_ID: u32 = 2000;
 
-/// Development testnet config (single validator Alice), non-parachain
-pub fn dev_testnet_config() -> Result<ChainSpec, String> {
-	dev_testnet_config_from_chain_id("steam-dev")
-}
-
-/// Parachain development testnet config (single collator Alice)
-pub fn parachain_dev_testnet_config() -> Result<ChainSpec, String> {
-	dev_testnet_config_from_chain_id("steam-pc-dev")
-}
-
-fn dev_testnet_config_from_chain_id(chain_id: &str) -> Result<ChainSpec, String> {
+/// Used for Steam Local
+// TODO remove or replace with testnet config
+pub fn steam_local_config() -> Result<ChainSpec, String> {
 	let mut properties = Map::new();
 	let mut token_symbol: Vec<String> = vec![];
 	let mut token_decimals: Vec<u32> = vec![];
@@ -64,78 +56,36 @@ fn dev_testnet_config_from_chain_id(chain_id: &str) -> Result<ChainSpec, String>
 	properties.insert("tokenSymbol".into(), token_symbol.into());
 	properties.insert("tokenDecimals".into(), token_decimals.into());
 
-	let wasm_binary = steam_runtime::WASM_BINARY.unwrap_or_default();
+	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Steam runtime wasm binary not available")?;
 
 	Ok(ChainSpec::from_genesis(
-		"Steam Dev",
-		chain_id,
-		ChainType::Development,
-		move || {
-			testnet_genesis(
-				wasm_binary,
-				// Initial PoA authorities
-				vec![get_authority_keys_from_seed("Alice")],
-				// Sudo account
-				get_account_id_from_seed::<sr25519::Public>("Alice"),
-				// Pre-funded accounts
-				vec![
-					get_account_id_from_seed::<sr25519::Public>("Alice"),
-					get_account_id_from_seed::<sr25519::Public>("Bob"),
-					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-				],
-			)
-		},
-		vec![],
-		None,
-		None,
-		Some(properties),
-		Extensions {
-			relay_chain: "rococo-local".into(),
-			para_id: PARA_ID,
-		},
-	))
-}
-
-/// Local testnet config (multivalidator Alice + Bob)
-pub fn local_testnet_config() -> Result<ChainSpec, String> {
-	let mut properties = Map::new();
-	let mut token_symbol: Vec<String> = vec![];
-	let mut token_decimals: Vec<u32> = vec![];
-	TokenSymbol::get_info().iter().for_each(|(symbol_name, decimals)| {
-		token_symbol.push(symbol_name.to_string());
-		token_decimals.push(*decimals);
-	});
-	properties.insert("tokenSymbol".into(), token_symbol.into());
-	properties.insert("tokenDecimals".into(), token_decimals.into());
-
-	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Dev runtime wasm binary not available")?;
-
-	Ok(ChainSpec::from_genesis(
-		"Local",
-		"local",
+		"Steam Local PC",
+		"steam-local-pc",
 		ChainType::Local,
 		move || {
-			testnet_genesis(
+			steam_genesis(
 				wasm_binary,
+				// Initial PoA authorities sr25519,sr25519,GrandpaId (ed25519 AccountId), BabeId (sr25519 AccountId)
 				vec![
-					get_authority_keys_from_seed("Alice"),
-					get_authority_keys_from_seed("Bob"),
+					(
+						// 5HpztiEG3Wj2fjZZZwBxPcM8KSN9GL2F9aT7YJPm7LLJnMXx - Alioth Validator
+						hex!["0ef54f8bd61a2f17626e8cb4a402821de3e5d49235415526b4a3770e9d6c2a55"].into(),
+						hex!["fef54f8bd61a2f17626e8cb4a402821de3e5d49235415526b4a3770e9d6c2a55"].into(),
+						// 0x6ad519e3c57e44421df2b39849a9927046bf7be1d801f3e36f7ac50fca569c4a - Alioth ed25519 AccountId
+						hex!["6ad519e3c57e44421df2b39849a9927046bf7be1d801f3e36f7ac50fca569c4a"].unchecked_into(),
+						// 0xfef54f8bd61a2f17626e8cb4a402821de3e5d49235415526b4a3770e9d6c2a55 - Alioth sr25519 AccountId
+						hex!["fef54f8bd61a2f17626e8cb4a402821de3e5d49235415526b4a3770e9d6c2a55"].unchecked_into(),
+					),
 				],
-				get_account_id_from_seed::<sr25519::Public>("Alice"),
+				// Sudo Acccount
+				// 5Do24fmH4Md2VuUTVkQfjMg3Zw2AJHzEVTKWsJQcXGe2uVv3 - EAVE Test Account 1
+				hex!["4c81d490f0298aedc49279cbeb4ce4f44b5f18dccabb15ea6466976f188fb928"].into(),
+				// Endowed Accounts
 				vec![
-					get_account_id_from_seed::<sr25519::Public>("Alice"),
-					get_account_id_from_seed::<sr25519::Public>("Bob"),
-					get_account_id_from_seed::<sr25519::Public>("Charlie"),
-					get_account_id_from_seed::<sr25519::Public>("Dave"),
-					get_account_id_from_seed::<sr25519::Public>("Eve"),
-					get_account_id_from_seed::<sr25519::Public>("Ferdie"),
-					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
-					get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+					// 5FZYvTuhSNTjzsQBwnEFZGUegdoofmhpuSCigTy9ruUdb5kv - EAVE Foundation
+					hex!["9ab4bd9ec0c0a40fad32077e19ac3a5f6120da0214f02d79f79aefb96a55d74f"].into(),
+					// 5Gea9QJbhAKWkZ17S6TmbwSEyvaiaftT5xrNMwXzqzN7k3XP - EAVE Test Account 1
+					hex!["4c81d490f0298aedc49279cbeb4ce4f44b5f18dccabb15ea6466976f188fb928"].into(),
 				],
 			)
 		},
@@ -150,7 +100,9 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 	))
 }
 
-pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
+/// Used for Steam Rococo (build stable from here)
+// This is similar to  mandala.rs latest_mandala_testnet_config
+pub fn steam_latest_config() -> Result<ChainSpec, String> {
 	let mut properties = Map::new();
 	let mut token_symbol: Vec<String> = vec![];
 	let mut token_decimals: Vec<u32> = vec![];
@@ -166,7 +118,7 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 	Ok(ChainSpec::from_genesis(
 		"Steam PC",
 		"steam-pc",
-		ChainType::Live,
+		ChainType::Development,
 		// SECRET="..."
 		// ./target/debug/subkey inspect "$SECRET//eave//root"
 		// ./target/debug/subkey --sr25519 inspect "$SECRET//eave//oracle"
@@ -182,6 +134,7 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 		move || {
 			steam_genesis(
 				wasm_binary,
+				// Initial PoA authorities sr25519,sr25519,GrandpaId (ed25519 AccountId), BabeId (sr25519 AccountId)
 				vec![
 					(
 						// 5HpztiEG3Wj2fjZZZwBxPcM8KSN9GL2F9aT7YJPm7LLJnMXx - Alioth Validator
@@ -221,8 +174,116 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 }
 
 /// Used for Steam - Sourced from steam-stable.json file for Rococo 
+pub fn steam_config() -> Result<ChainSpec, String> {
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../resources/steam-stable.json")[..])
+}
+
+/// Development testnet config (single validator Alice)
+pub fn development_testnet_config() -> Result<ChainSpec, String> {
+	let mut properties = Map::new();
+	let mut token_symbol: Vec<String> = vec![];
+	let mut token_decimals: Vec<u32> = vec![];
+	TokenSymbol::get_info().iter().for_each(|(symbol_name, decimals)| {
+		token_symbol.push(symbol_name.to_string());
+		token_decimals.push(*decimals);
+	});
+	properties.insert("tokenSymbol".into(), token_symbol.into());
+	properties.insert("tokenDecimals".into(), token_decimals.into());
+
+	let wasm_binary = steam_runtime::WASM_BINARY.unwrap_or_default();
+
+	Ok(ChainSpec::from_genesis(
+		"Beast Developer",
+		"beast-dev",
+		ChainType::Development,
+		move || {
+			testnet_genesis(
+				wasm_binary,
+				// Initial PoA authorities
+				vec![get_authority_keys_from_seed("Alice")],
+				// Sudo account
+				get_account_id_from_seed::<sr25519::Public>("Alice"),
+				// Pre-funded accounts
+				vec![
+					get_account_id_from_seed::<sr25519::Public>("Alice"),
+					get_account_id_from_seed::<sr25519::Public>("Bob"),
+					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+				],
+			)
+		},
+		vec![],
+		None,
+		None,
+		Some(properties),
+		Extensions {
+			relay_chain: "rococo".into(),
+			para_id: PARA_ID,
+		},
+	))
+}
+
+/// Local relay chain config (multivalidator Alice + Bob)
+// TODO currently steam-local connects to Rococo and this is just for a local parachain
+// TODO need to work out whether we need a two validator local test chain
+// TODO if so then are steam and noria the same all generated here or do we create
+// TODO a new chainspec specifically for noria
+// TODO we will also need to create a chainspec for ICE.
+pub fn local_testnet_config() -> Result<ChainSpec, String> {
+	let mut properties = Map::new();
+	let mut token_symbol: Vec<String> = vec![];
+	let mut token_decimals: Vec<u32> = vec![];
+	TokenSymbol::get_info().iter().for_each(|(symbol_name, decimals)| {
+		token_symbol.push(symbol_name.to_string());
+		token_decimals.push(*decimals);
+	});
+	properties.insert("tokenSymbol".into(), token_symbol.into());
+	properties.insert("tokenDecimals".into(), token_decimals.into());
+
+	let wasm_binary = steam_runtime::WASM_BINARY.ok_or("Dev runtime wasm binary not available")?;
+
+	Ok(ChainSpec::from_genesis(
+		"Aqua Local",
+		"aqua-local",
+		ChainType::Local,
+		move || {
+			testnet_genesis(
+				wasm_binary,
+				vec![
+					get_authority_keys_from_seed("Alice"),
+					get_authority_keys_from_seed("Bob"),
+				],
+				get_account_id_from_seed::<sr25519::Public>("Alice"),
+				vec![
+					get_account_id_from_seed::<sr25519::Public>("Alice"),
+					get_account_id_from_seed::<sr25519::Public>("Bob"),
+					get_account_id_from_seed::<sr25519::Public>("Charlie"),
+					get_account_id_from_seed::<sr25519::Public>("Dave"),
+					get_account_id_from_seed::<sr25519::Public>("Eve"),
+					get_account_id_from_seed::<sr25519::Public>("Ferdie"),
+					get_account_id_from_seed::<sr25519::Public>("Alice//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Bob//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Charlie//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Dave//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Eve//stash"),
+					get_account_id_from_seed::<sr25519::Public>("Ferdie//stash"),
+				],
+			)
+		},
+		vec![],
+		None,
+		None,
+		Some(properties),
+		Extensions {
+			relay_chain: "rococo".into(),
+			para_id: PARA_ID,
+		},
+	))
+}
+
+/// Sourced from json file for Rococo - will be used for Standalone Testnet Beast
 pub fn steam_testnet_config() -> Result<ChainSpec, String> {
-	ChainSpec::from_json_bytes(&include_bytes!("../../../../resources/steam-dist.json")[..])
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../resources/steam-stable.json")[..])
 }
 
 fn testnet_genesis(
@@ -233,11 +294,11 @@ fn testnet_genesis(
 ) -> steam_runtime::GenesisConfig {
 	use steam_runtime::{
 		dollar, get_all_module_accounts, AirDropConfig, Balance, BalancesConfig, CdpEngineConfig, CdpTreasuryConfig,
-		CollatorSelectionConfig, DexConfig, EVMConfig, EnabledTradingPairs, FinancialCouncilMembershipConfig,
-		GeneralCouncilMembershipConfig, HomaCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit,
+		CollatorSelectionConfig, DexConfig, EVMConfig, EnabledTradingPairs, GeneralCouncilMembershipConfig,
+		HomaCouncilMembershipConfig, FinancialCouncilMembershipConfig, IndicesConfig, NativeTokenExistentialDeposit,
 		OperatorMembershipEaveConfig, OperatorMembershipBandConfig, OrmlNFTConfig, ParachainInfoConfig,
 		RenVmBridgeConfig, SessionConfig, SessionKeys, StakingPoolConfig, SudoConfig, SystemConfig,
-		TechnicalCommitteeMembershipConfig, TokensConfig, TradingPair, VestingConfig, EAVE, EUSD, DOT, LDOT, RENBTC,
+		TechnicalCommitteeMembershipConfig, TokensConfig, TradingPair, VestingConfig, EAVE, EUSD, DOT, LDOT, RENBTC, 
 	};
 	#[cfg(feature = "std")]
 	use sp_std::collections::btree_map::BTreeMap;
@@ -275,62 +336,62 @@ fn testnet_genesis(
 		.collect::<Vec<(AccountId, Balance)>>();
 
 	steam_runtime::GenesisConfig {
-		system: SystemConfig {
+		frame_system: SystemConfig {
 			// Add Wasm runtime to storage.
 			code: wasm_binary.to_vec(),
 			changes_trie_config: Default::default(),
 		},
-		indices: IndicesConfig { indices: vec![] },
-		balances: BalancesConfig { balances },
-		sudo: SudoConfig { key: root_key.clone() },
-		general_council: Default::default(),
-		general_council_membership: GeneralCouncilMembershipConfig {
+		pallet_indices: IndicesConfig { indices: vec![] },
+		pallet_balances: BalancesConfig { balances },
+		pallet_sudo: SudoConfig { key: root_key.clone() },
+		pallet_collective_Instance1: Default::default(),
+		pallet_membership_Instance1: GeneralCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
-		financial_council: Default::default(),
-		financial_council_membership: FinancialCouncilMembershipConfig {
+		pallet_collective_Instance2: Default::default(),
+		pallet_membership_Instance2: FinancialCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
-		homa_council: Default::default(),
-		homa_council_membership: HomaCouncilMembershipConfig {
+		pallet_collective_Instance3: Default::default(),
+		pallet_membership_Instance3: HomaCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
-		technical_committee: Default::default(),
-		technical_committee_membership: TechnicalCommitteeMembershipConfig {
+		pallet_collective_Instance4: Default::default(),
+		pallet_membership_Instance4: TechnicalCommitteeMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
-		operator_membership_eave: OperatorMembershipEaveConfig {
+		pallet_membership_Instance5: OperatorMembershipEaveConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
-		operator_membership_band: OperatorMembershipBandConfig {
+		pallet_membership_Instance6: OperatorMembershipBandConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
-		democracy: Default::default(),
-		eave_treasury: Default::default(),
-		tokens: TokensConfig {
+		pallet_democracy: Default::default(),
+		pallet_treasury: Default::default(),
+		orml_tokens: TokensConfig {
 			balances: endowed_accounts
 				.iter()
 				.flat_map(|x| vec![(x.clone(), DOT, initial_balance), (x.clone(), EUSD, initial_balance)])
 				.collect(),
 		},
-		vesting: VestingConfig { vesting: vec![] },
-		cdp_treasury: CdpTreasuryConfig {
+		orml_vesting: VestingConfig { vesting: vec![] },
+		module_cdp_treasury: CdpTreasuryConfig {
 			expected_collateral_auction_size: vec![
 				(DOT, dollar(DOT)), // (currency_id, max size of a collateral auction)
 				(RENBTC, dollar(RENBTC)),
 			],
 		},
-		cdp_engine: CdpEngineConfig {
+		module_cdp_engine: CdpEngineConfig {
 			collaterals_params: vec![
 				(
 					DOT,
-					Some(FixedU128::zero()),                             // interest rate per sec for this collateral
+					Some(FixedU128::zero()),                             // stability fee for this collateral
 					Some(FixedU128::saturating_from_rational(150, 100)), // liquidation ratio
 					Some(FixedU128::saturating_from_rational(10, 100)),  // liquidation penalty rate
 					Some(FixedU128::saturating_from_rational(150, 100)), // required liquidation ratio
@@ -358,14 +419,14 @@ fn testnet_genesis(
 				1_000_000_000_000_000_000u128,
 			), /* 5% APR */
 		},
-		air_drop: AirDropConfig {
+		module_airdrop: AirDropConfig {
 			airdrop_accounts: vec![],
 		},
-		evm: EVMConfig {
+		module_evm: EVMConfig {
 			accounts: evm_genesis_accounts,
 			treasury: root_key,
 		},
-		staking_pool: StakingPoolConfig {
+		module_staking_pool: StakingPoolConfig {
 			staking_pool_params: module_staking_pool::Params {
 				target_max_free_unbonded_ratio: FixedU128::saturating_from_rational(10, 100),
 				target_min_free_unbonded_ratio: FixedU128::saturating_from_rational(5, 100),
@@ -374,7 +435,7 @@ fn testnet_genesis(
 				base_fee_rate: FixedU128::saturating_from_rational(2, 100),
 			},
 		},
-		dex: DexConfig {
+		module_dex: DexConfig {
 			initial_listing_trading_pairs: vec![],
 			initial_enabled_trading_pairs: EnabledTradingPairs::get(),
 			initial_added_liquidity_pools: vec![(
@@ -388,16 +449,16 @@ fn testnet_genesis(
 		parachain_info: ParachainInfoConfig {
 			parachain_id: PARA_ID.into(),
 		},
-		ren_vm_bridge: RenVmBridgeConfig {
+		ecosystem_renvm_bridge: RenVmBridgeConfig {
 			ren_vm_public_key: hex!["4b939fc8ade87cb50b78987b1dda927460dc456a"],
 		},
 		orml_nft: OrmlNFTConfig { tokens: vec![] },
-		collator_selection: CollatorSelectionConfig {
+		module_collator_selection: CollatorSelectionConfig {
 			invulnerables: initial_authorities.iter().cloned().map(|(acc, _, _, _)| acc).collect(),
 			candidacy_bond: initial_staking,
 			..Default::default()
 		},
-		session: SessionConfig {
+		pallet_session: SessionConfig {
 			keys: initial_authorities
 				.iter()
 				.cloned()
@@ -427,11 +488,11 @@ fn steam_genesis(
 	use steam_runtime::{
 		cent, dollar, get_all_module_accounts, AirDropConfig, AirDropCurrencyId, Balance, BalancesConfig,
 		CdpEngineConfig, CdpTreasuryConfig, CollatorSelectionConfig, DexConfig, EVMConfig, EnabledTradingPairs,
-		FinancialCouncilMembershipConfig, GeneralCouncilMembershipConfig, HomaCouncilMembershipConfig, IndicesConfig,
+		GeneralCouncilMembershipConfig, HomaCouncilMembershipConfig, FinancialCouncilMembershipConfig, IndicesConfig,
 		NativeTokenExistentialDeposit, OperatorMembershipEaveConfig, OperatorMembershipBandConfig, OrmlNFTConfig,
 		ParachainInfoConfig, RenVmBridgeConfig, SessionConfig, SessionKeys, StakingPoolConfig, SudoConfig,
 		SystemConfig, TechnicalCommitteeMembershipConfig, TokensConfig, UnreleasedNativeVaultAccountId, VestingConfig,
-		EAVE, EUSD, DOT, LDOT, RENBTC,
+		EAVE, EUSD, DOT, LDOT, RENBTC, 
 	};
 	#[cfg(feature = "std")]
 	use sp_std::collections::btree_map::BTreeMap;
@@ -472,59 +533,59 @@ fn steam_genesis(
 		.collect::<Vec<(AccountId, Balance)>>();
 
 	steam_runtime::GenesisConfig {
-		system: SystemConfig {
+		frame_system: SystemConfig {
 			// Add Wasm runtime to storage.
 			code: wasm_binary.to_vec(),
 			changes_trie_config: Default::default(),
 		},
-		indices: IndicesConfig { indices: vec![] },
-		balances: BalancesConfig { balances },
-		sudo: SudoConfig { key: root_key.clone() },
-		general_council: Default::default(),
-		general_council_membership: GeneralCouncilMembershipConfig {
+		pallet_indices: IndicesConfig { indices: vec![] },
+		pallet_balances: BalancesConfig { balances },
+		pallet_sudo: SudoConfig { key: root_key.clone() },
+		pallet_collective_Instance1: Default::default(),
+		pallet_membership_Instance1: GeneralCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
-		financial_council: Default::default(),
-		financial_council_membership: FinancialCouncilMembershipConfig {
+		pallet_collective_Instance2: Default::default(),
+		pallet_membership_Instance2: FinancialCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
-		homa_council: Default::default(),
-		homa_council_membership: HomaCouncilMembershipConfig {
+		pallet_collective_Instance3: Default::default(),
+		pallet_membership_Instance3: HomaCouncilMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
-		technical_committee: Default::default(),
-		technical_committee_membership: TechnicalCommitteeMembershipConfig {
+		pallet_collective_Instance4: Default::default(),
+		pallet_membership_Instance4: TechnicalCommitteeMembershipConfig {
 			members: vec![root_key.clone()],
 			phantom: Default::default(),
 		},
-		operator_membership_eave: OperatorMembershipEaveConfig {
+		pallet_membership_Instance5: OperatorMembershipEaveConfig {
 			members: endowed_accounts.clone(),
 			phantom: Default::default(),
 		},
-		operator_membership_band: OperatorMembershipBandConfig {
-			members: endowed_accounts,
+		pallet_membership_Instance6: OperatorMembershipBandConfig {
+			members: endowed_accounts.clone(),
 			phantom: Default::default(),
 		},
-		democracy: Default::default(),
-		eave_treasury: Default::default(),
-		tokens: TokensConfig {
+		pallet_democracy: Default::default(),
+		pallet_treasury: Default::default(),
+		orml_tokens: TokensConfig {
 			balances: vec![(root_key.clone(), DOT, initial_balance)],
 		},
-		vesting: VestingConfig { vesting: vec![] },
-		cdp_treasury: CdpTreasuryConfig {
+		orml_vesting: VestingConfig { vesting: vec![] },
+	    module_cdp_treasury: CdpTreasuryConfig {
 			expected_collateral_auction_size: vec![
 				(DOT, dollar(DOT)), // (currency_id, max size of a collateral auction)
 				(RENBTC, 5 * cent(RENBTC)),
 			],
 		},
-		cdp_engine: CdpEngineConfig {
+		module_cdp_engine: CdpEngineConfig {
 			collaterals_params: vec![
 				(
 					DOT,
-					Some(FixedU128::zero()),                             // interest rate per sec for this collateral
+					Some(FixedU128::zero()),                             // stability fee for this collateral
 					Some(FixedU128::saturating_from_rational(105, 100)), // liquidation ratio
 					Some(FixedU128::saturating_from_rational(3, 100)),   // liquidation penalty rate
 					Some(FixedU128::saturating_from_rational(110, 100)), // required liquidation ratio
@@ -552,7 +613,7 @@ fn steam_genesis(
 				1_000_000_000_000_000_000u128,
 			), /* 5% APR */
 		},
-		air_drop: AirDropConfig {
+		module_airdrop: AirDropConfig {
 			airdrop_accounts: {
 				let eave_airdrop_accounts_json = &include_bytes!("../../../../resources/steam-airdrop-EAVE.json")[..];
 				let eave_airdrop_accounts: Vec<(AccountId, Balance)> =
@@ -572,11 +633,11 @@ fn steam_genesis(
 					.collect::<Vec<_>>()
 			},
 		},
-		evm: EVMConfig {
+		module_evm: EVMConfig {
 			accounts: evm_genesis_accounts,
 			treasury: root_key,
 		},
-		staking_pool: StakingPoolConfig {
+		module_staking_pool: StakingPoolConfig {
 			staking_pool_params: module_staking_pool::Params {
 				target_max_free_unbonded_ratio: FixedU128::saturating_from_rational(10, 100),
 				target_min_free_unbonded_ratio: FixedU128::saturating_from_rational(5, 100),
@@ -585,7 +646,7 @@ fn steam_genesis(
 				base_fee_rate: FixedU128::saturating_from_rational(2, 100),
 			},
 		},
-		dex: DexConfig {
+		module_dex: DexConfig {
 			initial_listing_trading_pairs: vec![],
 			initial_enabled_trading_pairs: EnabledTradingPairs::get(),
 			initial_added_liquidity_pools: vec![],
@@ -593,7 +654,7 @@ fn steam_genesis(
 		parachain_info: ParachainInfoConfig {
 			parachain_id: PARA_ID.into(),
 		},
-		ren_vm_bridge: RenVmBridgeConfig {
+		ecosystem_renvm_bridge: RenVmBridgeConfig {
 			ren_vm_public_key: hex!["4b939fc8ade87cb50b78987b1dda927460dc456a"],
 		},
 		orml_nft: OrmlNFTConfig {
@@ -631,7 +692,7 @@ fn steam_genesis(
 			candidacy_bond: initial_staking,
 			..Default::default()
 		},
-		session: SessionConfig {
+		pallet_session: SessionConfig {
 			keys: initial_authorities
 				.iter()
 				.cloned()
