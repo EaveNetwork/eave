@@ -185,31 +185,47 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 				vec![
 					(
 						// 5HpztiEG3Wj2fjZZZwBxPcM8KSN9GL2F9aT7YJPm7LLJnMXx - Alioth Validator
-						hex!["0ef54f8bd61a2f17626e8cb4a402821de3e5d49235415526b4a3770e9d6c2a55"].into(),
+						// Account Id to Hex removing 0x prefix - https://www.shawntabrizi.com/substrate-js-utilities/
+						hex!["fef54f8bd61a2f17626e8cb4a402821de3e5d49235415526b4a3770e9d6c2a55"].into(),
 						hex!["fef54f8bd61a2f17626e8cb4a402821de3e5d49235415526b4a3770e9d6c2a55"].into(),
 						// 0x6ad519e3c57e44421df2b39849a9927046bf7be1d801f3e36f7ac50fca569c4a - Alioth ed25519 AccountId
 						hex!["6ad519e3c57e44421df2b39849a9927046bf7be1d801f3e36f7ac50fca569c4a"].unchecked_into(),
 						// 0xfef54f8bd61a2f17626e8cb4a402821de3e5d49235415526b4a3770e9d6c2a55 - Alioth sr25519 AccountId
 						hex!["fef54f8bd61a2f17626e8cb4a402821de3e5d49235415526b4a3770e9d6c2a55"].unchecked_into(),
 					),
+					(
+						// 5FFRUEgGzFFR65C84qMjeKWFHtrHFr6n9vfupcioBWsfiirV - Bibha Validator
+						hex!["8ce13caf828ba174bde73096f6eb8cf84290d3ed84c5547787a0c030387b4e6a"].into(),
+						hex!["8ce13caf828ba174bde73096f6eb8cf84290d3ed84c5547787a0c030387b4e6a"].into(),
+						// 0x18eedddcee9e1e3a6717e964f9528cacfcf6ba9a2c7b7a20fe6daa3d2b5d95c7 - Bibha ed25519 AccountId
+						hex!["18eedddcee9e1e3a6717e964f9528cacfcf6ba9a2c7b7a20fe6daa3d2b5d95c7"].unchecked_into(),
+						// 0x8ce13caf828ba174bde73096f6eb8cf84290d3ed84c5547787a0c030387b4e6a - Bibha sr25519 AccountId
+						hex!["8ce13caf828ba174bde73096f6eb8cf84290d3ed84c5547787a0c030387b4e6a"].unchecked_into(),
+					),
 				],
 				// Sudo Account
 				// 5Do24fmH4Md2VuUTVkQfjMg3Zw2AJHzEVTKWsJQcXGe2uVv3 - EAVE Test Account 1
 				hex!["4c81d490f0298aedc49279cbeb4ce4f44b5f18dccabb15ea6466976f188fb928"].into(),
-				//Endowed Accounts
+				//Endowed Accounts (Account id to Hex removing 0x prefix) - https://www.shawntabrizi.com/substrate-js-utilities/
 				vec![
 					// 5FZYvTuhSNTjzsQBwnEFZGUegdoofmhpuSCigTy9ruUdb5kv - EAVE Foundation
 					hex!["9ab4bd9ec0c0a40fad32077e19ac3a5f6120da0214f02d79f79aefb96a55d74f"].into(),
 					// 5Gea9QJbhAKWkZ17S6TmbwSEyvaiaftT5xrNMwXzqzN7k3XP - EAVE Test Account 1
 					hex!["4c81d490f0298aedc49279cbeb4ce4f44b5f18dccabb15ea6466976f188fb928"].into(),
+					//Alioth
+					hex!["fef54f8bd61a2f17626e8cb4a402821de3e5d49235415526b4a3770e9d6c2a55"].into(),
+					//Bibha
+					hex!["8ce13caf828ba174bde73096f6eb8cf84290d3ed84c5547787a0c030387b4e6a"].into(),
 				],
 			)
 		},
-		vec![
-			"/ip4/54.254.37.221/tcp/30333/p2p/12D3KooWNUPp9ervpypz95DCMHfb3CAbQdfrmmBbYehUaJsFvRvT"
-				.parse()
-				.unwrap(),
-		],
+		//bootnodes
+		vec![],
+		//vec![
+		//	"/ip4/54.254.37.221/tcp/30333/p2p/12D3KooWNUPp9ervpypz95DCMHfb3CAbQdfrmmBbYehUaJsFvRvT"
+		//		.parse()
+		//		.unwrap(),
+		//],
 		TelemetryEndpoints::new(vec![(TELEMETRY_URL.into(), 0)]).ok(),
 		Some("steam-pc"),
 		Some(properties),
@@ -220,7 +236,7 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 	))
 }
 
-/// Used for Steam - Sourced from steam-stable.json file for Rococo 
+/// Used for Steam - Sourced from steam-dist.json file for Rococo 
 pub fn steam_testnet_config() -> Result<ChainSpec, String> {
 	ChainSpec::from_json_bytes(&include_bytes!("../../../../resources/steam-dist.json")[..])
 }
