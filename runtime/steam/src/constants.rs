@@ -44,7 +44,8 @@ pub mod time {
 /// Fee-related
 pub mod fee {
 	use frame_support::weights::{
-		constants::ExtrinsicBaseWeight, WeightToFeeCoefficient, WeightToFeeCoefficients, WeightToFeePolynomial,
+		constants::{ExtrinsicBaseWeight, WEIGHT_PER_SECOND},
+		WeightToFeeCoefficient, WeightToFeeCoefficients, WeightToFeePolynomial,
 	};
 	use acala_primitives::Balance;
 	use eave_runtime_common::{cent, EAVE};
@@ -53,6 +54,10 @@ pub mod fee {
 
 	/// The block saturation level. Fees will be updates based on this value.
 	pub const TARGET_BLOCK_FULLNESS: Perbill = Perbill::from_percent(25);
+
+	fn base_tx_in_eave() -> Balance {
+		cent(EAVE) / 10
+	}
 
 	/// Handles converting a weight scalar to a fee value, based on the scale
 	/// and granularity of the node's balance type.
@@ -64,15 +69,14 @@ pub mod fee {
 	/// Yet, it can be used for any other sort of change to weight-fee. Some
 	/// examples being:
 	///   - Setting it to `0` will essentially disable the weight fee.
-	///   - Setting it to `1` will cause the literal `#[weight = x]` values to
-	///     be charged.
+	///   - Setting it to `1` will cause the literal `#[weight = x]` values to be charged.
 	pub struct WeightToFee;
 	impl WeightToFeePolynomial for WeightToFee {
 		type Balance = Balance;
 		fn polynomial() -> WeightToFeeCoefficients<Self::Balance> {
 			// in Eave, extrinsic base weight (smallest non-zero weight) is mapped to 1/10
 			// CENT:
-			let p = cent(EAVE) / 10; // 10_000_000_000;
+			let p = base_tx_in_eave(); // 10_000_000_000;
 			let q = Balance::from(ExtrinsicBaseWeight::get()); // 125_000_000
 			smallvec![WeightToFeeCoefficient {
 				degree: 1,
@@ -81,5 +85,12 @@ pub mod fee {
 				coeff_integer: p / q,                         // 80
 			}]
 		}
+	}
+
+	pub fn dot_per_second() -> u128 {
+		let base_weight = Balance::from(ExtrinsicBaseWeight::get());
+		let base_tx_per_second = (WEIGHT_PER_SECOND as u128) / base_weight;
+		let eave_per_second = base_tx_per_second * base_tx_in_eave();
+		eave_per_second / 100
 	}
 }

@@ -10,33 +10,39 @@ num_enum = { version = "0.5.1", default-features = false }
 
 serde = { version = "1.0.124", optional = true, default-features = false }
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false }
-max-encoded-len = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-sp-std = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-sp-core = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-frame-support = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-frame-system = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-pallet-scheduler  = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-module-evm = { path = "../../ecosystem-pallets/aca/modules/evm", default-features = false }
+
+frame-support = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+frame-system = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+max-encoded-len = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+pallet-scheduler  = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+sp-core = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+sp-std = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+
+cumulus-pallet-parachain-system = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.7", default-features = false }
 
 orml-oracle = { path = "../../ecosystem-pallets/orml/oracle", default-features = false }
 orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features = false }
 
+module-evm = { path = "../../ecosystem-pallets/aca/modules/evm", default-features = false }
+module-staking-pool = { path = "../../ecosystem-pallets/aca/modules/staking-pool", default-features = false }
 module-support = { path = "../../ecosystem-pallets/aca/modules/support", default-features = false }
 acala-primitives = { path = '../../ecosystem-pallets/aca/primitives', default-features = false }
-module-staking-pool = { path = "../../ecosystem-pallets/aca/modules/staking-pool", default-features = false }
 
-## eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
+eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
+primitives-proc-macro = { path = "../../ecosystem-pallets/aca/primitives/proc-macro" }
+
 
 [dev-dependencies]
 serde_json = "1.0.64"
-sha3 = { version = "0.9.1" }
 hex-literal = { version = "0.3.1" }
-sp-io = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-pallet-timestamp = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-pallet-proxy = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
-pallet-utility = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.4", default-features = false }
+
+sp-io = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+pallet-timestamp = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+pallet-proxy = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+pallet-utility = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.7", default-features = false }
+
 eave-service = {  path = "../../bin/service" }
 orml-tokens = { path = "../../ecosystem-pallets/orml/tokens" }
 orml-nft = { path = "../../ecosystem-pallets/orml/nft" }
@@ -54,18 +60,23 @@ std = [
 	"num_enum/std",
 	"serde",
 	"codec/std",
-	"sp-core/std",
-	"sp-std/std",
-	"sp-runtime/std",
+
 	"frame-support/std",
 	"frame-system/std",
 	"pallet-scheduler/std",
-	"module-evm/std",
+	"sp-core/std",
+	"sp-std/std",
+	"sp-runtime/std",
+
+	"cumulus-pallet-parachain-system/std",
+
 	"orml-oracle/std",
 	"orml-traits/std",
+
+	"module-evm/std",
+	"module-staking-pool/std",
 	"module-support/std",
  	"acala-primitives/std",
-	"module-staking-pool/std",
-##	"eave-primitives/std",
+	"eave-primitives/std",
 ]
 with-ethereum-compatibility = []
