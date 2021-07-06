@@ -8,7 +8,7 @@ run-eth:
 
 .PHONY: run-ice
 run-ice:
-	cargo run --features with-ice-runtime -- --chain=karura
+	cargo run --features with-ice-runtime -- --chain=ice
 
 .PHONY: toolchain
 toolchain:
@@ -144,3 +144,14 @@ srtool-build-wasm-ice:
 .PHONY: generate-tokens
 generate-tokens:
 	./scripts/generate-tokens-and-predeploy-contracts.sh
+
+## Prep chainspecs and genesis and wasm
+
+## Run Steam Locally
+
+## Run Aqua and Noria
+
+## Run Steam on Westend
+
+## Run ICE on Kusama
+
