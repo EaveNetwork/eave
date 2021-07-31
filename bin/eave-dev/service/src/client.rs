@@ -37,8 +37,6 @@ use std::sync::Arc;
 pub trait RuntimeApiCollection:
 	sp_transaction_pool::runtime_api::TaggedTransactionQueue<Block>
 	+ sp_api::ApiExt<Block>
-	+ sp_consensus_babe::BabeApi<Block>
-	+ sp_finality_grandpa::GrandpaApi<Block>
 	+ sp_block_builder::BlockBuilder<Block>
 	+ frame_system_rpc_runtime_api::AccountNonceApi<Block, AccountId, Nonce>
 	+ pallet_transaction_payment_rpc_runtime_api::TransactionPaymentApi<Block, Balance>
@@ -48,6 +46,7 @@ pub trait RuntimeApiCollection:
 	+ sp_api::Metadata<Block>
 	+ sp_offchain::OffchainWorkerApi<Block>
 	+ sp_session::SessionKeys<Block>
+	+ cumulus_primitives_core::CollectCollationInfo<Block>
 where
 	<Self as sp_api::ApiExt<Block>>::StateBackend: sp_api::StateBackend<BlakeTwo256>,
 {
@@ -57,8 +56,6 @@ impl<Api> RuntimeApiCollection for Api
 where
 	Api: sp_transaction_pool::runtime_api::TaggedTransactionQueue<Block>
 		+ sp_api::ApiExt<Block>
-		+ sp_consensus_babe::BabeApi<Block>
-		+ sp_finality_grandpa::GrandpaApi<Block>
 		+ sp_block_builder::BlockBuilder<Block>
 		+ frame_system_rpc_runtime_api::AccountNonceApi<Block, AccountId, Nonce>
 		+ pallet_transaction_payment_rpc_runtime_api::TransactionPaymentApi<Block, Balance>
@@ -67,7 +64,8 @@ where
 		+ module_evm_rpc_runtime_api::EVMRuntimeRPCApi<Block, Balance>
 		+ sp_api::Metadata<Block>
 		+ sp_offchain::OffchainWorkerApi<Block>
-		+ sp_session::SessionKeys<Block>,
+		+ sp_session::SessionKeys<Block>
+		+ cumulus_primitives_core::CollectCollationInfo<Block>,
 	<Self as sp_api::ApiExt<Block>>::StateBackend: sp_api::StateBackend<BlakeTwo256>,
 {
 }
@@ -109,8 +107,8 @@ where
 
 /// Execute something with the client instance.
 ///
-/// As there exist multiple chains inside Eave, like Eave itself, 
-/// Steam etc, there can exist different kinds of client types. As these
+/// As there exist multiple chains inside Eave, like Eave itself and Steam
+/// there can exist different kinds of client types. As these
 /// client types differ in the generics that are being used, we can not easily
 /// return them from a function. For returning them from a function there exists
 /// [`Client`]. However, the problem on how to use this client instance still
@@ -136,7 +134,7 @@ pub trait ExecuteWithClient {
 
 /// A handle to a Eave client instance.
 ///
-/// The Eave service supports multiple different runtimes ( Steam, Eave 
+/// The Eave service supports multiple different runtimes (Steam, Eave 
 /// itself, etc). As each runtime has a specialized client, we need to hide them
 /// behind a trait. This is this trait.
 ///
@@ -160,8 +158,8 @@ impl ClientHandle for Client {
 		match self {
 			#[cfg(feature = "with-steam-runtime")]
 			Self::Steam(client) => T::execute_with_client::<_, _, crate::FullBackend>(t, client.clone()),
-			#[cfg(feature = "with-steam-runtime")]
-			Self::Steam(client) => T::execute_with_client::<_, _, crate::FullBackend>(t, client.clone()),
+			#[cfg(feature = "with-eave-runtime")]
+			Self::Eave(client) => T::execute_with_client::<_, _, crate::FullBackend>(t, client.clone()),
 		}
 	}
 }
@@ -205,12 +203,12 @@ impl sc_client_api::BlockBackend<Block> for Client {
 		}
 	}
 
-	fn justification(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<Justification>> {
+	fn justifications(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<Justifications>> {
 		match self {
 			#[cfg(feature = "with-steam-runtime")]
-			Self::Steam(client) => client.justification(id),
+			Self::Steam(client) => client.justifications(id),
 			#[cfg(feature = "with-eave-runtime")]
-			Self::Eave(client) => client.justification(id),
+			Self::Eave(client) => client.justifications(id),
 		}
 	}
 
@@ -223,21 +221,30 @@ impl sc_client_api::BlockBackend<Block> for Client {
 		}
 	}
 
-	fn extrinsic(&self, hash: &<Block as BlockT>::Hash) -> sp_blockchain::Result<Option<<Block as BlockT>::Extrinsic>> {
+	fn indexed_transaction(&self, hash: &<Block as BlockT>::Hash) -> sp_blockchain::Result<Option<Vec<u8>>> {
 		match self {
 			#[cfg(feature = "with-steam-runtime")]
-			Self::Steam(client) => client.extrinsic(hash),
+			Self::Steam(client) => client.indexed_transaction(hash),
 			#[cfg(feature = "with-eave-runtime")]
-			Self::Eave(client) => client.extrinsic(hash),
+			Self::Eave(client) => client.indexed_transaction(hash),
 		}
 	}
 
-	fn have_extrinsic(&self, hash: &<Block as BlockT>::Hash) -> sp_blockchain::Result<bool> {
+	fn has_indexed_transaction(&self, hash: &<Block as BlockT>::Hash) -> sp_blockchain::Result<bool> {
 		match self {
 			#[cfg(feature = "with-steam-runtime")]
-			Self::Steam(client) => client.have_extrinsic(hash),
+			Self::Steam(client) => client.has_indexed_transaction(hash),
 			#[cfg(feature = "with-eave-runtime")]
-			Self::Eave(client) => client.have_extrinsic(hash),
+			Self::Eave(client) => client.has_indexed_transaction(hash),
+		}
+	}
+
+	fn block_indexed_body(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<Vec<Vec<u8>>>> {
+		match self {
+			#[cfg(feature = "with-steam-runtime")]
+			Self::Steam(client) => client.block_indexed_body(id),
+			#[cfg(feature = "with-eave-runtime")]
+			Self::Eave(client) => client.block_indexed_body(id),
 		}
 	}
 }

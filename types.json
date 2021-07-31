@@ -1,42 +1,4 @@
 {
-  "Address": "MultiAddress",
-  "LookupSource": "MultiAddress",
-  "CurrencyId": {
-    "_enum": {
-      "Token": "TokenSymbol",
-      "DEXShare": "(TokenSymbol, TokenSymbol)",
-      "ERC20": "EvmAddress"
-    }
-  },
-  "CurrencyIdOf": "CurrencyId",
-  "Amount": "i128",
-  "AmountOf": "Amount",
-  "AssetId": "u64",
-  "AssetIdOf": "AssetId",
-  "PoolId": {
-    "_enum": {
-      "Loans": "CurrencyId",
-      "DexIncentive": "CurrencyId",
-      "DexSaving": "CurrencyId",
-      "Elp": "Null"
-    }
-  },
-  "AccountIdOf": "AccountId",
-  "TokenBalanceOf": "Balance",
-  "TokenInfo": {
-    "name": "Text",
-    "symbol": "Text",
-    "decimals": "u8",
-    "owner": "AccountId"
-  },
-  "LiquidityPool": {
-    "currency_ids": "Vec<AssetIdOf>",
-    "lp_token_id": "AssetId",
-    "pool_config_id": "u32",
-    "pool_reserves": "Vec<Balance>"
-  },
-  "LiquidityPool_": "LiquidityPool",
-  "LiquidityPoolConfig_": "PoolConfig",
   "CallOf": "Call",
   "DispatchTime": {
     "_enum": {
@@ -49,6 +11,7 @@
     "delay": "BlockNumber",
     "origin": "PalletsOrigin"
   },
+  "AuthorityOrigin": "DelayedOrigin",
   "StorageValue": "Vec<u8>",
   "GraduallyUpdate": {
     "key": "StorageKey",
@@ -58,13 +21,7 @@
   "StorageKeyBytes": "Vec<u8>",
   "StorageValueBytes": "Vec<u8>",
   "RpcDataProviderId": "Text",
-  "DataProviderId": {
-    "_enum": [
-      "Aggregated",
-      "Eave",
-      "Band"
-    ]
-  },
+  "DataProviderId": "u8",
   "TimestampedValue": {
     "value": "OracleValue",
     "timestamp": "Moment"
@@ -106,16 +63,6 @@
     "totalWithdrawnRewards": "Compact<Balance>"
   },
   "Share": "u128",
-  "ChainId": {
-    "_enum": {
-      "RelayChain": "Null",
-      "ParaChain": "ParaId"
-    }
-  },
-  "XCurrencyId": {
-    "chainId": "ChainId",
-    "currencyId": "Vec<u8>"
-  },
   "OracleValue": "Price",
   "PalletBalanceOf": "Balance",
   "CollateralAuctionItem": {
@@ -164,11 +111,12 @@
   },
   "RiskManagementParams": {
     "maximumTotalDebitValue": "Balance",
-    "stabilityFee": "Option<Rate>",
+    "interestRatePerSec": "Option<Rate>",
     "liquidationRatio": "Option<Rate>",
     "liquidationPenalty": "Option<Rate>",
     "requiredCollateralRatio": "Option<Rate>"
   },
+  "CandidateInfoOf": "CandidateInfo",
   "TradingPairProvisionParameters": {
     "minContribution": "(Balance, Balance)",
     "targetProvision": "(Balance, Balance)",
@@ -188,10 +136,20 @@
       "Enabled": "Null"
     }
   },
+  "Erc20Info": {
+    "address": "EvmAddress",
+    "name": "Vec<u8>",
+    "symbol": "Vec<u8>",
+    "decimals": "u8"
+  },
+  "EstimateResourcesResponse": {
+    "gas": "u256",
+    "storage": "i32",
+    "weightFee": "u256"
+  },
   "EvmAccountInfo": {
     "nonce": "Index",
-    "contractInfo": "Option<EvmContractInfo>",
-    "developerDeposit": "Option<Balance>"
+    "contractInfo": "Option<EvmContractInfo>"
   },
   "CodeInfo": {
     "codeSize": "u32",
@@ -218,12 +176,35 @@
       "WaitForUnbonding": "Null"
     }
   },
+  "RelaychainAccountId": "AccountId",
+  "SlashInfo": {
+    "validator": "RelaychainAccountId",
+    "relaychainTokenAmount": "Balance"
+  },
+  "ValidatorBacking": {
+    "totalInsurance": "Balance",
+    "isFrozen": "bool"
+  },
+  "Guarantee": {
+    "total": "Balance",
+    "bonded": "Balance",
+    "unbonding": "Option<(Balance, BlockNumber)>"
+  },
+  "PoolId": {
+    "_enum": {
+      "LoansIncentive": "CurrencyId",
+      "DexIncentive": "CurrencyId",
+      "HomaIncentive": "Null",
+      "DexSaving": "CurrencyId",
+      "HomaValidatorAllowance": "AccountId"
+    }
+  },
   "Position": {
     "collateral": "Balance",
     "debit": "Balance"
   },
   "CID": "Vec<u8>",
-  "ClassId": "u32",
+  "NFTClassId": "u32",
   "ClassIdOf": "ClassId",
   "TokenId": "u64",
   "TokenIdOf": "TokenId",
@@ -252,15 +233,19 @@
       "Burnable": 2
     }
   },
-  "ElpUnlockChunk": {
-    "value": "Compact<Balance>",
-    "era": "Compact<EraIndex>"
+  "NFTBalance": "u128",
+  "NomineeId": "AccountId",
+  "HomaUnlockChunk": {
+    "value": "Balance",
+    "era": "EraIndex"
   },
   "BondingLedger": {
-    "total": "Compact<Balance>",
-    "active": "Compact<Balance>",
-    "unlocking": "Vec<UnlockChunk>"
+    "total": "Balance",
+    "active": "Balance",
+    "unlocking": "Vec<HomaUnlockChunk>"
   },
+  "Amount": "i128",
+  "AmountOf": "Amount",
   "AuctionId": "u32",
   "AuctionIdOf": "AuctionId",
   "TokenSymbol": {
@@ -269,19 +254,28 @@
       "EUSD": 1,
       "DOT": 2,
       "LDOT": 3,
-      "XBTC": 4,
-      "RENBTC": 5,
-      "POLKABTC": 6,
-      "PLM": 7,
-      "PHA": 8,
-      "HDT": 9,
+      "RENBTC": 4,
       "ICE": 128,
       "IUSD": 129,
       "KSM": 130,
-      "LKSM": 131,
-      "SDN": 135
+      "LKSM": 131
     }
   },
+  "DexShare": {
+    "_enum": {
+      "Token": "TokenSymbol",
+      "Erc20": "EvmAddress"
+    }
+  },
+  "CurrencyId": {
+    "_enum": {
+      "Token": "TokenSymbol",
+      "DEXShare": "(DexShare, DexShare)",
+      "ERC20": "EvmAddress",
+      "ChainSafe": "[u8; 32]"
+    }
+  },
+  "CurrencyIdOf": "CurrencyId",
   "AirDropCurrencyId": {
     "_enum": [
       "ICE",
@@ -292,13 +286,19 @@
     "_enum": [
       "Root",
       "EaveTreasury",
-      "CdpTreasury",
-      "ElpTreasury",
-      "DSWF"
+      "HonzonTreasury",
+      "HomaTreasury",
+      "TreasuryReserve"
+    ]
+  },
+  "EaveDataProviderId": {
+    "_enum": [
+        "Aggregated",
+        "Eave",
+        "Band"
     ]
   },
   "TradingPair": "(CurrencyId,  CurrencyId)",
-  "NFTBalance": "u128",
   "OracleKey": "CurrencyId",
   "AsOriginId": "AuthoritysOriginId",
   "SubAccountStatus": {
@@ -313,6 +313,14 @@
     "targetUnbondingToFreeRatio": "Ratio",
     "unbondingToFreeAdjustment": "Ratio",
     "baseFeeRate": "Rate"
+  },
+  "StakingPoolPhase": {
+    "_enum": [
+      "Started",
+      "RelaychainUpdated",
+      "LedgerUpdated",
+      "Finished"
+    ]
   },
   "Ledger": {
     "bonded": "Balance",
@@ -342,41 +350,40 @@
   "Ratio": "FixedU128",
   "PublicKey": "[u8; 20]",
   "DestAddress": "Vec<u8>",
-  "Keys": "SessionKeys2",
+  "DepositNonce": "u64",
+  "ResourceId": "[u8; 32]",
+  "ChainId": "u8",
+  "Keys": "SessionKeys1",
   "PalletsOrigin": {
     "_enum": {
       "System": "SystemOrigin",
       "Timestamp": "Null",
-      "RandomnessCollectiveFlip": "Null",
+      "Scheduler": "Null",
       "Balances": "Null",
-      "Accounts": "Null",
-      "Currencies": "Null",
       "Tokens": "Null",
+      "Currencies": "Null",
       "Vesting": "Null",
+      "TransactionPayment": "Null",
       "EaveTreasury": "Null",
+      "Bounties": "Null",
+      "Tips": "Null", 
       "Utility": "Null",
       "Multisig": "Null",
       "Recovery": "Null",
       "Proxy": "Null",
-      "Scheduler": "Null",
       "Indices": "Null",
       "GraduallyUpdate": "Null",
-      "Authorship": "Null",
-      "Babe": "Null",
-      "Grandpa": "Null",
-      "Staking": "Null",
-      "Session": "Null",
-      "Historical": "Null",
       "GeneralCouncil": "CollectiveOrigin",
       "GeneralCouncilMembership": "Null",
-      "EYECouncil": "CollectiveOrigin",
-      "EYECouncilMembership": "Null",
-      "ElpCouncil": "CollectiveOrigin",
-      "ElpCouncilMembership": "Null",
+      "FinancialCouncil": "CollectiveOrigin",
+      "FinancialCouncilMembership": "Null",
+      "HomaCouncil": "CollectiveOrigin",
+      "HomaCouncilMembership": "Null",
       "TechnicalCommittee": "CollectiveOrigin",
       "TechnicalCommitteeMembership": "Null",
       "Authority": "DelayedOrigin",
-      "ElectionsPhragmen": "Null",
+      "Election": "Null",
+      "Democracy": "Null",
       "EaveOracle": "Null",
       "BandOracle": "Null",
       "OperatorMembershipEave": "Null",
@@ -388,22 +395,38 @@
       "Dex": "Null",
       "AuctionManager": "Null",
       "Loans": "Null",
-      "EYE": "Null",
+      "Honzon": "Null",
       "CdpTreasury": "Null",
       "CdpEngine": "Null",
       "EmergencyShutdown": "Null",
-      "Elp": "Null",
+      "Homa": "Null",
       "NomineesElection": "Null",
       "StakingPool": "Null",
       "PolkadotBridge": "Null",
+      "HomaValidatorListModule": "Null", 
       "Incentives": "Null",
-      "AirDrop": "Null",
       "NFT": "Null",
+      "AirDrop": "Null",
       "RenVmBridge": "Null",
-      "Contracts": "Null",
+      "ChainBridge": "Null",
+      "ChainSafeTransfer": "Null",
+      "ParachainSystem": "Null",
+      "XcmpQueue": "Null",
+      "PolkadotXcm": "Null",
+      "CumulusXcm": "Null",
+      "DmpQueue": "Null",
+      "XTokens": "Null",
+      "UnknownTokens": "Null",
       "EVM": "Null",
-      "Sudo": "Null",
-      "TransactionPayment": "Null"
+      "EVMBridge": "Null",
+      "EvmAccounts": "Null",
+      "EvmManager": "Null",
+      "Authorship": "Null",
+      "CollatorSelection": "Null",
+      "Session": "Null",
+      "Aura": "Null",
+      "AuraExt": "Null",
+      "Sudo": "Null"
     }
   }
 }

@@ -1,8 +1,10 @@
-// Copyright (C) 2020-2021 Acala Foundation.
-// Modifications Copyright (c) 2021 Eave Protocol
-// 2021-03: Update pallet names and tokens for Eave Protocol
 
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+// Modifications Copyright (c) 2021 John Whitton
+// 2021-03 : Customize for EAVE Protocol
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

@@ -1,9 +1,31 @@
+// This file is part of Acala.
+
+// Copyright (C) 2020-2021 Acala Foundation.
+// Modifications Copyright (c) 2021 John Whitton
+// 2021-03 : Customize for EAVE Protocol
+
+// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 //! Eave CLI library.
 
-use std::path::PathBuf;
-
 use sc_cli::{KeySubcommand, SignCmd, VanityCmd, VerifyCmd};
+use std::path::PathBuf;
 use structopt::StructOpt;
+
+use service::chain_spec;
 
 /// Possible subcommands of the main binary.
 #[derive(Debug, StructOpt)]
@@ -29,6 +51,11 @@ pub enum Subcommand {
 	/// The custom benchmark subcommmand benchmarking runtime modules.
 	#[structopt(name = "benchmark", about = "Benchmark runtime modules.")]
 	Benchmark(frame_benchmarking_cli::BenchmarkCmd),
+
+	/// Try some experimental command on the runtime. This includes migration and runtime-upgrade
+	/// testing.
+	#[cfg(feature = "try-runtime")]
+	TryRuntime(try_runtime_cli::TryRuntimeCmd),
 
 	/// Verify a signature for a message, provided on STDIN, with a given
 	/// (public or secret) key.
@@ -56,7 +83,7 @@ pub enum Subcommand {
 	ImportBlocks(sc_cli::ImportBlocksCmd),
 
 	/// Remove the whole chain.
-	PurgeChain(sc_cli::PurgeChainCmd),
+	PurgeChain(cumulus_client_cli::PurgeChainCmd),
 
 	/// Revert the chain to a previous state.
 	Revert(sc_cli::RevertCmd),
@@ -70,7 +97,7 @@ pub struct ExportGenesisStateCommand {
 	pub output: Option<PathBuf>,
 
 	/// Id of the parachain this state is for.
-	#[structopt(long, default_value = "100")]
+	#[structopt(long, default_value = "2000")]
 	pub parachain_id: u32,
 
 	/// Write output in binary. Default is to write in hex.
@@ -98,26 +125,6 @@ pub struct ExportGenesisWasmCommand {
 	pub chain: Option<String>,
 }
 
-/// Run command.
-#[derive(Debug, StructOpt)]
-pub struct RunCmd {
-	/// The base run command.
-	#[structopt(flatten)]
-	pub base: sc_cli::RunCmd,
-
-	/// Id of the parachain this collator collates for.
-	#[structopt(long)]
-	pub parachain_id: Option<u32>,
-}
-
-impl std::ops::Deref for RunCmd {
-	type Target = sc_cli::RunCmd;
-
-	fn deref(&self) -> &Self::Target {
-		&self.base
-	}
-}
-
 /// An overarching CLI command definition.
 #[derive(Debug, StructOpt)]
 #[structopt(settings = &[
@@ -132,17 +139,18 @@ pub struct Cli {
 
 	#[allow(missing_docs)]
 	#[structopt(flatten)]
-	pub run: RunCmd,
-
-	/// Run node as collator.
-	///
-	/// Note that this is the same as running with `--validator`.
-	#[structopt(long, conflicts_with = "validator")]
-	pub collator: bool,
+	pub run: cumulus_client_cli::RunCmd,
 
 	/// Relaychain arguments
 	#[structopt(raw = true)]
 	pub relaychain_args: Vec<String>,
+
+	/// Instant block sealing
+	///
+	/// Can only be used with `--dev`
+	#[structopt(long = "instant-sealing", requires = "dev")]
+	pub instant_sealing: bool,
+
 }
 
 /// Relay chain CLI.
@@ -159,12 +167,14 @@ pub struct RelayChainCli {
 }
 
 impl RelayChainCli {
-	/// Create a new instance of `Self`.
+	/// Parse the relay chain CLI parameters using the parachain `Configuration`.
 	pub fn new<'a>(
-		base_path: Option<PathBuf>,
-		chain_id: Option<String>,
+		para_config: &sc_service::Configuration,
 		relay_chain_args: impl Iterator<Item = &'a String>,
 	) -> Self {
+		let extension = chain_spec::Extensions::try_get(&*para_config.chain_spec);
+		let chain_id = extension.map(|e| e.relay_chain.clone());
+		let base_path = para_config.base_path.as_ref().map(|x| x.path().join("polkadot"));
 		Self {
 			base_path,
 			chain_id,

@@ -1,62 +1,82 @@
 [package]
 name = "eave-runtime-common"
 version = "0.1.0"
-authors = ["Eave Protocol"]
+authors = ["Eave Developers"]
 edition = "2018"
 
 [dependencies]
 static_assertions = "1.1.0"
+num_enum = { version = "0.5.1", default-features = false }
 
+serde = { version = "1.0.124", optional = true, default-features = false }
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false }
-sp-std = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-sp-core = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-frame-support = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-frame-system = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-pallet-scheduler  = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+
+frame-support = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+frame-system = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+max-encoded-len = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+pallet-scheduler  = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+sp-core = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+sp-std = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+
+cumulus-pallet-parachain-system = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.8", default-features = false }
 
 orml-oracle = { path = "../../ecosystem-pallets/orml/oracle", default-features = false }
 orml-traits = { path = "../../ecosystem-pallets/orml/traits", default-features = false }
 
 module-evm = { path = "../../ecosystem-pallets/aca/modules/evm", default-features = false }
+module-staking-pool = { path = "../../ecosystem-pallets/aca/modules/staking-pool", default-features = false }
 module-support = { path = "../../ecosystem-pallets/aca/modules/support", default-features = false }
 acala-primitives = { path = '../../ecosystem-pallets/aca/primitives', default-features = false }
-##eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
-module-transaction-payment = { path = "../../ecosystem-pallets/aca/modules/transaction-payment", default-features = false }
-module-staking-pool = { path = "../../ecosystem-pallets/aca/modules/staking-pool", default-features = false }
+
+eave-primitives = { package = "eave-primitives", path = "../../primitives", default-features = false }
+primitives-proc-macro = { path = "../../ecosystem-pallets/aca/primitives/proc-macro" }
 
 
 [dev-dependencies]
-serde_json = "1.0.41"
+serde_json = "1.0.64"
 hex-literal = { version = "0.3.1" }
-sp-io = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-pallet-timestamp = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-pallet-proxy = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
-pallet-utility = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+
+sp-io = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+pallet-timestamp = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+pallet-balances = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+pallet-proxy = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+pallet-utility = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", default-features = false }
+
+eave-service = {  path = "../../bin/service" }
 orml-tokens = { path = "../../ecosystem-pallets/orml/tokens" }
+orml-nft = { path = "../../ecosystem-pallets/orml/nft" }
 module-currencies = { path = "../../ecosystem-pallets/aca/modules/currencies" }
-module-dex = { path = '../../ecosystem-pallets/aca/modules/dex'}
 module-evm-bridge = { path = "../../ecosystem-pallets/aca/modules/evm-bridge" }
+module-evm-manager = { path = "../../ecosystem-pallets/aca/modules/evm-manager" }
 module-nft = { path = '../../ecosystem-pallets/aca/modules/nft'}
+module-dex = { path = '../../ecosystem-pallets/aca/modules/dex'}
+module-prices = { path = '../../ecosystem-pallets/aca/modules/prices'}
+module-transaction-payment = { path = "../../ecosystem-pallets/aca/modules/transaction-payment", default-features = false }
 
 [features]
 default = ["std"]
 std = [
+	"num_enum/std",
+	"serde",
 	"codec/std",
-	"sp-core/std",
-	"sp-std/std",
-	"sp-runtime/std",
+
 	"frame-support/std",
 	"frame-system/std",
 	"pallet-scheduler/std",
+	"sp-core/std",
+	"sp-std/std",
+	"sp-runtime/std",
+
+	"cumulus-pallet-parachain-system/std",
+
 	"orml-oracle/std",
 	"orml-traits/std",
+
 	"module-evm/std",
 	"module-staking-pool/std",
-	"module-transaction-payment/std",
 	"module-support/std",
  	"acala-primitives/std",
-##	"eave-primitives/std",
+	"eave-primitives/std",
 ]
 with-ethereum-compatibility = []

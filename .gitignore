@@ -18,6 +18,7 @@ local-steam/
 local-steam2/
 local-alioth/
 local-bibha/
+eavedb/
 
 # visual studio workspace
 eave.code-workspace

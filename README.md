@@ -32,7 +32,7 @@ Eave Standalone
 - `make run` - purges the develoopment chain and runs development version
 
 
-Polkadot Local (rococo-v1 branch):
+Polkadot Local (polkadot-v0.9.2 branch):
 ```
 # Build up Polkadot relay chain specification
 cds

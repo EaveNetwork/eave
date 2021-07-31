@@ -1,7 +1,6 @@
-// Copyright (C) 2020-2021 Acala Foundation.
-// Modifications Copyright (c) 2021 Eave Protocol
-// 2021-03: Update pallet names and tokens for Eave Protocol
+// This file is part of Acala.
 
+// Copyright (C) 2020-2021 Acala Foundation.
 // SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
 
 // This program is free software: you can redistribute it and/or modify
@@ -17,6 +16,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-fn main() {
-	substrate_build_script_utils::generate_cargo_keys();
-}
+#![cfg(feature = "runtime-benchmarks")]
+
+// module benchmarking
+pub mod auction_manager;
+pub mod cdp_engine;
+pub mod cdp_treasury;
+pub mod dex;
+pub mod emergency_shutdown;
+pub mod evm;
+pub mod evm_accounts;
+pub mod homa;
+pub mod honzon;
+pub mod incentives;
+pub mod prices;
+pub mod transaction_payment;
+
+// orml benchmarking
+pub mod auction;
+pub mod authority;
+pub mod currencies;
+pub mod gradually_update;
+pub mod oracle;
+pub mod tokens;
+pub mod utils;
+pub mod vesting;

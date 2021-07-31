@@ -1,39 +1,26 @@
 [package]
 name = "eave-rpc"
 version = "0.1.0"
-authors = ["Eave Protocol"]
+authors = ["Eave Developers"]
 edition = "2018"
+
 
 [dependencies]
 jsonrpc-core = "15.0.0"
 codec = { package = "parity-scale-codec", version = "2.0.0" }
-acala-primitives = { path = '../ecosystem-pallets/aca/primitives', default-features = false }
-##eave-primitives = { package = "eave-primitives", path = "../primitives" }
-sp-api = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sp-blockchain = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sp-block-builder = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sp-consensus = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sp-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sp-transaction-pool = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sc-chain-spec = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sc-client-api = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sc-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sc-consensus-babe-rpc = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sc-consensus-epochs = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sc-finality-grandpa = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sc-finality-grandpa-rpc = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sc-keystore = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sp-keystore = { git = "https://github.com/paritytech/substrate.git", branch = "rococo-v1" }
-sc-rpc = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sc-rpc-api = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
+eave-primitives = { package = "eave-primitives", path = "../primitives" }
+sp-api = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+sp-blockchain = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+sp-block-builder = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+sp-transaction-pool = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+sc-client-api = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+sc-rpc = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+sc-rpc-api = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
 
 module-staking-pool-rpc = { path = "../ecosystem-pallets/aca/modules/staking-pool/rpc" }
 orml-oracle-rpc = { path = "../ecosystem-pallets/orml/oracle/rpc" }
 eave-runtime-common = { path = "../runtime/common" }
 evm-rpc = { path = "../ecosystem-pallets/aca/modules/evm/rpc" }
-
-[features]
-standalone = []

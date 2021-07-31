@@ -1,7 +1,7 @@
 [package]
 name = "eave-cli"
 version = "0.1.0"
-authors = ["Eave Protocol"]
+authors = ["Eave Developers"]
 edition = "2018"
 
 [dependencies]
@@ -9,29 +9,30 @@ log = "0.4.8"
 structopt = "0.3.8"
 codec = { package = "parity-scale-codec", version = "2.0.0" }
 
-sp-core = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", optional = true }
-sc-cli = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", optional = true }
-sc-service = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", optional = true}
-sc-tracing = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-sc-telemetry = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1" }
-frame-benchmarking-cli = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", optional = true }
+sp-core = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", optional = true }
+sc-cli = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", optional = true }
+sc-service = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", optional = true }
+sc-tracing = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+sc-telemetry = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8" }
+frame-benchmarking-cli = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", optional = true }
+try-runtime-cli = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.8", optional = true }
 
-cumulus-client-service = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1" }
-cumulus-primitives-core = { git = "https://github.com/paritytech/cumulus", branch = "rococo-v1" }
-polkadot-parachain = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
-polkadot-cli = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" , version = "0.8.29"}
-polkadot-primitives = { git = "https://github.com/paritytech/polkadot", branch = "rococo-v1" }
+cumulus-client-service = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.8" }
+cumulus-client-cli = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.8" }
+cumulus-primitives-core = { git = "https://github.com/paritytech/cumulus", branch = "polkadot-v0.9.8" }
+polkadot-parachain = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.8" }
+polkadot-cli = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.8" }
+polkadot-primitives = { git = "https://github.com/paritytech/polkadot", branch = "release-v0.9.8" }
 
-
-inspect = { package = "eave-inspect", path = "../../../inspect" }
+inspect = { package = "eave-inspect", path = "../../inspect" }
 service = { package = "eave-service", path = "../service", default-features = false, optional = true }
 
 [build-dependencies]
-substrate-build-script-utils = { git = "https://github.com/paritytech/substrate", branch = "rococo-v1", default-features = false }
+orml-build-script-utils = { path = "../../ecosystem-pallets/orml/build-script-utils"}
 
 [features]
-default = [ "wasmtime", "cli", "with-steam-runtime" ]
+default = [ "wasmtime", "cli" ]
 wasmtime = [ "sc-cli/wasmtime" ]
 cli = [
 	"service",
@@ -39,8 +40,13 @@ cli = [
 	"sc-cli",
 	"sc-service",
 	"frame-benchmarking-cli",
+	"try-runtime-cli",
 ]
 runtime-benchmarks = [ "service/runtime-benchmarks" ]
+try-runtime = [
+	"try-runtime-cli",
+	"service/try-runtime",
+]
 with-steam-runtime = [
 	"service/with-steam-runtime",
 ]
@@ -50,5 +56,7 @@ with-eave-runtime = [
 ]
 
 with-all-runtime = [
+	"service/with-steam-runtime",
+	"service/with-eave-runtime",
 	"service/with-all-runtime",
 ]

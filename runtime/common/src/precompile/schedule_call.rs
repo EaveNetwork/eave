@@ -30,14 +30,15 @@ use frame_support::{
 	},
 };
 use module_evm::{Context, ExitError, ExitSucceed, Precompile};
-use module_support::TransactionPayment;
-use acala_primitives::{evm::AddressMapping as AddressMappingT, Balance, BlockNumber};
+use module_support::{AddressMapping as AddressMappingT, CurrencyIdMapping as CurrencyIdMappingT, TransactionPayment};
+use acala_primitives::{Balance, BlockNumber};
 use sp_core::{H160, U256};
 use sp_runtime::RuntimeDebug;
-use sp_std::{convert::TryFrom, fmt::Debug, marker::PhantomData, prelude::*, result};
+use sp_std::{fmt::Debug, marker::PhantomData, prelude::*, result};
 
-use super::input::{Input, InputT, PER_PARAM_BYTES};
+use super::input::{Input, InputT};
 use codec::{Decode, Encode};
+use num_enum::{IntoPrimitive, TryFromPrimitive};
 use pallet_scheduler::TaskAddress;
 
 parameter_types! {
@@ -59,11 +60,12 @@ pub struct TaskInfo {
 /// `input` data starts with `action`.
 ///
 /// Actions:
-/// - ScheduleCall. Rest `input` bytes: `from`, `target`, `value`, `gas_limit`,
-///   `storage_limit`, `min_delay`, `input_len`, `input_data`.
+/// - ScheduleCall. Rest `input` bytes: `from`, `target`, `value`, `gas_limit`, `storage_limit`,
+///   `min_delay`, `input_len`, `input_data`.
 pub struct ScheduleCallPrecompile<
 	AccountId,
 	AddressMapping,
+	CurrencyIdMapping,
 	Scheduler,
 	ChargeTransactionPayment,
 	Call,
@@ -74,6 +76,7 @@ pub struct ScheduleCallPrecompile<
 	PhantomData<(
 		AccountId,
 		AddressMapping,
+		CurrencyIdMapping,
 		Scheduler,
 		ChargeTransactionPayment,
 		Call,
@@ -83,23 +86,12 @@ pub struct ScheduleCallPrecompile<
 	)>,
 );
 
-enum Action {
-	Schedule,
-	Cancel,
-	Reschedule,
-}
-
-impl TryFrom<u8> for Action {
-	type Error = ();
-
-	fn try_from(value: u8) -> Result<Self, Self::Error> {
-		match value {
-			0 => Ok(Action::Schedule),
-			1 => Ok(Action::Cancel),
-			2 => Ok(Action::Reschedule),
-			_ => Err(()),
-		}
-	}
+#[derive(Debug, Eq, PartialEq, TryFromPrimitive, IntoPrimitive)]
+#[repr(u32)]
+pub enum Action {
+	Schedule = 0x64c91905,
+	Cancel = 0x93e32661,
+	Reschedule = 0x28302f34,
 }
 
 type PalletBalanceOf<T> =
@@ -107,10 +99,21 @@ type PalletBalanceOf<T> =
 type NegativeImbalanceOf<T> =
 	<<T as module_evm::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::NegativeImbalance;
 
-impl<AccountId, AddressMapping, Scheduler, ChargeTransactionPayment, Call, Origin, PalletsOrigin, Runtime> Precompile
+impl<
+		AccountId,
+		AddressMapping,
+		CurrencyIdMapping,
+		Scheduler,
+		ChargeTransactionPayment,
+		Call,
+		Origin,
+		PalletsOrigin,
+		Runtime,
+	> Precompile
 	for ScheduleCallPrecompile<
 		AccountId,
 		AddressMapping,
+		CurrencyIdMapping,
 		Scheduler,
 		ChargeTransactionPayment,
 		Call,
@@ -120,6 +123,7 @@ impl<AccountId, AddressMapping, Scheduler, ChargeTransactionPayment, Call, Origi
 	> where
 	AccountId: Debug + Clone,
 	AddressMapping: AddressMappingT<AccountId>,
+	CurrencyIdMapping: CurrencyIdMappingT,
 	Scheduler: ScheduleNamed<BlockNumber, Call, PalletsOrigin, Address = TaskAddress<BlockNumber>>,
 	ChargeTransactionPayment: TransactionPayment<AccountId, PalletBalanceOf<Runtime>, NegativeImbalanceOf<Runtime>>,
 	Call: Dispatchable<Origin = Origin> + Debug + From<module_evm::Call<Runtime>>,
@@ -136,9 +140,7 @@ impl<AccountId, AddressMapping, Scheduler, ChargeTransactionPayment, Call, Origi
 	) -> result::Result<(ExitSucceed, Vec<u8>, u64), ExitError> {
 		log::debug!(target: "evm", "schedule call: input: {:?}", input);
 
-		// Solidity dynamic arrays will add the array size to the front of the array,
-		// pre-compile needs to deal with the `size`.
-		let input = Input::<Action, AccountId, AddressMapping>::new(&input[32..]);
+		let input = Input::<Action, AccountId, AddressMapping, CurrencyIdMapping>::new(input);
 
 		let action = input.action()?;
 
@@ -151,8 +153,9 @@ impl<AccountId, AddressMapping, Scheduler, ChargeTransactionPayment, Call, Origi
 				let gas_limit = input.u64_at(4)?;
 				let storage_limit = input.u32_at(5)?;
 				let min_delay = input.u32_at(6)?;
-				let input_len = input.u32_at(7)?;
-				let input_data = input.bytes_at(8 * PER_PARAM_BYTES, input_len as usize)?;
+				// solidity abi enocde bytes will add an length at input[7]
+				let input_len = input.u32_at(8)?;
+				let input_data = input.bytes_at(9, input_len as usize)?;
 
 				log::debug!(
 					target: "evm",
@@ -229,8 +232,9 @@ impl<AccountId, AddressMapping, Scheduler, ChargeTransactionPayment, Call, Origi
 			}
 			Action::Cancel => {
 				let from = input.evm_address_at(1)?;
-				let task_id_len = input.u32_at(2)?;
-				let task_id = input.bytes_at(3 * PER_PARAM_BYTES, task_id_len as usize)?;
+				// solidity abi enocde bytes will add an length at input[2]
+				let task_id_len = input.u32_at(3)?;
+				let task_id = input.bytes_at(4, task_id_len as usize)?;
 
 				log::debug!(
 					target: "evm",
@@ -257,8 +261,9 @@ impl<AccountId, AddressMapping, Scheduler, ChargeTransactionPayment, Call, Origi
 			Action::Reschedule => {
 				let from = input.evm_address_at(1)?;
 				let min_delay = input.u32_at(2)?;
-				let task_id_len = input.u32_at(3)?;
-				let task_id = input.bytes_at(4 * PER_PARAM_BYTES, task_id_len as usize)?;
+				// solidity abi enocde bytes will add an length at input[3]
+				let task_id_len = input.u32_at(4)?;
+				let task_id = input.bytes_at(5, task_id_len as usize)?;
 
 				log::debug!(
 					target: "evm",
@@ -280,5 +285,31 @@ impl<AccountId, AddressMapping, Scheduler, ChargeTransactionPayment, Call, Origi
 				Ok((ExitSucceed::Returned, vec![], 0))
 			}
 		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use crate::precompile::mock::get_function_selector;
+
+	#[test]
+	fn function_selector_match() {
+		assert_eq!(
+			u32::from_be_bytes(get_function_selector(
+				"scheduleCall(address,address,uint256,uint256,uint256,bytes)"
+			)),
+			Into::<u32>::into(Action::Schedule)
+		);
+
+		assert_eq!(
+			u32::from_be_bytes(get_function_selector("cancelCall(address,bytes)")),
+			Into::<u32>::into(Action::Cancel)
+		);
+
+		assert_eq!(
+			u32::from_be_bytes(get_function_selector("rescheduleCall(address,uint256,bytes)")),
+			Into::<u32>::into(Action::Reschedule)
+		);
 	}
 }

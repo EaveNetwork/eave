@@ -1,0 +1,40 @@
+[package]
+name = 'eave'
+version = '0.1.0'
+authors = ['Eave Protocol']
+edition = '2018'
+description = 'Eave'
+homepage = 'https://eave.network'
+license = 'Apache 2.0'
+repository = 'https://github.com/eavenetwork/eave'
+default-run = "eave"
+
+[[bin]]
+name = 'eave'
+path = "src/main.rs"
+
+[dependencies]
+futures = "0.3.4"
+parity-util-mem = { version = "0.9.0", default-features = false, features = ["jemalloc-global"] }
+eave-cli = { path = "cli" }
+eave-service = { path = "service" }
+## steam-runtime = { path = "../runtime/steam", optional = true }
+
+
+[features]
+default = []
+runtime-benchmarks = [
+	"eave-cli/runtime-benchmarks",
+]
+with-steam-runtime = [
+	"eave-service/with-steam-runtime",
+	"eave-cli/with-steam-runtime",
+]
+with-eave-runtime = [
+	"eave-service/with-eave-runtime",
+	"eave-cli/with-eave-runtime",
+]
+with-all-runtime = [
+	"eave-service/with-all-runtime",
+	"eave-cli/with-all-runtime",
+]
