@@ -1702,7 +1702,8 @@ construct_runtime!(
 		NFT: module_nft::{Pallet, Call, Event<T>} = 141,
 
 		// Ecosystem modules
-		RenVmBridge: ecosystem_renvm_bridge::{Pallet, Call, Config, Storage, Event<T>, ValidateUnsigned} = 150,
+		//RenVmBridge: ecosystem_renvm_bridge::{Pallet, Call, Config, Storage, Event<T>, ValidateUnsigned} = 150,
+		RenVmBridge: ecosystem_renvm_bridge::{Pallet, Call, Config, Storage, Event<T>} = 150,
 
 		// Parachain
 		ParachainSystem: cumulus_pallet_parachain_system::{Pallet, Call, Storage, Inherent, Config, Event<T>} = 161,
@@ -1809,8 +1810,9 @@ impl_runtime_apis! {
 		fn validate_transaction(
 			source: TransactionSource,
 			tx: <Block as BlockT>::Extrinsic,
+			block_hash: <Block as BlockT>::Hash,
 		) -> TransactionValidity {
-			Executive::validate_transaction(source, tx)
+			Executive::validate_transaction(source, tx, block_hash)
 		}
 	}
 

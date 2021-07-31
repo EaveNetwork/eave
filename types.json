@@ -21,13 +21,7 @@
   "StorageKeyBytes": "Vec<u8>",
   "StorageValueBytes": "Vec<u8>",
   "RpcDataProviderId": "Text",
-  "DataProviderId": {
-    "_enum": [
-      "Aggregated",
-      "Eave",
-      "Band"
-    ]
-  },
+  "DataProviderId": "u8",
   "TimestampedValue": {
     "value": "OracleValue",
     "timestamp": "Moment"
@@ -155,8 +149,7 @@
   },
   "EvmAccountInfo": {
     "nonce": "Index",
-    "contractInfo": "Option<EvmContractInfo>",
-    "developerDeposit": "Option<Balance>"
+    "contractInfo": "Option<EvmContractInfo>"
   },
   "CodeInfo": {
     "codeSize": "u32",
@@ -211,7 +204,7 @@
     "debit": "Balance"
   },
   "CID": "Vec<u8>",
-  "ClassId": "u32",
+  "NFTClassId": "u32",
   "ClassIdOf": "ClassId",
   "TokenId": "u64",
   "TokenIdOf": "TokenId",
@@ -240,6 +233,7 @@
       "Burnable": 2
     }
   },
+  "NFTBalance": "u128",
   "NomineeId": "AccountId",
   "HomaUnlockChunk": {
     "value": "Balance",
@@ -294,11 +288,17 @@
       "EaveTreasury",
       "HonzonTreasury",
       "HomaTreasury",
-      "DSWF"
+      "TreasuryReserve"
+    ]
+  },
+  "EaveDataProviderId": {
+    "_enum": [
+        "Aggregated",
+        "Eave",
+        "Band"
     ]
   },
   "TradingPair": "(CurrencyId,  CurrencyId)",
-  "NFTBalance": "u128",
   "OracleKey": "CurrencyId",
   "AsOriginId": "AuthoritysOriginId",
   "SubAccountStatus": {
@@ -358,36 +358,32 @@
     "_enum": {
       "System": "SystemOrigin",
       "Timestamp": "Null",
-      "RandomnessCollectiveFlip": "Null",
+      "Scheduler": "Null",
       "Balances": "Null",
-      "Accounts": "Null",
-      "Currencies": "Null",
       "Tokens": "Null",
+      "Currencies": "Null",
       "Vesting": "Null",
+      "TransactionPayment": "Null",
       "EaveTreasury": "Null",
+      "Bounties": "Null",
+      "Tips": "Null", 
       "Utility": "Null",
       "Multisig": "Null",
       "Recovery": "Null",
       "Proxy": "Null",
-      "Scheduler": "Null",
       "Indices": "Null",
       "GraduallyUpdate": "Null",
-      "Authorship": "Null",
-      "Babe": "Null",
-      "Grandpa": "Null",
-      "Staking": "Null",
-      "Session": "Null",
-      "Historical": "Null",
       "GeneralCouncil": "CollectiveOrigin",
       "GeneralCouncilMembership": "Null",
-      "HonzonCouncil": "CollectiveOrigin",
-      "HonzonCouncilMembership": "Null",
+      "FinancialCouncil": "CollectiveOrigin",
+      "FinancialCouncilMembership": "Null",
       "HomaCouncil": "CollectiveOrigin",
       "HomaCouncilMembership": "Null",
       "TechnicalCommittee": "CollectiveOrigin",
       "TechnicalCommitteeMembership": "Null",
       "Authority": "DelayedOrigin",
-      "ElectionsPhragmen": "Null",
+      "Election": "Null",
+      "Democracy": "Null",
       "EaveOracle": "Null",
       "BandOracle": "Null",
       "OperatorMembershipEave": "Null",
@@ -407,14 +403,30 @@
       "NomineesElection": "Null",
       "StakingPool": "Null",
       "PolkadotBridge": "Null",
+      "HomaValidatorListModule": "Null", 
       "Incentives": "Null",
-      "AirDrop": "Null",
       "NFT": "Null",
+      "AirDrop": "Null",
       "RenVmBridge": "Null",
-      "Contracts": "Null",
+      "ChainBridge": "Null",
+      "ChainSafeTransfer": "Null",
+      "ParachainSystem": "Null",
+      "XcmpQueue": "Null",
+      "PolkadotXcm": "Null",
+      "CumulusXcm": "Null",
+      "DmpQueue": "Null",
+      "XTokens": "Null",
+      "UnknownTokens": "Null",
       "EVM": "Null",
-      "Sudo": "Null",
-      "TransactionPayment": "Null"
+      "EVMBridge": "Null",
+      "EvmAccounts": "Null",
+      "EvmManager": "Null",
+      "Authorship": "Null",
+      "CollatorSelection": "Null",
+      "Session": "Null",
+      "Aura": "Null",
+      "AuraExt": "Null",
+      "Sudo": "Null"
     }
   }
 }
