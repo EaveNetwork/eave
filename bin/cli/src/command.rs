@@ -76,9 +76,12 @@ impl SubstrateCli for Cli {
 			"dev" => Box::new(chain_spec::steam::dev_testnet_config()?),
 			#[cfg(feature = "with-mandala-runtime")]
 			"pc-dev" => Box::new(chain_spec::mandala::parachain_dev_testnet_config()?),
+			//Local Testnet 
+			#[cfg(feature = "with-steam-runtime")]
+			"testnet-local" => Box::new(chain_spec::steam::local_testnet_config()?),
 			//Steam Local 
 			#[cfg(feature = "with-steam-runtime")]
-			"steam-local" => Box::new(chain_spec::steam::local_testnet_config()?),
+			"steam-local" => Box::new(chain_spec::steam::steam_testnet_config()?),
 			//Steam Parachain on Rococo
 			#[cfg(feature = "with-steam-runtime")]
 			"steam" => Box::new(chain_spec::steam::steam_testnet_config()?),

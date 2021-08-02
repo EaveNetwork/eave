@@ -238,7 +238,7 @@ pub fn latest_steam_testnet_config() -> Result<ChainSpec, String> {
 
 /// Used for Steam - Sourced from steam-dist.json file for Rococo 
 pub fn steam_testnet_config() -> Result<ChainSpec, String> {
-	ChainSpec::from_json_bytes(&include_bytes!("../../../../resources/steam-dist.json")[..])
+	ChainSpec::from_json_bytes(&include_bytes!("../../../../resources/steam/steam-dist.json")[..])
 }
 
 fn testnet_genesis(
